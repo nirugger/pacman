@@ -1,9 +1,8 @@
 import pygame as pg
 from src.level.level import Level
+from src.data import MAZE_X, MAZE_Y, LevelConfig
 
-
-from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy,
-                                 SuperGum)
+from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy)
 
 
 class App:
@@ -13,28 +12,28 @@ class App:
         self.app_config = config
         # self.screen = pg.display.set_mode(config['resolution'])
         self.screen = pg.display.set_mode((1920, 1080), pg.NOFRAME)
-        # self.player = self._create_player(width, height)
-        # self.enemies = [self._create_enemy(width, height, "red"),
-        #                 self._create_enemy(width, height, "pink"),
-        #                 self._create_enemy(width, height, "cyan"),
-        #                 self._create_enemy(width, height, "orange")]
-        self.super_gums = [self._create_sg([0, 0], width, height),
-                           self._create_sg([0, height - 1], width, height),
-                           self._create_sg([width - 1, 0], width, height),
-                           self._create_sg([width - 1, height - 1], width,
-                                           height)]
+        self.player = self._create_player(MAZE_X, MAZE_Y)
+        self.enemies = [self._create_enemy(width, height, "red"),
+                        self._create_enemy(width, height, "pink"),
+                        self._create_enemy(width, height, "cyan"),
+                        self._create_enemy(width, height, "orange")]
+        # self.super_gums = [self._create_sg([0, 0], width, height),
+        #                    self._create_sg([0, height - 1], width, height),
+        #                    self._create_sg([width - 1, 0], width, height),
+        #                    self._create_sg([width - 1, height - 1], width,
+        #                                    height)]
         self.menu = Menu(self.screen)
-        # self.level_config = {'player': self.player, 'enemies': self.enemies, 'super_gums': self.super_gums}
+        self.level_config: LevelConfig = {'player': self.player, 'enemies': self.enemies}
 
     def run(self) -> None:
-        level = Level(self.screen, {'super_gums': self.super_gums})
+        level = Level(self.screen, self.level_config)
         level.run()
         # self.menu.main_menu(self)
 
-    # @staticmethod
-    # def _create_player(width: int, height: int) -> Player:
-    #     player = Player([width // 2, height // 2], width, height)
-    #     return player
+    @staticmethod
+    def _create_player(width: int, height: int) -> Player:
+        player = Player([width // 2, height // 2], width, height)
+        return player
 
     @staticmethod
     def _create_enemy(width: int, height: int, color: str) -> Enemy:
@@ -52,7 +51,7 @@ class App:
                 raise ValueError("Unrecognised color")
         return enemy
 
-    @staticmethod
-    def _create_sg(position: list[int], width: int, height: int) -> SuperGum:
-        super_gum = SuperGum(position, width, height)
-        return super_gum
+    # @staticmethod
+    # def _create_sg(position: list[int], width: int, height: int) -> SuperGum:
+    #     super_gum = SuperGum(position, width, height)
+    #     return super_gum

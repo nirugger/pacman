@@ -1,3 +1,10 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.level.cell import Cell
+
+
 from abc import ABC, abstractmethod
 
 import pygame as pg
@@ -14,39 +21,40 @@ class GameObject(ABC):
         self.pos = position
 
 
-class Prop(GameObject):
-    def __init__(self, position: list[int], width: int, height: int,
-                 color: pg.Color = pg.Color('white')):
-        super().__init__(position, width, height)
+# class Prop(GameObject):
+#     def __init__(self, position: list[int], width: int, height: int,
+#                  color: pg.Color = pg.Color('white')):
+#         super().__init__(position, width, height)
 
 
-class PacGum(Prop):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
-        super().__init__(position, width, height)
+# class PacGum(Prop):
+#     def __init__(self, position: list[int], width: int, height: int) -> None:
+#         super().__init__(position, width, height)
 
 
-class SuperGum(Prop):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
-        super().__init__(position, width, height)
+# class SuperGum(Prop):
+#     def __init__(self, position: list[int], width: int, height: int) -> None:
+#         super().__init__(position, width, height)
 
 
 class Character(GameObject):
-    def __init__(self, position: list[int], width: int, height: int, graph: dict[tuple[int, int], pg.Rect]) -> None:
+    def __init__(self, position: list[int], width: int, height: int) -> None:
         super().__init__(position, width, height)
-        self.graph = graph
+        self.rect: pg.Rect
+
+    def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
+        self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
     def move(self, dt: int) -> None:
         pass
 
 
 class Player(Character):
-    def __init__(self, position: list[int], width: int, height: int, graph: dict[tuple[int, int], pg.Rect]) -> None:
-        super().__init__(position, width, height, graph)
+    def __init__(self, position: list[int], width: int, height: int) -> None:
+        super().__init__(position, width, height)
         self.lives = 3
         self.score = 0
-
-    def get_player_position(self, graph: dict[tuple[int, int], int]):
-        pass
+        self.moving: dict[str, int] = {'x_now': 0, 'y_now': 0, 'x_next': 0, 'y_next': 0}
 
 
 class Enemy(Character):

@@ -13,10 +13,12 @@ class Dir(IntFlag):
 class Cell:
 
     def __init__(self, pos: tuple[int, int], value: int) -> None:
-        self.i = pos[1]
-        self.j = pos[0]
+        self.i = pos[0]
+        self.j = pos[1]
         self.value = value
         self.rect: pg.Rect
+        self.sg = False
+        self.g = False
 
     def render(
             self,
