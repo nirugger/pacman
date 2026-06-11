@@ -1,0 +1,5 @@
+{
+	"highscore_filename": "highscores.json",
+	"resolution": {"x": 1080, "y": 720},
+	"seed": 42
+}
