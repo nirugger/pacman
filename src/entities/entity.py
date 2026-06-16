@@ -12,7 +12,7 @@ import pygame as pg
 
 class GameObject(ABC):
     """Define the common attributes for all game objects"""
-    def __init__(self, position: list[int], width: int,
+    def __init__(self, position: tuple[int, int], width: int,
                  height: int) -> None:
         if not 0 <= position[0] < width:
             raise ValueError("Each game object must fit in the maze")
@@ -22,7 +22,7 @@ class GameObject(ABC):
 
 
 # class Prop(GameObject):
-#     def __init__(self, position: list[int], width: int, height: int,
+#     def __init__(self, position: tuple[int, int width: int, height: int,
 #                  color: pg.Color = pg.Color('white')):
 #         super().__init__(position, width, height)
 
@@ -38,7 +38,7 @@ class GameObject(ABC):
 
 
 class Character(GameObject):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
         self.rect: pg.Rect
 
@@ -50,33 +50,34 @@ class Character(GameObject):
 
 
 class Player(Character):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
         self.lives = 3
         self.score = 0
+        self.target: tuple[int, int] = position
         self.moving: dict[str, int] = {'x_now': 0, 'y_now': 0, 'x_next': 0, 'y_next': 0}
 
 
 class Enemy(Character):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
 
 
 class Red(Enemy):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
 
 
 class Pink(Enemy):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
 
 
 class Cyan(Enemy):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)
 
 
 class Orange(Enemy):
-    def __init__(self, position: list[int], width: int, height: int) -> None:
+    def __init__(self, position: tuple[int, int], width: int, height: int) -> None:
         super().__init__(position, width, height)

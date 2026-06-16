@@ -1,6 +1,6 @@
 import pygame as pg
 from src.level.level import Level
-from src.data import MAZE_X, MAZE_Y, LevelConfig
+from src.data import MAZE_X, MAZE_Y, LevelConfig, RESOLUTION
 
 from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy)
 
@@ -11,7 +11,7 @@ class App:
         from src.scenes.menu import Menu
         self.app_config = config
         # self.screen = pg.display.set_mode(config['resolution'])
-        self.screen = pg.display.set_mode((1920, 1080), pg.NOFRAME)
+        self.screen = pg.display.set_mode(RESOLUTION, pg.NOFRAME)
         self.player = self._create_player(MAZE_X, MAZE_Y)
         self.enemies = [self._create_enemy(width, height, "red"),
                         self._create_enemy(width, height, "pink"),
@@ -32,7 +32,7 @@ class App:
 
     @staticmethod
     def _create_player(width: int, height: int) -> Player:
-        player = Player([width // 2, height // 2], width, height)
+        player = Player((width // 2, height // 2), width, height)
         return player
 
     @staticmethod
@@ -40,13 +40,13 @@ class App:
         enemy: Enemy
         match color:
             case "red":
-                enemy = Red([0, height - 1], width, height)
+                enemy = Red((0, height - 1), width, height)
             case "pink":
-                enemy = Pink([0, 0], width, height)
+                enemy = Pink((0, 0), width, height)
             case "cyan":
-                enemy = Cyan([width - 1, height - 1], width, height)
+                enemy = Cyan((width - 1, height - 1), width, height)
             case "orange":
-                enemy = Orange([width - 1, height - 1], width, height)
+                enemy = Orange((width - 1, height - 1), width, height)
             case _:
                 raise ValueError("Unrecognised color")
         return enemy
