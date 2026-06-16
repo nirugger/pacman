@@ -64,8 +64,9 @@ class Level:
             (screen_h - 2 * PAD) // len(self.maze.maze),
             (screen_w - 2 * PAD) // len(self.maze.maze[0])
         )
+        print(edge)
         surface_sizes = (edge * len(self.maze.maze[0]) + 1, edge * len(self.maze.maze) + 1)
-        self.edge = edge
+        self.edge = edge - 1
 
         level_surface = pg.Surface(surface_sizes)
         level_surface.fill((15, 20, 25))
@@ -106,7 +107,7 @@ class Level:
             # if self.handle_events() == "menu":
             #     return self.level_config
             self.handle_events(dt)
-            self.handle_movement()
+            self.handle_movement(dt)
             self.handle_collectibles()
             # self.playable_surface.fill((15, 20, 25))
             self.draw_pacman()
@@ -124,8 +125,15 @@ class Level:
             self.layout = self._build_layout()
 
 
-    def handle_movement(self) -> None:
-        if self.level_config['player'].rect.center == self._graph[self.level_config['player'].target].rect.center:
+    def handle_movement(self, dt: int) -> None:
+        # print(self.level_config['player'].rect.center)
+        # print(self._graph[self.level_config['player'].target].rect.center)
+        # print()
+        speed = 6
+
+        if (abs(self.level_config['player'].rect.center[1] - self._graph[self.level_config['player'].target].rect.center[1]) < speed and
+            abs(self.level_config['player'].rect.center[0] - self._graph[self.level_config['player'].target].rect.center[0]) < speed):
+
             self.level_config['player'].pos = self.level_config['player'].target
             if self.level_config['player'].moving['x_next'] == 1:
                 if self._graph[self.level_config['player'].pos].value & Dir.E == 0:
@@ -157,25 +165,34 @@ class Level:
                     self.level_config['player'].target = (a + 1, b)
                 else:
                     self.level_config['player'].target = self.level_config['player'].pos
+                    self.level_config['player'].moving['x_now'] = 0
+
             if self.level_config['player'].moving['x_now'] == -1:
                 if self._graph[self.level_config['player'].pos].value & Dir.W == 0:
                     self.level_config['player'].target = (a - 1, b)
                 else:
                     self.level_config['player'].target = self.level_config['player'].pos
+                    self.level_config['player'].moving['x_now'] = 0
+
             if self.level_config['player'].moving['y_now'] == -1:
                 if self._graph[self.level_config['player'].pos].value & Dir.N == 0:
                     self.level_config['player'].target = (a, b - 1)
                 else:
                     self.level_config['player'].target = self.level_config['player'].pos
+                    self.level_config['player'].moving['y_now'] = 0
+
             if self.level_config['player'].moving['y_now'] == 1:
                 if self._graph[self.level_config['player'].pos].value & Dir.S == 0:
                     self.level_config['player'].target = (a, b + 1)
                 else:
                     self.level_config['player'].target = self.level_config['player'].pos
-        print(self.level_config['player'].rect.center)
-        print(self._graph[self.level_config['player'].target].rect.center)
-        self.level_config['player'].rect.x += self.level_config['player'].moving['x_now']
-        self.level_config['player'].rect.y += self.level_config['player'].moving['y_now']
+                    self.level_config['player'].moving['y_now'] = 0
+        # print(self.level_config['player'].rect.center)
+        # print(self._graph[self.level_config['player'].target].rect.center)
+        # print(self.edge)
+
+        self.level_config['player'].rect.y += self.level_config['player'].moving['y_now'] * speed
+        self.level_config['player'].rect.x += self.level_config['player'].moving['x_now'] * speed
 
 
     def handle_events(self, dt: int) -> None:
