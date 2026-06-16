@@ -105,7 +105,8 @@ class Level:
             self.playable_surface = self.layout.copy()
             # if self.handle_events() == "menu":
             #     return self.level_config
-            self.handle_events()
+            self.handle_events(dt)
+            self.handle_movement()
             self.handle_collectibles()
             # self.playable_surface.fill((15, 20, 25))
             self.draw_pacman()
@@ -126,13 +127,58 @@ class Level:
     def handle_movement(self) -> None:
         if self.level_config['player'].rect.center == self._graph[self.level_config['player'].target].rect.center:
             self.level_config['player'].pos = self.level_config['player'].target
+            if self.level_config['player'].moving['x_next'] == 1:
+                if self._graph[self.level_config['player'].pos].value & Dir.E == 0:
+                    self.level_config['player'].moving['x_now'] = 1
+                    self.level_config['player'].moving['y_now'] = 0
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = 0
+            if self.level_config['player'].moving['x_next'] == -1:
+                if self._graph[self.level_config['player'].pos].value & Dir.W == 0:
+                    self.level_config['player'].moving['x_now'] = -1
+                    self.level_config['player'].moving['y_now'] = 0
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = 0
+            if self.level_config['player'].moving['y_next'] == -1:
+                if self._graph[self.level_config['player'].pos].value & Dir.N == 0:
+                    self.level_config['player'].moving['x_now'] = 0
+                    self.level_config['player'].moving['y_now'] = -1
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = 0
+            if self.level_config['player'].moving['y_next'] == 1:
+                if self._graph[self.level_config['player'].pos].value & Dir.S == 0:
+                    self.level_config['player'].moving['x_now'] = 0
+                    self.level_config['player'].moving['y_now'] = 1
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = 0
+            a, b = self.level_config['player'].pos
+            if self.level_config['player'].moving['x_now'] == 1:
+                if self._graph[self.level_config['player'].pos].value & Dir.E == 0:
+                    self.level_config['player'].target = (a + 1, b)
+                else:
+                    self.level_config['player'].target = self.level_config['player'].pos
+            if self.level_config['player'].moving['x_now'] == -1:
+                if self._graph[self.level_config['player'].pos].value & Dir.W == 0:
+                    self.level_config['player'].target = (a - 1, b)
+                else:
+                    self.level_config['player'].target = self.level_config['player'].pos
+            if self.level_config['player'].moving['y_now'] == -1:
+                if self._graph[self.level_config['player'].pos].value & Dir.N == 0:
+                    self.level_config['player'].target = (a, b - 1)
+                else:
+                    self.level_config['player'].target = self.level_config['player'].pos
+            if self.level_config['player'].moving['y_now'] == 1:
+                if self._graph[self.level_config['player'].pos].value & Dir.S == 0:
+                    self.level_config['player'].target = (a, b + 1)
+                else:
+                    self.level_config['player'].target = self.level_config['player'].pos
+        print(self.level_config['player'].rect.center)
+        print(self._graph[self.level_config['player'].target].rect.center)
+        self.level_config['player'].rect.x += self.level_config['player'].moving['x_now']
+        self.level_config['player'].rect.y += self.level_config['player'].moving['y_now']
 
-            self.level_config['player'].target = ()
 
-
-
-
-    def handle_events(self) -> None:
+    def handle_events(self, dt: int) -> None:
         """Handle keyboard and window events for the renderer."""
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
@@ -148,32 +194,41 @@ class Level:
                     self.level_config['player'].moving['x_next'] = 1
                     self.level_config['player'].moving['y_next'] = 0
 
-                    if self._graph[self.level_config['player'].pos].value & Dir.E == 0:
-                        self.level_config['player'].rect.x += self.edge
-                        self.level_config['player'].pos = (
-                            self.level_config['player'].pos[0] + 1,
-                            self.level_config['player'].pos[1]
-                        )
+                    # if self._graph[self.level_config['player'].pos].value & Dir.E == 0:
+                    #     self.level_config['player'].rect.x += self.edge // 1
+                    #     self.level_config['player'].pos = (
+                    #         self.level_config['player'].pos[0] + 1,
+                    #         self.level_config['player'].pos[1]
+                    #     )
 
                     pass
 
                 if event.key == pg.K_LEFT:
-                    if self._graph[self.level_config['player'].pos].value & Dir.W == 0:
-                        self.level_config['player'].rect.x -= self.edge
-                        self.level_config['player'].pos = (self.level_config['player'].pos[0] - 1, self.level_config['player'].pos[1])
-                    pass
+                    self.level_config['player'].moving['x_next'] = -1
+                    self.level_config['player'].moving['y_next'] = 0
+
+                    # if self._graph[self.level_config['player'].pos].value & Dir.W == 0:
+                    #     self.level_config['player'].rect.x -= self.edge
+                    #     self.level_config['player'].pos = (self.level_config['player'].pos[0] - 1, self.level_config['player'].pos[1])
+                    # pass
 
                 if event.key == pg.K_UP:
-                    if self._graph[self.level_config['player'].pos].value & Dir.N == 0:
-                        self.level_config['player'].rect.y -= self.edge
-                        self.level_config['player'].pos = (self.level_config['player'].pos[0], self.level_config['player'].pos[1] - 1)
-                    pass
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = -1
+
+                    # if self._graph[self.level_config['player'].pos].value & Dir.N == 0:
+                    #     self.level_config['player'].rect.y -= self.edge
+                    #     self.level_config['player'].pos = (self.level_config['player'].pos[0], self.level_config['player'].pos[1] - 1)
+                    # pass
 
                 if event.key == pg.K_DOWN:
-                    if self._graph[self.level_config['player'].pos].value & Dir.S == 0:
-                        self.level_config['player'].rect.y += self.edge
-                        self.level_config['player'].pos = (self.level_config['player'].pos[0], self.level_config['player'].pos[1] + 1)
-                    pass
+                    self.level_config['player'].moving['x_next'] = 0
+                    self.level_config['player'].moving['y_next'] = 1
+                    #
+                    # if self._graph[self.level_config['player'].pos].value & Dir.S == 0:
+                    #     self.level_config['player'].rect.y += self.edge
+                    #     self.level_config['player'].pos = (self.level_config['player'].pos[0], self.level_config['player'].pos[1] + 1)
+                    # pass
 
                 if event.key == pg.K_q:
                     pg.quit()
