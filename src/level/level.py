@@ -1,10 +1,13 @@
 from enum import IntFlag
 import pygame as pg
 import sys
+
+import random
+
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.data import (PACMAN_COLOR, PAD, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
-                      LevelConfig, SUPERGUM_POINTS)
+                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS)
 
 
 class Dir(IntFlag):
@@ -14,12 +17,6 @@ class Dir(IntFlag):
     W = 8
 
 
-def draw_gum(
-        surface: pg.Surface,
-        graph: dict[tuple[int, int], pg.Rect],
-        # app: App
-        ) -> None:
-    pass
 
 
 class Level:
@@ -43,19 +40,30 @@ class Level:
         self.speed = self.level_config['speed']
 
     def _build_graph(self) -> dict[tuple[int, int], Cell]:
+        max_gums = 50
         graph: dict[tuple[int, int], Cell] = {}
         for i in range(len(self.maze.maze)):
             for j in range(len(self.maze.maze[0])):
                 graph[(j, i)] = Cell((j, i), self.maze.maze[i][j])
                 if i == 0 and j == 0:
                     graph[(j, i)].sg = True
-                if i == len(self.maze.maze) - 1 and j == 0:
+                elif i == len(self.maze.maze) - 1 and j == 0:
                     graph[(j, i)].sg = True
-                if i == 0 and j == len(self.maze.maze[0]) - 1:
+                elif i == 0 and j == len(self.maze.maze[0]) - 1:
                     graph[(j, i)].sg = True
-                if (i == len(self.maze.maze) - 1
+                elif (i == len(self.maze.maze) - 1
                         and j == len(self.maze.maze[0]) - 1):
                     graph[(j, i)].sg = True
+        counter = 0
+        candidates = [c for c in graph.values() if c.sg is False and c.value != 15 and (c.j, c.i) != (MAZE_Y // 2, MAZE_X // 2)]
+        while counter < max_gums:
+            c = random.choice(candidates)
+            candidates.remove(c)
+            c.g = True
+            counter += 1
+
+
+
         return graph
 
     def _build_layout(self) -> pg.Surface:
@@ -65,18 +73,19 @@ class Level:
             (screen_h - 2 * PAD) // len(self.maze.maze),
             (screen_w - 2 * PAD) // len(self.maze.maze[0])
         )
-        print(edge)
         surface_sizes = (edge * len(self.maze.maze[0]) + 1,
                          edge * len(self.maze.maze) + 1)
-        self.edge = edge - 1
+        self.edge = edge
 
         level_surface = pg.Surface(surface_sizes)
         level_surface.fill((15, 20, 25))
 
         for c in self._graph.values():
             c.rect = c.render(level_surface, edge)
-            if c.sg is True:
+            if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
+            elif c.g:
+                self.draw_gum(level_surface, (c.i, c.j))
 
         self.playable_surface = level_surface.copy()
         return level_surface
@@ -106,6 +115,10 @@ class Level:
         if self._graph[self.player.pos].sg:
             self._graph[self.player.pos].sg = False
             self.player.score += SUPERGUM_POINTS
+            self.layout = self._build_layout()
+        if self._graph[self.player.pos].g:
+            self._graph[self.player.pos].g = False
+            self.player.score += GUM_POINTS
             self.layout = self._build_layout()
 
     def handle_movement(self, dt: int) -> None:
@@ -270,4 +283,17 @@ class Level:
             surface, SUPERGUM_COLOR,
             self._graph[(coord[0], coord[1])].rect.center,
             radius=10, width=4
+        )
+
+    def draw_gum(
+            self,
+            surface: pg.Surface,
+            coord: tuple[int, int]
+            # app: App
+            ) -> None:
+
+        pg.draw.circle(
+            surface, SUPERGUM_COLOR,
+            self._graph[(coord[0], coord[1])].rect.center,
+            radius=5, width=1
         )

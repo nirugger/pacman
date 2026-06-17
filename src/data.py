@@ -3,9 +3,10 @@ from src.entities.entity import Player, Enemy
 
 
 CELL_COLOR = (255, 0, 0)
-LEVEL_SPEED = 5
+LEVEL_SPEED = 2
 PAD = 50
 SUPERGUM_POINTS = 50
+GUM_POINTS = 10
 PACMAN_COLOR = (255, 255, 0)
 PLAYER_SPEED = 10
 GUM_COLOR = (0, 0, 255)
