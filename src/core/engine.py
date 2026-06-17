@@ -1,54 +1,82 @@
 import pygame as pg
 from src.level.level import Level
-from src.data import MAZE_X, MAZE_Y, LevelConfig, RESOLUTION, LEVEL_SPEED
+from src.data import (LevelData, LevelConfig, RESOLUTION,
+                      LEVELS_DATA, GameState)
 
 from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy)
+
+
+LEVEL_SPEED = 2
+MAX_GUMS = 50
 
 
 class App:
     def __init__(self, config: dict[str, str | int], width: int,
                  height: int) -> None:
         from src.scenes.menu import Menu
+        self.game_state: GameState = GameState.NEW_GAME
         self.app_config = config
-        # self.screen = pg.display.set_mode(config['resolution'])
+        self.levels_data = LEVELS_DATA
         self.screen = pg.display.set_mode(RESOLUTION, pg.NOFRAME)
-        self.player = self._create_player(MAZE_X, MAZE_Y)
-        self.enemies = [self._create_enemy(width, height, "red"),
-                        self._create_enemy(width, height, "pink"),
-                        self._create_enemy(width, height, "cyan"),
-                        self._create_enemy(width, height, "orange")]
-        # self.super_gums = [self._create_sg([0, 0], width, height),
-        #                    self._create_sg([0, height - 1], width, height),
-        #                    self._create_sg([width - 1, 0], width, height),
-        #                    self._create_sg([width - 1, height - 1], width,
-        #                                    height)]
+        self.player = self._create_player()
+        self.enemies = [self._create_enemy("red")]
+        # self.enemies = [self._create_enemy("red"),
+        #                 self._create_enemy("pink"),
+        #                 self._create_enemy("cyan"),
+        #                 self._create_enemy("orange")]
         self.menu = Menu(self.screen)
-        self.level_config: LevelConfig = {'player': self.player,
-                                          'enemies': self.enemies,
-                                          'speed': LEVEL_SPEED}
+        self.level_data: LevelData
+        self.current_level = 1
+
+    def build_level(self, level_id: int) -> Level:
+
+        level_config: LevelConfig = {'player': self.player,
+                                     'enemies': self.enemies,
+                                     'data': self.levels_data[level_id],
+                                     'game_state': GameState.IN_GAME}
+
+        return Level(
+            self.screen,
+            level_config,
+            level_id
+        )
 
     def run(self) -> None:
-        level = Level(self.screen, self.level_config)
-        level.run()
+        while True:
+            match self.game_state:
+                case GameState.NEW_GAME:
+                    level = self.build_level(level_id=1)
+                    self.game_config = level.run()
+                    self.game_state = self.game_config['game_state']
+
+                case GameState.WIN:
+                    self.current_level += 1
+                    level = self.build_level(level_id=self.current_level)
+                    self.game_config = level.run()
+                    self.game_state = self.game_config['game_state']
+
+            # state = menu.run()
+
+        # level_status = level.run()
         # self.menu.main_menu(self)
 
     @staticmethod
-    def _create_player(width: int, height: int) -> Player:
-        player = Player((width // 2, height // 2), width, height)
+    def _create_player() -> Player:
+        player = Player()
         return player
 
     @staticmethod
-    def _create_enemy(width: int, height: int, color: str) -> Enemy:
+    def _create_enemy(color: str) -> Enemy:
         enemy: Enemy
         match color:
             case "red":
-                enemy = Red((0, height - 1), width, height)
+                enemy = Red(color)
             case "pink":
-                enemy = Pink((0, 0), width, height)
+                enemy = Pink(color)
             case "cyan":
-                enemy = Cyan((width - 1, height - 1), width, height)
+                enemy = Cyan(color)
             case "orange":
-                enemy = Orange((width - 1, height - 1), width, height)
+                enemy = Orange(color)
             case _:
                 raise ValueError("Unrecognised color")
         return enemy

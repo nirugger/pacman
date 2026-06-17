@@ -1,6 +1,5 @@
 import pygame as pg
 from enum import IntFlag
-from src.data import CELL_COLOR
 
 
 class Dir(IntFlag):
@@ -25,6 +24,7 @@ class Cell:
             surface: pg.Surface,
             edge: int
             ) -> pg.Rect:
+        from src.data import CELL_COLOR
 
         x, y = self.i * edge, self.j * edge
 
