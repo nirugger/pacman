@@ -1,6 +1,6 @@
 import pygame as pg
 from src.level.level import Level
-from src.data import MAZE_X, MAZE_Y, LevelConfig, RESOLUTION
+from src.data import MAZE_X, MAZE_Y, LevelConfig, RESOLUTION, LEVEL_SPEED
 
 from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy)
 
@@ -23,7 +23,9 @@ class App:
         #                    self._create_sg([width - 1, height - 1], width,
         #                                    height)]
         self.menu = Menu(self.screen)
-        self.level_config: LevelConfig = {'player': self.player, 'enemies': self.enemies}
+        self.level_config: LevelConfig = {'player': self.player,
+                                          'enemies': self.enemies,
+                                          'speed': LEVEL_SPEED}
 
     def run(self) -> None:
         level = Level(self.screen, self.level_config)

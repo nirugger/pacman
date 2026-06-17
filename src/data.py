@@ -3,6 +3,7 @@ from src.entities.entity import Player, Enemy
 
 
 CELL_COLOR = (255, 0, 0)
+LEVEL_SPEED = 5
 PAD = 50
 SUPERGUM_POINTS = 50
 PACMAN_COLOR = (255, 255, 0)
@@ -18,4 +19,5 @@ class LevelConfig(TypedDict):
 
     player: Player
     enemies: list[Enemy]
+    speed: int
     # super_gums: list[SuperGum]

@@ -26,8 +26,8 @@ lint:
 	$(UV) run mypy $(PACMAN) /src --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
 
 lint-strict:
-	$(UV) run flake8 $(PACMAN) src/
-	$(UV) run mypy $(PACMAN) src/
+	@$(UV) run flake8 $(PACMAN) src/
+	@$(UV) run mypy $(PACMAN) src/
 
 clean:
 	@echo "$(YELLOW) → Cleaning caches...$(RESET)"
