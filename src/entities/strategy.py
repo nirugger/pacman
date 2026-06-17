@@ -1,0 +1,74 @@
+
+from src.data import MAZE_X, MAZE_Y
+from abc import ABC
+from src.level.cell import Cell
+from src.data import Dir
+from collections import deque
+import random
+
+
+class Strategy(ABC):
+
+    @staticmethod
+    def follow(start: tuple[int, int], end: tuple[int, int], graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+
+        start_x, start_y = start
+        end_x, end_y = end
+        shortest_path = ''
+
+        directions = [(0, 1, 4, 'S'), (1, 0, 2, 'E'),
+                      (-1, 0, 8, 'W'), (0, -1, 1, 'N')]
+
+        if (start_x, start_y) == (end_x, end_y):
+            return (start_x, start_y)
+
+        visited = [[False] * MAZE_X for _ in range(MAZE_Y)]
+        visited[start_y][start_x] = True
+        queue: deque[tuple[int, int, str]] = deque(
+            [(start_x, start_y, '')])
+        while queue:
+            x, y, ways = queue.popleft()
+            for dx, dy, code, way in directions:
+                if (graph[(x, y)].value & code) != 0:
+                    continue
+                nx, ny = x + dx, y + dy
+                if not (0 <= nx < MAZE_X and 0 <= ny < MAZE_Y):
+                    continue
+                if visited[ny][nx]:
+                    continue
+                if (nx, ny) == (end_x, end_y):
+                    shortest_path = ways + way
+
+                    if shortest_path[0] == 'N':
+                        return (start_x, start_y - 1)
+                    if shortest_path[0] == 'S':
+                        return (start_x, start_y + 1)
+                    if shortest_path[0] == 'E':
+                        return (start_x + 1, start_y)
+                    if shortest_path[0] == 'W':
+                        return (start_x - 1, start_y)
+
+                visited[ny][nx] = True
+                queue.append((nx, ny, ways + way))
+        raise ValueError("FOTTITI")
+
+    @staticmethod
+    def random(start: tuple[int, int], graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+        x, y = start
+        directions = ['N', 'S', 'E', 'W']
+        random.shuffle(directions)
+        for d in directions:
+            match d:
+                case 'N':
+                    if graph[x, y].value & Dir.N == 0:
+                        return (x, y - 1)
+                case 'S':
+                    if graph[x, y].value & Dir.S == 0:
+                        return (x, y + 1)
+                case 'E':
+                    if graph[x, y].value & Dir.E == 0:
+                        return (x + 1, y)
+                case 'W':
+                    if graph[x, y].value & Dir.W == 0:
+                        return (x - 1, y)
+        raise ValueError("CAZZO!")

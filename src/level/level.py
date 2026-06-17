@@ -7,15 +7,8 @@ import random
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.data import (PACMAN_COLOR, PAD, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
-                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState)
+                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState, Dir)
 from src.entities.entity import Enemy
-
-
-class Dir(IntFlag):
-    N = 1
-    E = 2
-    S = 4
-    W = 8
 
 
 class Level:
@@ -147,12 +140,15 @@ class Level:
            or abs(self.player.rect.y - self._graph[self.player.target].rect.y)
            <= self.speed)):
 
+
+            # for e in self.level_config['enemies']:
+            #     if e.strategy != "random":
+            #         e.move(self._graph, self.player.pos)
+
             self.player.pos = self.player.target
 
             self.player.rect.x = self._graph[self.player.target].rect.x
             self.player.rect.y = self._graph[self.player.target].rect.y
-            for e in self.level_config['enemies']:
-                e.move(self._graph, self.player.pos)
 
             if self.player.moving['x_next'] == 1:
                 if self._graph[self.player.pos].value & Dir.E == 0:
@@ -220,7 +216,6 @@ class Level:
                 or abs(e.rect.y - self._graph[e.target].rect.y)
                 <= self.speed)):
 
-
                 e.rect.x = self._graph[e.target].rect.x
                 e.rect.y = self._graph[e.target].rect.y
 
@@ -249,18 +244,22 @@ class Level:
                     pass
 
                 if event.key == pg.K_RIGHT:
+                    self.paused = False
                     self.player.moving['x_next'] = 1
                     self.player.moving['y_next'] = 0
 
                 if event.key == pg.K_LEFT:
+                    self.paused = False
                     self.player.moving['x_next'] = -1
                     self.player.moving['y_next'] = 0
 
                 if event.key == pg.K_UP:
+                    self.paused = False
                     self.player.moving['x_next'] = 0
                     self.player.moving['y_next'] = -1
 
                 if event.key == pg.K_DOWN:
+                    self.paused = False
                     self.player.moving['x_next'] = 0
                     self.player.moving['y_next'] = 1
 

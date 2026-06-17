@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 
 from typing import TypedDict
-from enum import Enum
+from enum import Enum, IntFlag
 
 
 CELL_COLOR = (255, 0, 0)
@@ -21,6 +21,12 @@ RESOLUTION = (1280, 720)
 MAZE_X = 15
 MAZE_Y = 15
 
+
+class Dir(IntFlag):
+    N = 1
+    E = 2
+    S = 4
+    W = 8
 
 class GameState(Enum):
     NEW_GAME = 1
@@ -45,7 +51,7 @@ class LevelConfig(TypedDict):
 
 
 LEVELS_DATA = {
-    1: LevelData(speed=5, max_gums=50),
-    2: LevelData(speed=3, max_gums=100),
-    3: LevelData(speed=4, max_gums=150),
+    1: LevelData(speed=5, max_gums=0),
+    2: LevelData(speed=4, max_gums=100),
+    3: LevelData(speed=5, max_gums=150),
     }

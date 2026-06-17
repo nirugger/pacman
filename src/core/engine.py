@@ -1,7 +1,7 @@
 import pygame as pg
 from src.level.level import Level
 from src.data import (LevelData, LevelConfig, RESOLUTION,
-                      LEVELS_DATA, GameState)
+                      LEVELS_DATA, GameState, MAZE_X, MAZE_Y)
 
 from src.entities.entity import (Player, Red, Pink, Cyan, Orange, Enemy)
 
@@ -19,11 +19,11 @@ class App:
         self.levels_data = LEVELS_DATA
         self.screen = pg.display.set_mode(RESOLUTION, pg.NOFRAME)
         self.player = self._create_player()
-        self.enemies = [self._create_enemy("red")]
-        # self.enemies = [self._create_enemy("red"),
-        #                 self._create_enemy("pink"),
-        #                 self._create_enemy("cyan"),
-        #                 self._create_enemy("orange")]
+        # self.enemies = [self._create_enemy("red")]
+        self.enemies = [self._create_enemy("red"),
+                        self._create_enemy("pink"),
+                        self._create_enemy("cyan"),
+                        self._create_enemy("orange")]
         self.menu = Menu(self.screen)
         self.level_data: LevelData
         self.current_level = 1
@@ -41,6 +41,16 @@ class App:
             level_id
         )
 
+    def _reset_positions(self) -> None:
+        self.game_config['player'].pos = self.game_config['player'].home
+        self.game_config['player'].moving = {'x_now': 0, 'y_now': 0, 'x_next': 0, 'y_next': 0}
+        self.game_config['player'].target = self.game_config['player'].pos
+        for e in self.game_config['enemies']:
+            e.pos = e.home
+            e.target = e.pos
+            e.moving = {'x': 0, 'y': 0}
+
+
     def run(self) -> None:
         while True:
             match self.game_state:
@@ -52,6 +62,7 @@ class App:
                 case GameState.WIN:
                     self.current_level += 1
                     level = self.build_level(level_id=self.current_level)
+                    self._reset_positions()
                     self.game_config = level.run()
                     self.game_state = self.game_config['game_state']
 

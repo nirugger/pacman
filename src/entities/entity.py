@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from src.level.cell import Cell
 
 from src.data import MAZE_X, MAZE_Y
-from src.entities.strategies import Strategy
+from src.entities.strategy import Strategy
 
 from abc import ABC, abstractmethod
 
@@ -26,6 +26,7 @@ import pygame as pg
 # class SuperGum(Prop):
 #     def __init__(self, pos: list[int], width: int, height: int) -> None:
 #         super().__init__(width, height)
+STRATEGIES = ["follow", "random"]
 
 
 class Character(ABC):
@@ -52,10 +53,16 @@ class Enemy(Character):
     def __init__(self, color: str) -> None:
         self.color = color
         self.moving: dict[str, int] = {'x': 0, 'y': 0}
+        self.strategy: str = ''
 
     def move(self, graph: dict[tuple[int, int], Cell], end: tuple[int, int]) -> None:
-        self.target = Strategy.follow(self.pos, end, graph)
-        print(self.target)
+
+        match self.strategy:
+            case "follow":
+                self.target = Strategy.follow(self.pos, end, graph)
+            case "random":
+                self.target = Strategy.random(self.pos, graph)
+        # print((self.rect.x, self.target, self.pos))
         x, y = self.pos
         nx, ny = self.target
         if nx < x:
@@ -81,6 +88,7 @@ class Red(Enemy):
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
+        self.strategy = "follow"
 
 
 class Pink(Enemy):
@@ -89,6 +97,7 @@ class Pink(Enemy):
         self.home = (0, 0)
         self.pos = self.home
         self.target = self.pos
+        self.strategy = "follow"
 
 
 class Cyan(Enemy):
@@ -97,6 +106,7 @@ class Cyan(Enemy):
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
         self.target = self.pos
+        self.strategy = "random"
 
 
 class Orange(Enemy):
@@ -105,3 +115,4 @@ class Orange(Enemy):
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
+        self.strategy = "random"
