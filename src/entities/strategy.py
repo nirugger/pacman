@@ -1,8 +1,7 @@
-
-from src.data import MAZE_X, MAZE_Y
-from abc import ABC
+from src.data import MAZE_X, MAZE_Y, Dir
 from src.level.cell import Cell
-from src.data import Dir
+
+from abc import ABC
 from collections import deque
 import random
 
@@ -10,7 +9,11 @@ import random
 class Strategy(ABC):
 
     @staticmethod
-    def follow(start: tuple[int, int], end: tuple[int, int], graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+    def follow(
+        start: tuple[int, int],
+        end: tuple[int, int],
+        graph: dict[tuple[int, int], Cell]
+         ) -> tuple[int, int]:
 
         start_x, start_y = start
         end_x, end_y = end
@@ -53,7 +56,11 @@ class Strategy(ABC):
         raise ValueError("FOTTITI")
 
     @staticmethod
-    def random(start: tuple[int, int], graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+    def random(
+        start: tuple[int, int],
+        graph: dict[tuple[int, int], Cell]
+         ) -> tuple[int, int]:
+
         x, y = start
         directions = ['N', 'S', 'E', 'W']
         random.shuffle(directions)

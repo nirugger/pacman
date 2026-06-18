@@ -1,14 +1,12 @@
-from enum import IntFlag
-import pygame as pg
-import sys
-
-import random
-
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
-from src.data import (PACMAN_COLOR, PAD, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
-                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState, Dir)
-from src.entities.entity import Enemy
+from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
+                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState)
+
+import pygame as pg
+import time
+import random
+import sys
 
 
 class Level:
@@ -23,7 +21,7 @@ class Level:
         self.seed = 42 if level_id == 1 else random.randint(1, 100)
         self.level_config = level_config
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
-        self._graph: dict[tuple[int, int], Cell] = self._build_graph()
+        self.graph: dict[tuple[int, int], Cell] = self._build_graph()
         self.surface = surface
         self.player = self.level_config['player']
         self.paused = False
@@ -75,7 +73,7 @@ class Level:
         level_surface = pg.Surface(surface_sizes)
         level_surface.fill((15, 20, 25))
 
-        for c in self._graph.values():
+        for c in self.graph.values():
             c.rect = c.render(level_surface, edge)
             if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
@@ -86,19 +84,15 @@ class Level:
         return level_surface
 
     def run(self) -> LevelConfig:
-        self.player.set_rect(self._graph)
+        self.player.set_rect(self.graph)
         for e in self.level_config['enemies']:
-            e.set_rect(self._graph)
+            e.set_rect(self.graph)
         clock = pg.time.Clock()
         self.surface.fill((15, 20, 25))
 
         while True:
             clock.tick(60)
-            # import time
-            # time.sleep(1.0)
             self.playable_surface = self.layout.copy()
-            # if self.handle_events() == "menu":
-            #     return self.level_config
             if self.paused:
                 self.speed = 0
             else:
@@ -106,133 +100,60 @@ class Level:
             if self.level_config['game_state'] is GameState.WIN:
                 return self.level_config
 
-            self.handle_events()
-            self.handle_movement()
-            self.handle_collectibles()
-            self.draw_pacman()
-            for e in self.level_config['enemies']:
-                self.draw_ghost(e)
-            self.surface.blit(self.playable_surface, (PAD, PAD))
-            pg.display.flip()
+            # if self._handle_events() == "menu":
+            #     return self.level_config
+            self._handle_events()
+            self._handle_movement()
+            self._handle_collectibles()
+            self._draw_frame()
+            self._handle_collisions()
 
-    def handle_collectibles(self) -> None:
-        if self._graph[self.player.pos].sg:
-            self._graph[self.player.pos].sg = False
+    def _handle_collisions(self) -> None:
+        if self.player.cheat:
+            return
+        for e in self.level_config['enemies']:
+            if e.rect.collidepoint(self.player.rect.center):
+                self.paused = True
+                time.sleep(1)
+                for ent in self.level_config['entities']:
+                    ent.reset_positions(self.graph)
+                self.paused = False
+
+    def _handle_collectibles(self) -> None:
+        if self.graph[self.player.pos].sg:
+            self.graph[self.player.pos].sg = False
             self.player.score += SUPERGUM_POINTS
             self.layout = self._build_layout()
             self.total_collected += 1
-        if self._graph[self.player.pos].g:
-            self._graph[self.player.pos].g = False
+        if self.graph[self.player.pos].g:
+            self.graph[self.player.pos].g = False
             self.player.score += GUM_POINTS
             self.layout = self._build_layout()
             self.total_collected += 1
         if self.total_collected == self.level_config['data']['max_gums'] + 4:
             self.level_config['game_state'] = GameState.WIN
 
-    def handle_movement(self) -> None:
+    def _handle_movement(self) -> None:
 
-        if ((abs(self.player.rect.x - self._graph[self.player.pos].rect.x)
-           >= self.edge
-           or abs(self.player.rect.x - self._graph[self.player.target].rect.x)
-           <= self.speed)
-           and (abs(self.player.rect.y - self._graph[self.player.pos].rect.y)
-           >= self.edge
-           or abs(self.player.rect.y - self._graph[self.player.target].rect.y)
-           <= self.speed)):
-
-
-            # for e in self.level_config['enemies']:
-            #     if e.strategy != "random":
-            #         e.move(self._graph, self.player.pos)
-
-            self.player.pos = self.player.target
-
-            self.player.rect.x = self._graph[self.player.target].rect.x
-            self.player.rect.y = self._graph[self.player.target].rect.y
-
-            if self.player.moving['x_next'] == 1:
-                if self._graph[self.player.pos].value & Dir.E == 0:
-                    self.player.moving['x_now'] = 1
-                    self.player.moving['y_now'] = 0
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = 0
-            if self.player.moving['x_next'] == -1:
-                if self._graph[self.player.pos].value & Dir.W == 0:
-                    self.player.moving['x_now'] = -1
-                    self.player.moving['y_now'] = 0
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = 0
-            if self.player.moving['y_next'] == -1:
-                if self._graph[self.player.pos].value & Dir.N == 0:
-                    self.player.moving['x_now'] = 0
-                    self.player.moving['y_now'] = -1
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = 0
-            if self.player.moving['y_next'] == 1:
-                if self._graph[self.player.pos].value & Dir.S == 0:
-                    self.player.moving['x_now'] = 0
-                    self.player.moving['y_now'] = 1
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = 0
-            a, b = self.player.pos
-            if self.player.moving['x_now'] == 1:
-                if self._graph[self.player.pos].value & Dir.E == 0:
-                    self.player.target = (a + 1, b)
-                else:
-                    self.player.target = self.player.pos
-                    self.player.moving['x_now'] = 0
-
-            if self.player.moving['x_now'] == -1:
-                if self._graph[self.player.pos].value & Dir.W == 0:
-                    self.player.target = (a - 1, b)
-                else:
-                    self.player.target = self.player.pos
-                    self.player.moving['x_now'] = 0
-
-            if self.player.moving['y_now'] == -1:
-                if self._graph[self.player.pos].value & Dir.N == 0:
-                    self.player.target = (a, b - 1)
-                else:
-                    self.player.target = self.player.pos
-                    self.player.moving['y_now'] = 0
-
-            if self.player.moving['y_now'] == 1:
-                if self._graph[self.player.pos].value & Dir.S == 0:
-                    self.player.target = (a, b + 1)
-                else:
-                    self.player.target = self.player.pos
-                    self.player.moving['y_now'] = 0
-
-        self.player.rect.x += self.player.moving['x_now'] * self.speed
-        self.player.rect.y += self.player.moving['y_now'] * self.speed
-
-        for e in self.level_config['enemies']:
-            if ((abs(e.rect.x - self._graph[e.pos].rect.x)
-                >= self.edge
-                or abs(e.rect.x - self._graph[e.target].rect.x)
-                <= self.speed)
-                and (abs(e.rect.y - self._graph[e.pos].rect.y)
-                >= self.edge
-                or abs(e.rect.y - self._graph[e.target].rect.y)
-                <= self.speed)):
-
-                e.rect.x = self._graph[e.target].rect.x
-                e.rect.y = self._graph[e.target].rect.y
+        for e in self.level_config['entities']:
+            if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
+               or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
+               and (abs(e.rect.y - self.graph[e.pos].rect.y) >= self.edge
+               or abs(e.rect.y - self.graph[e.target].rect.y) <= self.speed)):
 
                 e.pos = e.target
-                e.move(self._graph, self.player.pos)
+                e.rect.x = self.graph[e.target].rect.x
+                e.rect.y = self.graph[e.target].rect.y
 
+                if e is self.player:
+                    e.update_movement(self.graph)
+                else:
+                    e.update_movement(self.graph, self.player.last_valid_pos)
 
+            e.rect.x += e.movement['x'] * self.speed
+            e.rect.y += e.movement['y'] * self.speed
 
-
-        # for e in self.level_config['enemies']:
-
-        for e in self.level_config['enemies']:
-            e.rect.x += e.moving['x'] * self.speed
-            e.rect.y += e.moving['y'] * self.speed
-
-
-    def handle_events(self) -> None:
+    def _handle_events(self) -> None:
         """Handle keyboard and window events for the renderer."""
         for event in pg.event.get():
             if event.type == pg.KEYDOWN:
@@ -245,23 +166,26 @@ class Level:
 
                 if event.key == pg.K_RIGHT:
                     self.paused = False
-                    self.player.moving['x_next'] = 1
-                    self.player.moving['y_next'] = 0
+                    self.player.movement['nx'] = 1
+                    self.player.movement['ny'] = 0
 
                 if event.key == pg.K_LEFT:
                     self.paused = False
-                    self.player.moving['x_next'] = -1
-                    self.player.moving['y_next'] = 0
+                    self.player.movement['nx'] = -1
+                    self.player.movement['ny'] = 0
 
                 if event.key == pg.K_UP:
                     self.paused = False
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = -1
+                    self.player.movement['nx'] = 0
+                    self.player.movement['ny'] = -1
 
                 if event.key == pg.K_DOWN:
                     self.paused = False
-                    self.player.moving['x_next'] = 0
-                    self.player.moving['y_next'] = 1
+                    self.player.movement['nx'] = 0
+                    self.player.movement['ny'] = 1
+
+                if event.key == pg.K_c:
+                    self.player.cheat = not self.player.cheat
 
                 if event.key == pg.K_q:
                     pg.quit()
@@ -272,16 +196,12 @@ class Level:
                 sys.exit()
         return
 
-    def draw_ghost(self, ghost: Enemy) -> None:
-        pg.draw.circle(self.playable_surface, ghost.color, ghost.rect.center, 10)
+    def _draw_frame(self) -> None:
+        for e in self.level_config['entities']:
+            e.draw(self.playable_surface)
 
-
-    def draw_pacman(self) -> None:
-
-        pg.draw.circle(self.playable_surface, PACMAN_COLOR,
-                       self.player.rect.center,
-                       15)
-        # self.playable_surface.blit(surface, self.player.rect.center)
+        self.surface.blit(self.playable_surface, (PAD, PAD))
+        pg.display.flip()
 
     def draw_super_gums(
             self,
@@ -291,7 +211,7 @@ class Level:
 
         pg.draw.circle(
             surface, SUPERGUM_COLOR,
-            self._graph[(coord[0], coord[1])].rect.center,
+            self.graph[(coord[0], coord[1])].rect.center,
             radius=10, width=4
         )
 
@@ -303,7 +223,7 @@ class Level:
             ) -> None:
 
         pg.draw.circle(
-            surface, SUPERGUM_COLOR,
-            self._graph[(coord[0], coord[1])].rect.center,
-            radius=5, width=1
+            surface, GUM_COLOR,
+            self.graph[(coord[0], coord[1])].rect.center,
+            radius=5,
         )
