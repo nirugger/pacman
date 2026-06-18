@@ -1,7 +1,7 @@
 import pygame as pg
 import pygame_menu as pgm
 import sys
-from pygame_menu import baseimage, themes, events
+from pygame_menu import baseimage, themes
 
 from src.core.engine import App
 from src.level.level import Level

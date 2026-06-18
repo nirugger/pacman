@@ -74,7 +74,7 @@ class Level:
         level_surface.fill((15, 20, 25))
 
         for c in self.graph.values():
-            c.rect = c.render(level_surface, edge)
+            c.rect = c.draw(level_surface, edge)
             if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:

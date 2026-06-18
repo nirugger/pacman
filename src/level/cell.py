@@ -12,7 +12,7 @@ class Cell:
         self.sg = False
         self.g = False
 
-    def render(
+    def draw(
             self,
             surface: pg.Surface,
             edge: int
