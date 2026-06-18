@@ -205,3 +205,10 @@ class Strategy(ABC):
         if abs(home[0] - pacman_pos[0]) + abs(home[1] - pacman_pos[1]) < 4:
             target = pacman_pos
         return Strategy.follow(start, target, graph)
+
+    @staticmethod
+    def mirror(start: tuple[[int, int]],
+               red_pos: tuple[int, int],
+               pacman_pos: tuple[int, int],
+               graph: ):
+        target = pacman_pos
