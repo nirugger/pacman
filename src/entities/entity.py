@@ -10,11 +10,11 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
-PLAYER_SPEED = 20
-RED_SPEED = 10
-CYAN_SPEED = 8
-PINK_SPEED = 4
-ORANGE_SPEED = 1
+PLAYER_SPEED = 10000000
+RED_SPEED = 20000000
+CYAN_SPEED = 30000000
+PINK_SPEED = 70000000
+ORANGE_SPEED = 100000000
 
 
 class Character(ABC):

@@ -89,7 +89,7 @@ class Level:
             e.set_rect(self.graph)
         self._reset_positions()
         clock = pg.time.Clock()
-        self.starting_time = time.time()
+        self.starting_time = time.time_ns()
         self.surface.fill((15, 20, 25))
 
         while True:
@@ -137,7 +137,7 @@ class Level:
 
     def _handle_movement(self) -> None:
 
-        now = (time.time() - self.starting_time) * 1000
+        now = (time.time_ns() - self.starting_time)
         for e in self.level_config['entities']:
             if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
                or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
@@ -157,11 +157,11 @@ class Level:
                     e.update_movement(self.graph)
 
             # module = (now - self.starting_time) >= (e.speed)
-            if now - e.last_valid_module <= e.speed:
+            if now - e.last_valid_module >= e.speed:
                 e.last_valid_module = now
                 # e.last_valid_module = module
-                e.rect.x += e.movement['x']  # * self.speed
-                e.rect.y += e.movement['y']  # * self.speed
+                e.rect.x += e.movement['x'] * self.speed
+                e.rect.y += e.movement['y'] * self.speed
         # if now - self.starting_time >= 10000000:
         #     self.starting_time = now
 
