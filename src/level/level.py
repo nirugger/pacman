@@ -152,7 +152,7 @@ class Level:
                     e.update_movement(self.graph)
                 else:
                     e.set_target_on_strategy(
-                        self.player.last_valid_pos, self.graph
+                        self.player.last_valid_pos, self.graph, self.player
                         )
                     e.update_movement(self.graph)
 

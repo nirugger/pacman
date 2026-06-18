@@ -55,7 +55,7 @@ class LevelConfig(TypedDict):
 
 
 LEVELS_DATA = {
-    1: LevelData(speed=10, max_gums=50),
+    1: LevelData(speed=3, max_gums=50),
     2: LevelData(speed=4, max_gums=65),
     3: LevelData(speed=5, max_gums=80),
     }

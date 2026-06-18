@@ -13,7 +13,7 @@ import pygame as pg
 PLAYER_SPEED = 10000000
 RED_SPEED = 20000000
 CYAN_SPEED = 30000000
-PINK_SPEED = 70000000
+PINK_SPEED = 20000000
 ORANGE_SPEED = 100000000
 
 
@@ -36,7 +36,8 @@ class Character(ABC):
     def set_target_on_strategy(
         self,
         end: tuple[int, int],
-        graph: dict[tuple[int, int], Cell]
+        graph: dict[tuple[int, int], Cell],
+        player: Player
          ) -> None:
         ...
 
@@ -139,6 +140,7 @@ class Player(Character):
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.target = self.home
         self.rect.center = graph[self.home].rect.center
+        self.last_valid_module = 0
 
     def draw(self, surface: pg.Surface) -> None:
         pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 13)
@@ -156,13 +158,19 @@ class Enemy(Character):
     def set_target_on_strategy(
             self,
             end: tuple[int, int],
-            graph: dict[tuple[int, int], Cell]
+            graph: dict[tuple[int, int], Cell],
+            player: Player
             ) -> None:
         match self.strategy:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)
             case "random":
                 self.target = Strategy.random(self.pos, graph)
+            case "anticipate":
+                self.target = Strategy.anticipate(self.pos, graph, player)
+            case "eight_cell":
+                self.target = Strategy.eight_cell(self.pos, graph, end,
+                                                  self.home)
 
     def update_movement(
             self,
@@ -192,6 +200,7 @@ class Enemy(Character):
         self.target = self.home
         self.movement = {'x': 0, 'y': 0}
         self.rect.center = graph[self.home].rect.center
+        self.last_valid_module = 0
 
     def draw(self, surface: pg.Surface) -> None:
         pg.draw.circle(surface, self.color, self.rect.center, 13)
@@ -214,7 +223,7 @@ class Pink(Enemy):
         self.home = (0, 0)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "follow"
+        self.strategy = "anticipate"
         self.speed = PINK_SPEED
         self.last_valid_module = 0
 
@@ -225,7 +234,7 @@ class Cyan(Enemy):
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "random"
+        self.strategy = "eight_cell"
         self.speed = CYAN_SPEED
         self.last_valid_module = 0
 
