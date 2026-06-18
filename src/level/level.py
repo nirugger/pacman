@@ -89,6 +89,7 @@ class Level:
             e.set_rect(self.graph)
         self._reset_positions()
         clock = pg.time.Clock()
+        self.starting_time = time.time()
         self.surface.fill((15, 20, 25))
 
         while True:
@@ -114,11 +115,11 @@ class Level:
             return
         for e in self.level_config['enemies']:
             if e.rect.collidepoint(self.player.rect.center):
-                self.paused = True
+                # self.paused = True
                 time.sleep(1)
                 for ent in self.level_config['entities']:
                     ent.reset_positions(self.graph)
-                self.paused = False
+                # self.paused = False
 
     def _handle_collectibles(self) -> None:
         if self.graph[self.player.pos].sg:
@@ -136,6 +137,7 @@ class Level:
 
     def _handle_movement(self) -> None:
 
+        now = (time.time() - self.starting_time) * 1000
         for e in self.level_config['entities']:
             if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
                or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
@@ -149,10 +151,19 @@ class Level:
                 if e is self.player:
                     e.update_movement(self.graph)
                 else:
-                    e.update_movement(self.graph, self.player.last_valid_pos)
+                    e.set_target_on_strategy(
+                        self.player.last_valid_pos, self.graph
+                        )
+                    e.update_movement(self.graph)
 
-            e.rect.x += e.movement['x'] * self.speed
-            e.rect.y += e.movement['y'] * self.speed
+            # module = (now - self.starting_time) >= (e.speed)
+            if now - e.last_valid_module <= e.speed:
+                e.last_valid_module = now
+                # e.last_valid_module = module
+                e.rect.x += e.movement['x']  # * self.speed
+                e.rect.y += e.movement['y']  # * self.speed
+        # if now - self.starting_time >= 10000000:
+        #     self.starting_time = now
 
     def _handle_events(self) -> None:
         """Handle keyboard and window events for the renderer."""

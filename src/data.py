@@ -9,7 +9,7 @@ from enum import Enum, IntFlag
 
 
 RESOLUTION = (1280, 720)
-MAZE_X = 21
+MAZE_X = 15
 MAZE_Y = 15
 EDGE_THICK = 3
 PAD = 50

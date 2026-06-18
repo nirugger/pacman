@@ -16,7 +16,7 @@ class App:
             config: dict[str, str | int]
             ) -> None:
 
-        from src.scenes.menu import Menu
+        # from src.scenes.menu import Menu
         self.game_state: GameState = GameState.NEW_GAME
         self.app_config = config
         self.levels_data = LEVELS_DATA
@@ -26,7 +26,7 @@ class App:
                         self._create_enemy("pink"),
                         self._create_enemy("cyan"),
                         self._create_enemy("orange")]
-        self.menu = Menu(self.screen)
+        # self.menu = Menu(self.screen)
         self.level_data: LevelData
         self.game_config: LevelConfig
         self.current_level = 1

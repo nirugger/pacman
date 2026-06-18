@@ -10,6 +10,12 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
+PLAYER_SPEED = 20
+RED_SPEED = 10
+CYAN_SPEED = 8
+PINK_SPEED = 4
+ORANGE_SPEED = 1
+
 
 class Character(ABC):
     def __init__(self):
@@ -17,20 +23,29 @@ class Character(ABC):
         self.pos: tuple[int, int]
         self.target: tuple[int, int]
         self.movement: dict[str, int]
+        self.speed: int
 
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
     @abstractmethod
-    def update_movement(self) -> None:
+    def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
         ...
 
     @abstractmethod
-    def reset_positions(self) -> None:
+    def set_target_on_strategy(
+        self,
+        end: tuple[int, int],
+        graph: dict[tuple[int, int], Cell]
+         ) -> None:
         ...
 
     @abstractmethod
-    def draw(self) -> None:
+    def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
+        ...
+
+    @abstractmethod
+    def draw(self, surface: pg.Surface) -> None:
         ...
 
 
@@ -41,9 +56,18 @@ class Player(Character):
         self.target = self.home
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
+        self.speed = PLAYER_SPEED
+        self.last_valid_module = 0
         self.lives: int = 3
         self.score: int = 0
         self.cheat: bool = False
+
+    def set_target_on_strategy(
+            self,
+            end: tuple[int, int],
+            graph: dict[tuple[int, int], Cell]
+            ) -> None:
+        return
 
     def update_movement(
             self,
@@ -117,7 +141,7 @@ class Player(Character):
         self.rect.center = graph[self.home].rect.center
 
     def draw(self, surface: pg.Surface) -> None:
-        pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 15)
+        pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 13)
 
 
 class Enemy(Character):
@@ -129,16 +153,22 @@ class Enemy(Character):
         self.movement = {'x': 0, 'y': 0}
         self.strategy: str = ''
 
-    def update_movement(
+    def set_target_on_strategy(
             self,
-            graph: dict[tuple[int, int], Cell],
-            end: tuple[int, int]
+            end: tuple[int, int],
+            graph: dict[tuple[int, int], Cell]
             ) -> None:
         match self.strategy:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)
             case "random":
                 self.target = Strategy.random(self.pos, graph)
+
+    def update_movement(
+            self,
+            graph: dict[tuple[int, int], Cell],
+            ) -> None:
+
         x, y = self.pos
         nx, ny = self.target
         if nx < x:
@@ -164,7 +194,7 @@ class Enemy(Character):
         self.rect.center = graph[self.home].rect.center
 
     def draw(self, surface: pg.Surface) -> None:
-        pg.draw.circle(surface, self.color, self.rect.center, 10)
+        pg.draw.circle(surface, self.color, self.rect.center, 13)
 
 
 class Red(Enemy):
@@ -174,6 +204,8 @@ class Red(Enemy):
         self.pos = self.home
         self.target = self.pos
         self.strategy = "follow"
+        self.speed = RED_SPEED
+        self.last_valid_module = 0
 
 
 class Pink(Enemy):
@@ -183,6 +215,8 @@ class Pink(Enemy):
         self.pos = self.home
         self.target = self.pos
         self.strategy = "follow"
+        self.speed = PINK_SPEED
+        self.last_valid_module = 0
 
 
 class Cyan(Enemy):
@@ -192,6 +226,8 @@ class Cyan(Enemy):
         self.pos = self.home
         self.target = self.pos
         self.strategy = "random"
+        self.speed = CYAN_SPEED
+        self.last_valid_module = 0
 
 
 class Orange(Enemy):
@@ -201,3 +237,5 @@ class Orange(Enemy):
         self.pos = self.home
         self.target = self.pos
         self.strategy = "random"
+        self.speed = ORANGE_SPEED
+        self.last_valid_module = 0
