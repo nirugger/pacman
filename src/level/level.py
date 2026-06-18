@@ -87,6 +87,7 @@ class Level:
         self.player.set_rect(self.graph)
         for e in self.level_config['enemies']:
             e.set_rect(self.graph)
+        self._reset_positions()
         clock = pg.time.Clock()
         self.surface.fill((15, 20, 25))
 
@@ -195,6 +196,12 @@ class Level:
                 pg.quit()
                 sys.exit()
         return
+
+    def _reset_positions(self) -> None:
+        self.player.reset_positions(self.graph)
+
+        for e in self.level_config['enemies']:
+            e.reset_positions(self.graph)
 
     def _draw_frame(self) -> None:
         for e in self.level_config['entities']:

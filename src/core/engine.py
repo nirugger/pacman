@@ -42,18 +42,6 @@ class App:
         self.game_config = level_config
         return Level(self.screen, level_config, level_id)
 
-    def _reset_positions(self) -> None:
-        # self.player.pos = self.player.home
-        # self.player.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
-        # self.player.target = self.player.pos
-        self.player.reset_positions()
-
-        for e in self.game_config['enemies']:
-            e.reset_positions()
-            # e.pos = e.home
-            # e.target = e.pos
-            # e.movement = {'x': 0, 'y': 0}
-
     def run(self) -> None:
         while True:
             match self.game_state:
@@ -65,7 +53,6 @@ class App:
                 case GameState.WIN:
                     self.current_level += 1
                     level = self.build_level(level_id=self.current_level)
-                    self._reset_positions()
                     self.game_config = level.run()
                     self.game_state = self.game_config['game_state']
 
