@@ -10,11 +10,11 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
-PLAYER_SPEED = 100.0
-RED_SPEED = 20000000
-CYAN_SPEED = 30000000
-PINK_SPEED = 20000000
-ORANGE_SPEED = 100000000
+PLAYER_SPEED = 120.0
+RED_SPEED = 115.0
+CYAN_SPEED = 100.0
+PINK_SPEED = 110.0
+ORANGE_SPEED = 105.0
 
 
 class Character(ABC):
@@ -37,10 +37,6 @@ class Character(ABC):
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
         ...
-    #
-    # @abstractmethod
-    # def update(self, graph: dict[tuple[int, int], Cell]) -> None:
-    #     ...
 
     @abstractmethod
     def set_target_on_strategy(
@@ -68,7 +64,6 @@ class Player(Character):
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.speed = PLAYER_SPEED
-        self.last_valid_module = 0
         self.lives: int = 3
         self.score: int = 0
         self.cheat: bool = False
@@ -150,10 +145,10 @@ class Player(Character):
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.target = self.home
         self.rect.center = graph[self.home].rect.center
-        self.center = self.rect.center
-        self.last_valid_module = 0
+        self.center = graph[self.home].center.copy()
 
     def draw(self, surface: pg.Surface) -> None:
+        # pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 13)
         pg.draw.circle(surface, PACMAN_COLOR, (int(self.center.x), int(self.center.y)), 13)
 
 
@@ -170,7 +165,8 @@ class Enemy(Character):
             self,
             end: tuple[int, int],
             graph: dict[tuple[int, int], Cell],
-            player: Player
+            player: Player,
+            red_pos: tuple[int, int]
             ) -> None:
         match self.strategy:
             case "follow":
@@ -182,6 +178,8 @@ class Enemy(Character):
             case "eight_cell":
                 self.target = Strategy.eight_cell(self.pos, graph, end,
                                                   self.home)
+            case "mirror":
+                self.target = Strategy.mirror(self.pos, red_pos, end, graph)
 
     def update_movement(
             self,
@@ -211,10 +209,11 @@ class Enemy(Character):
         self.target = self.home
         self.movement = {'x': 0, 'y': 0}
         self.rect.center = graph[self.home].rect.center
-        self.last_valid_module = 0
+        self.center = graph[self.home].center.copy()
 
     def draw(self, surface: pg.Surface) -> None:
-        pg.draw.circle(surface, self.color, self.rect.center, 13)
+        # pg.draw.circle(surface, self.color, self.rect.center, 13)
+        pg.draw.circle(surface, self.color, (int(self.center.x), int(self.center.y)), 13)
 
 
 class Red(Enemy):
@@ -225,7 +224,6 @@ class Red(Enemy):
         self.target = self.pos
         self.strategy = "follow"
         self.speed = RED_SPEED
-        self.last_valid_module = 0
 
 
 class Pink(Enemy):
@@ -236,7 +234,6 @@ class Pink(Enemy):
         self.target = self.pos
         self.strategy = "anticipate"
         self.speed = PINK_SPEED
-        self.last_valid_module = 0
 
 
 class Cyan(Enemy):
@@ -247,7 +244,6 @@ class Cyan(Enemy):
         self.target = self.pos
         self.strategy = "eight_cell"
         self.speed = CYAN_SPEED
-        self.last_valid_module = 0
 
 
 class Orange(Enemy):
@@ -256,6 +252,5 @@ class Orange(Enemy):
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "random"
+        self.strategy = "mirror"
         self.speed = ORANGE_SPEED
-        self.last_valid_module = 0

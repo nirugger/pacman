@@ -22,12 +22,12 @@ class App:
         self.levels_data = LEVELS_DATA
         self.screen = pg.display.set_mode(RESOLUTION, pg.NOFRAME)
         self.player = self._create_player()
-        self.enemies = []
+        # self.enemies = []
 
-        # self.enemies = [self._create_enemy("red"),
-        #                 self._create_enemy("pink"),
-        #                 self._create_enemy("cyan"),
-        #                 self._create_enemy("orange")]
+        self.enemies = [self._create_enemy("red"),
+                        self._create_enemy("pink"),
+                        self._create_enemy("cyan"),
+                        self._create_enemy("orange")]
         # self.menu = Menu(self.screen)
         self.level_data: LevelData
         self.game_config: LevelConfig

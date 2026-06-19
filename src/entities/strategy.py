@@ -88,107 +88,107 @@ class Strategy(ABC):
     @staticmethod
     def anticipate(start: tuple[int, int], graph: dict[tuple[int, int], Cell],
                    player: Player) -> tuple[int, int]:
-        target = player.pos
+        target = player.last_valid_pos
         if player.movement['x'] == 1:
-            if player.pos[0] + 4 < MAZE_X:
-                if graph[(player.pos[0] + 4, player.pos[1])].value != 15:
-                    target = (player.pos[0] + 4, player.pos[1])
+            if player.last_valid_pos[0] + 4 < MAZE_X:
+                if graph[(player.last_valid_pos[0] + 4, player.last_valid_pos[1])].value != 15:
+                    target = (player.last_valid_pos[0] + 4, player.last_valid_pos[1])
             else:
                 if player.movement['nx'] == 1:
-                    if player.pos[0] + 4 < MAZE_X:
-                        if graph[(player.pos[0] + 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] + 4, player.pos[1])
+                    if player.last_valid_pos[0] + 4 < MAZE_X:
+                        if graph[(player.last_valid_pos[0] + 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] + 4, player.last_valid_pos[1])
                 if player.movement['nx'] == -1:
-                    if player.pos[0] - 4 >= 0:
-                        if graph[(player.pos[0] - 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] - 4, player.pos[1])
+                    if player.last_valid_pos[0] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0] - 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] - 4, player.last_valid_pos[1])
                 if player.movement['ny'] == -1:
-                    if player.pos[1] - 4 >= 0:
-                        if graph[(player.pos[0],
-                                  player.pos[1] - 4)].value != 15:
-                            target = (player.pos[0], player.pos[1] - 4)
+                    if player.last_valid_pos[1] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0],
+                                  player.last_valid_pos[1] - 4)].value != 15:
+                            target = (player.last_valid_pos[0], player.last_valid_pos[1] - 4)
                     if player.movement['ny'] == 1:
-                        if player.pos[1] + 4 >= 0:
-                            if graph[(player.pos[0],
-                                      player.pos[1] + 4)].value != 15:
-                                target = (player.pos[0], player.pos[1] + 4)
+                        if player.last_valid_pos[1] + 4 >= 0:
+                            if graph[(player.last_valid_pos[0],
+                                      player.last_valid_pos[1] + 4)].value != 15:
+                                target = (player.last_valid_pos[0], player.last_valid_pos[1] + 4)
         if player.movement['x'] == -1:
-            if player.pos[0] - 4 >= 0:
-                if graph[(player.pos[0] - 4, player.pos[1])].value != 15:
-                    target = (player.pos[0] - 4, player.pos[1])
+            if player.last_valid_pos[0] - 4 >= 0:
+                if graph[(player.last_valid_pos[0] - 4, player.last_valid_pos[1])].value != 15:
+                    target = (player.last_valid_pos[0] - 4, player.last_valid_pos[1])
             else:
                 if player.movement['nx'] == 1:
-                    if player.pos[0] + 4 < MAZE_X:
-                        if graph[(player.pos[0] + 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] + 4, player.pos[1])
+                    if player.last_valid_pos[0] + 4 < MAZE_X:
+                        if graph[(player.last_valid_pos[0] + 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] + 4, player.last_valid_pos[1])
                 if player.movement['nx'] == -1:
-                    if player.pos[0] - 4 >= 0:
-                        if graph[(player.pos[0] - 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] - 4, player.pos[1])
+                    if player.last_valid_pos[0] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0] - 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] - 4, player.last_valid_pos[1])
                 if player.movement['ny'] == -1:
-                    if player.pos[1] - 4 >= 0:
-                        if graph[(player.pos[0],
-                                  player.pos[1] - 4)].value != 15:
-                            target = (player.pos[0], player.pos[1] - 4)
+                    if player.last_valid_pos[1] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0],
+                                  player.last_valid_pos[1] - 4)].value != 15:
+                            target = (player.last_valid_pos[0], player.last_valid_pos[1] - 4)
                     if player.movement['ny'] == 1:
-                        if player.pos[1] + 4 >= 0:
-                            if graph[(player.pos[0],
-                                      player.pos[1] + 4)].value != 15:
-                                target = (player.pos[0], player.pos[1] + 4)
+                        if player.last_valid_pos[1] + 4 >= 0:
+                            if graph[(player.last_valid_pos[0],
+                                      player.last_valid_pos[1] + 4)].value != 15:
+                                target = (player.last_valid_pos[0], player.last_valid_pos[1] + 4)
         if player.movement['y'] == 1:
-            if player.pos[1] + 4 < MAZE_Y:
-                if graph[(player.pos[0], player.pos[1] + 4)].value != 15:
-                    target = (player.pos[0], player.pos[1] + 4)
+            if player.last_valid_pos[1] + 4 < MAZE_Y:
+                if graph[(player.last_valid_pos[0], player.last_valid_pos[1] + 4)].value != 15:
+                    target = (player.last_valid_pos[0], player.last_valid_pos[1] + 4)
             else:
                 if player.movement['nx'] == 1:
-                    if player.pos[0] + 4 < MAZE_X:
-                        if graph[(player.pos[0] + 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] + 4, player.pos[1])
+                    if player.last_valid_pos[0] + 4 < MAZE_X:
+                        if graph[(player.last_valid_pos[0] + 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] + 4, player.last_valid_pos[1])
                 if player.movement['nx'] == -1:
-                    if player.pos[0] - 4 >= 0:
-                        if graph[(player.pos[0] - 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] - 4, player.pos[1])
+                    if player.last_valid_pos[0] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0] - 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] - 4, player.last_valid_pos[1])
                 if player.movement['ny'] == -1:
-                    if player.pos[1] - 4 >= 0:
-                        if graph[(player.pos[0],
-                                  player.pos[1] - 4)].value != 15:
-                            target = (player.pos[0], player.pos[1] - 4)
+                    if player.last_valid_pos[1] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0],
+                                  player.last_valid_pos[1] - 4)].value != 15:
+                            target = (player.last_valid_pos[0], player.last_valid_pos[1] - 4)
                     if player.movement['ny'] == 1:
-                        if player.pos[1] + 4 >= 0:
-                            if graph[(player.pos[0],
-                                      player.pos[1] + 4)].value != 15:
-                                target = (player.pos[0], player.pos[1] + 4)
+                        if player.last_valid_pos[1] + 4 >= 0:
+                            if graph[(player.last_valid_pos[0],
+                                      player.last_valid_pos[1] + 4)].value != 15:
+                                target = (player.last_valid_pos[0], player.last_valid_pos[1] + 4)
         if player.movement['y'] == -1:
-            if player.pos[1] - 4 >= 0:
-                if graph[(player.pos[0], player.pos[1] - 4)].value != 15:
-                    target = (player.pos[0], player.pos[1] - 4)
+            if player.last_valid_pos[1] - 4 >= 0:
+                if graph[(player.last_valid_pos[0], player.last_valid_pos[1] - 4)].value != 15:
+                    target = (player.last_valid_pos[0], player.last_valid_pos[1] - 4)
             else:
                 if player.movement['nx'] == 1:
-                    if player.pos[0] + 4 < MAZE_X:
-                        if graph[(player.pos[0] + 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] + 4, player.pos[1])
+                    if player.last_valid_pos[0] + 4 < MAZE_X:
+                        if graph[(player.last_valid_pos[0] + 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] + 4, player.last_valid_pos[1])
                 if player.movement['nx'] == -1:
-                    if player.pos[0] - 4 >= 0:
-                        if graph[(player.pos[0] - 4,
-                                  player.pos[1])].value != 15:
-                            target = (player.pos[0] - 4, player.pos[1])
+                    if player.last_valid_pos[0] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0] - 4,
+                                  player.last_valid_pos[1])].value != 15:
+                            target = (player.last_valid_pos[0] - 4, player.last_valid_pos[1])
                 if player.movement['ny'] == -1:
-                    if player.pos[1] - 4 >= 0:
-                        if graph[(player.pos[0],
-                                  player.pos[1] - 4)].value != 15:
-                            target = (player.pos[0], player.pos[1] - 4)
+                    if player.last_valid_pos[1] - 4 >= 0:
+                        if graph[(player.last_valid_pos[0],
+                                  player.last_valid_pos[1] - 4)].value != 15:
+                            target = (player.last_valid_pos[0], player.last_valid_pos[1] - 4)
                     if player.movement['ny'] == 1:
-                        if player.pos[1] + 4 >= 0:
-                            if graph[(player.pos[0],
-                                      player.pos[1] + 4)].value != 15:
-                                target = (player.pos[0], player.pos[1] + 4)
+                        if player.last_valid_pos[1] + 4 >= 0:
+                            if graph[(player.last_valid_pos[0],
+                                      player.last_valid_pos[1] + 4)].value != 15:
+                                target = (player.last_valid_pos[0], player.last_valid_pos[1] + 4)
         return Strategy.follow(start, target, graph)
 
     @staticmethod
@@ -196,8 +196,6 @@ class Strategy(ABC):
                    graph: dict[tuple[int, int], Cell],
                    pacman_pos: tuple[int, int],
                    home: tuple[int, int]) -> tuple[int, int]:
-        print(pacman_pos)
-        print(start)
         if abs(start[0] - pacman_pos[0]) + abs(start[1] - pacman_pos[1]) > 8:
             target = pacman_pos
         else:
@@ -211,4 +209,15 @@ class Strategy(ABC):
                red_pos: tuple[int, int],
                pacman_pos: tuple[int, int],
                graph: dict[tuple[int, int], Cell]):
-        target = pacman_pos
+        candidate = (2 * pacman_pos[0] - red_pos[0],
+                     2 * pacman_pos[1] - red_pos[1])
+        print(candidate)
+        if not 0 < candidate[0] < MAZE_X:
+            target = pacman_pos
+        elif not 0 < candidate[1] < MAZE_Y:
+            target = pacman_pos
+        elif graph[candidate].value == 15:
+            target = pacman_pos
+        else:
+            target = candidate
+        return Strategy.follow(start, target, graph)

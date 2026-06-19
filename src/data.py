@@ -21,7 +21,7 @@ SUPERGUM_COLOR = (120, 255, 0)
 
 SUPERGUM_POINTS = 50
 GUM_POINTS = 10
-STRATEGIES = ["follow", "random"]
+STRATEGIES = ("follow", "random")
 
 
 class Dir(IntFlag):
@@ -55,7 +55,7 @@ class LevelConfig(TypedDict):
 
 
 LEVELS_DATA = {
-    1: LevelData(speed=3, max_gums=50),
-    2: LevelData(speed=4, max_gums=65),
-    3: LevelData(speed=5, max_gums=80),
+    1: LevelData(speed=1, max_gums=50),
+    2: LevelData(speed=1, max_gums=65),
+    3: LevelData(speed=1, max_gums=80),
     }
