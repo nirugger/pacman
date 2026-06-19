@@ -9,8 +9,12 @@ class Cell:
         self.j = pos[1]
         self.value = value
         self.rect: pg.Rect
+
+        self.center: pg.math.Vector2
+
         self.sg = False
         self.g = False
+
 
     def draw(
             self,

@@ -210,5 +210,5 @@ class Strategy(ABC):
     def mirror(start: tuple[[int, int]],
                red_pos: tuple[int, int],
                pacman_pos: tuple[int, int],
-               graph: ):
+               graph: dict[tuple[int, int], Cell]):
         target = pacman_pos

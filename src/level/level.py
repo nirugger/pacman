@@ -1,3 +1,5 @@
+from mypy.server import target
+
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
@@ -75,6 +77,7 @@ class Level:
 
         for c in self.graph.values():
             c.rect = c.draw(level_surface, edge)
+            c.center = pg.math.Vector2(c.rect.center)
             if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:
@@ -84,16 +87,28 @@ class Level:
         return level_surface
 
     def run(self) -> LevelConfig:
-        self.player.set_rect(self.graph)
-        for e in self.level_config['enemies']:
+        # self.player.set_rect(self.graph)
+        for e in self.level_config['entities']:
             e.set_rect(self.graph)
+            e.center = pg.math.Vector2(e.rect.center)
+            e.target_center = pg.math.Vector2(e.rect.center)
+            e.home_center = pg.math.Vector2(e.rect.center)
         self._reset_positions()
         clock = pg.time.Clock()
         self.starting_time = time.time_ns()
         self.surface.fill((15, 20, 25))
+        # for e in self.level_config['entities']:
+        #     if e is self.player:
+        #         e.update_movement(self.graph)
+        #     else:
+        #         e.set_target_on_strategy(
+        #             self.player.last_valid_pos, self.graph, self.player
+        #         )
+        #         e.update_movement(self.graph)
+
 
         while True:
-            clock.tick(60)
+            dt = clock.tick(60) / 1000
             self.playable_surface = self.layout.copy()
             if self.paused:
                 self.speed = 0
@@ -105,7 +120,8 @@ class Level:
             # if self._handle_events() == "menu":
             #     return self.level_config
             self._handle_events()
-            self._handle_movement()
+            # self._handle_movement()
+            self._handle_vector_movement(dt)
             self._handle_collectibles()
             self._draw_frame()
             self._handle_collisions()
@@ -134,6 +150,85 @@ class Level:
             self.total_collected += 1
         if self.total_collected == self.level_config['data']['max_gums'] + 4:
             self.level_config['game_state'] = GameState.WIN
+
+    def _handle_vector_movement(self, dt: float) -> None:
+
+        for e in self.level_config['entities']:
+            # if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
+            #    or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
+            #    and (abs(e.rect.y - self.graph[e.pos].rect.y) >= self.edge
+            #    or abs(e.rect.y - self.graph[e.target].rect.y) <= self.speed)):
+
+            # if ((e.center - self.graph[e.target].center).length() >= self.edge
+            #     or (e.center )):
+            #
+
+            #     e.rect.x = self.graph[e.target].rect.x
+            #     e.rect.y = self.graph[e.target].rect.y
+            #     e.pos = e.target
+            #     e.center = self.graph[e.target].center
+            #
+            #     if e is self.player:
+            #         e.update_movement(self.graph)
+            #     else:
+            #         e.set_target_on_strategy(
+            #             self.player.last_valid_pos, self.graph, self.player
+            #             )
+            #         e.update_movement(self.graph)
+            mov = self.graph[e.target].center - e.center
+            dist = mov.length()
+            # print()
+            # print(movement)
+            # print(dist)
+            # print((self.graph[e.target].center, e.center))
+            if int(dist) <= 1:
+                print("CAMBIO CELLA:")
+                print("pos, target: ", (e.pos, e.target))
+                print()
+                e.pos = e.target
+                e.center = self.graph[e.pos].center
+
+                if e is self.player:
+                    e.update_movement(self.graph)
+                else:
+                    e.set_target_on_strategy(
+                        self.player.last_valid_pos, self.graph, self.player
+                    )
+                    e.update_movement(self.graph)
+            else:
+                movement = mov.normalize() * e.speed * dt
+                e.center += movement
+
+            #
+            # mov = self.graph[e.target].center - e.center
+            # dist = mov.length()
+            # # print((e.pos, e.target))
+            # print((mov, dist))
+            # if dist > 1:
+            #     movement = mov.normalize() * e.speed * dt
+            #     e.center += movement
+            #     print(movement)
+            # else:
+            #     e.pos = e.target
+            #     e.center = self.graph[e.target].center
+            #
+            #     if e is self.player:
+            #         e.update_movement(self.graph)
+            #     else:
+            #         e.set_target_on_strategy(
+            #             self.player.last_valid_pos, self.graph, self.player
+            #             )
+            #         e.update_movement(self.graph)
+            # print((e.pos, e.target))
+            # print((dist))
+            #
+            # if now - e.last_valid_module >= e.speed:
+            #     e.last_valid_module = now
+            #     # e.last_valid_module = module
+            #     e.rect.x += e.movement['x'] * self.speed
+            #     e.rect.y += e.movement['y'] * self.speed
+
+
 
     def _handle_movement(self) -> None:
 

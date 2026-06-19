@@ -10,7 +10,7 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
-PLAYER_SPEED = 10000000
+PLAYER_SPEED = 100.0
 RED_SPEED = 20000000
 CYAN_SPEED = 30000000
 PINK_SPEED = 20000000
@@ -25,12 +25,22 @@ class Character(ABC):
         self.movement: dict[str, int]
         self.speed: int
 
+        self.rect: pg.Rect
+
+        self.center: pg.math.Vector2
+        self.target_center: pg.math.Vector2
+        self.home_center: pg.math.Vector2
+
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
         ...
+    #
+    # @abstractmethod
+    # def update(self, graph: dict[tuple[int, int], Cell]) -> None:
+    #     ...
 
     @abstractmethod
     def set_target_on_strategy(
@@ -140,10 +150,11 @@ class Player(Character):
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.target = self.home
         self.rect.center = graph[self.home].rect.center
+        self.center = self.rect.center
         self.last_valid_module = 0
 
     def draw(self, surface: pg.Surface) -> None:
-        pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 13)
+        pg.draw.circle(surface, PACMAN_COLOR, (int(self.center.x), int(self.center.y)), 13)
 
 
 class Enemy(Character):
