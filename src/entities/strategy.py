@@ -208,16 +208,19 @@ class Strategy(ABC):
     def mirror(start: tuple[[int, int]],
                red_pos: tuple[int, int],
                pacman_pos: tuple[int, int],
-               graph: dict[tuple[int, int], Cell]):
+               graph: dict[tuple[int, int], Cell],
+               last_valid_pos: tuple[int, int]) -> tuple[int, int]:
         candidate = (2 * pacman_pos[0] - red_pos[0],
                      2 * pacman_pos[1] - red_pos[1])
+        print(pacman_pos)
         print(candidate)
+        print(red_pos)
         if not 0 < candidate[0] < MAZE_X:
-            target = pacman_pos
+            target = last_valid_pos
         elif not 0 < candidate[1] < MAZE_Y:
-            target = pacman_pos
+            target = last_valid_pos
         elif graph[candidate].value == 15:
-            target = pacman_pos
+            target = last_valid_pos
         else:
             target = candidate
         return Strategy.follow(start, target, graph)

@@ -1,7 +1,8 @@
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
-                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState)
+                      LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
+                      SUPERGUM_TIME, LEVEL_TIME, GHOST_POINTS)
 
 import pygame as pg
 import time
@@ -17,18 +18,22 @@ class Level:
             level_id: int = 1,
             ) -> None:
 
+        self.surface = surface
         self.level_id = level_id
         self.seed = 42 if level_id == 1 else random.randint(1, 100)
         self.level_config = level_config
+        self.player = self.level_config['player']
+        self.speed = self.level_config['data']['speed']
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
         self.graph: dict[tuple[int, int], Cell] = self._build_graph()
-        self.surface = surface
-        self.player = self.level_config['player']
-        self.paused = False
-        self.playable_surface: pg.Surface
         self.layout: pg.Surface = self._build_layout()
-        self.speed = self.level_config['data']['speed']
+        self.playable_surface: pg.Surface
+        self.ghost_points = GHOST_POINTS
+
+        self.paused = False
         self.total_collected = 0
+        self.starting_time = time.time()
+        self.last_supergum = 0
 
     def _build_graph(self) -> dict[tuple[int, int], Cell]:
         max_gums = self.level_config['data']['max_gums']
@@ -93,7 +98,7 @@ class Level:
             e.home_center = pg.math.Vector2(e.rect.center)
         self._reset_positions()
         clock = pg.time.Clock()
-        self.starting_time = time.time_ns()
+        self.starting_time = time.time()
         self.surface.fill((15, 20, 25))
         # for e in self.level_config['entities']:
         #     if e is self.player:
@@ -114,30 +119,59 @@ class Level:
                 self.speed = self.level_config['data']['speed']
             if self.level_config['game_state'] is GameState.WIN:
                 return self.level_config
+            if self.level_config['game_state'] is GameState.LOSE:
+                return self.level_config
 
             # if self._handle_events() == "menu":
             #     return self.level_config
+            # print(self.player.center.x, self.player.center.y)
             self._handle_events()
+            self._handle_time()
             # self._handle_movement()
             self._handle_vector_movement(dt)
             self._handle_collectibles()
             self._draw_frame()
             self._handle_collisions()
 
+    def _handle_time(self) -> None:
+        if time.time() - self.starting_time >= LEVEL_TIME:
+            self.level_config['game_state'] = GameState.LOSE
+        if time.time() - self.starting_time - self.last_supergum >= SUPERGUM_TIME:
+            self.ghost_points = GHOST_POINTS
+            for e in self.level_config['enemies']:
+                e.frightened = False
+
+
     def _handle_collisions(self) -> None:
-        if self.player.cheat:
-            return
+
         for e in self.level_config['enemies']:
-            if e.rect.collidepoint(self.player.rect.center):
-                time.sleep(1)
-                for ent in self.level_config['entities']:
-                    ent.reset_positions(self.graph)
+            if e.rect.collidepoint(self.player.rect.center) and e.going_home is False:
+                if e.frightened:
+                    e.going_home = True
+                    e.frightened = False
+                    self.player.score += self.ghost_points
+                    self.ghost_points += GHOST_POINTS
+                    # e.reset_positions(self.graph)
+                else:
+                    if self.player.cheat:
+                        return
+
+
+                    self.player.lives -= 1
+                    if self.player.lives == 0:
+                        self.level_config['game_state'] = GameState.LOSE
+                    for ent in self.level_config['entities']:
+                        ent.reset_positions(self.graph)
 
     def _handle_collectibles(self) -> None:
         if self.graph[self.player.pos].sg:
             self.graph[self.player.pos].sg = False
             self.player.score += SUPERGUM_POINTS
             self.layout = self._build_layout()
+            self.last_supergum = time.time() - self.starting_time
+            for e in self.level_config['enemies']:
+                if e.going_home is False:
+                    e.frightened = True
             self.total_collected += 1
         if self.graph[self.player.pos].g:
             self.graph[self.player.pos].g = False

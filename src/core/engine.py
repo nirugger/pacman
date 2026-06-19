@@ -4,6 +4,7 @@ from src.data import (LevelData, LevelConfig, RESOLUTION,
                       LEVELS_DATA, GameState)
 
 import pygame as pg
+import sys
 
 
 # LEVEL_SPEED = 2
@@ -57,6 +58,11 @@ class App:
                     level = self.build_level(level_id=self.current_level)
                     self.game_config = level.run()
                     self.game_state = self.game_config['game_state']
+
+                case GameState.LOSE:
+                    print("COGLIONE")
+                    pg.quit()
+                    sys.exit()
 
             # state = menu.run()
 

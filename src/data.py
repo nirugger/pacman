@@ -19,6 +19,10 @@ PACMAN_COLOR = (255, 255, 0)
 GUM_COLOR = (120, 255, 0)
 SUPERGUM_COLOR = (120, 255, 0)
 
+SUPERGUM_TIME = 15
+LEVEL_TIME = 900
+
+GHOST_POINTS = 200
 SUPERGUM_POINTS = 50
 GUM_POINTS = 10
 STRATEGIES = ("follow", "random")
@@ -41,7 +45,7 @@ class GameState(Enum):
 class LevelData(TypedDict):
     speed: int
     max_gums: int
-
+    ghost_points: int
 
 class LevelConfig(TypedDict):
 

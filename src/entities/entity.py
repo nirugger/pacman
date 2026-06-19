@@ -64,7 +64,7 @@ class Player(Character):
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.speed = PLAYER_SPEED
-        self.lives: int = 3
+        self.lives: int = 1
         self.score: int = 0
         self.cheat: bool = False
 
@@ -160,6 +160,8 @@ class Enemy(Character):
         self.color = color
         self.movement = {'x': 0, 'y': 0}
         self.strategy: str = ''
+        self.frightened = False
+        self.going_home = False
 
     def set_target_on_strategy(
             self,
@@ -168,6 +170,12 @@ class Enemy(Character):
             player: Player,
             red_pos: tuple[int, int]
             ) -> None:
+        if self.going_home:
+            self.target = Strategy.follow(self.pos, self.home, graph)
+            if self.pos == self.home:
+                self.going_home = False
+            return
+
         match self.strategy:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)
@@ -179,7 +187,7 @@ class Enemy(Character):
                 self.target = Strategy.eight_cell(self.pos, graph, end,
                                                   self.home)
             case "mirror":
-                self.target = Strategy.mirror(self.pos, red_pos, end, graph)
+                self.target = Strategy.mirror(self.pos, red_pos, player.pos, graph, player.last_valid_pos)
 
     def update_movement(
             self,
@@ -210,9 +218,13 @@ class Enemy(Character):
         self.movement = {'x': 0, 'y': 0}
         self.rect.center = graph[self.home].rect.center
         self.center = graph[self.home].center.copy()
+        self.frightened = False
 
     def draw(self, surface: pg.Surface) -> None:
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
+        if self.frightened:
+            pg.draw.circle(surface, 'white', (int(self.center.x), int(self.center.y)), 13)
+            return
         pg.draw.circle(surface, self.color, (int(self.center.x), int(self.center.y)), 13)
 
 
