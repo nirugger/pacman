@@ -142,7 +142,7 @@ class Player(Entity):
     def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
         self.pos = self.home
         self.target = self.home
-        self.rect.center = graph[self.home].rect.center
+        # self.rect.center = graph[self.home].rect.center
         self.center = graph[self.home].center.copy()
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
@@ -170,14 +170,20 @@ class Enemy(Entity):
             end: tuple[int, int],
             graph: dict[tuple[int, int], Cell],
             player: Player,
-            red_pos: tuple[int, int]
+            red_pos: tuple[int, int],
+            scatter: bool
             ) -> None:
         if self.going_home:
             self.target = Strategy.follow(self.pos, self.home, graph)
             if self.pos == self.home:
                 self.going_home = False
             return
-        strat = self.strategy[self.turn % len(self.strategy)]
+        if self.frightened:
+            strat = "random"
+        elif scatter:
+            strat = "scatter"
+        else:
+            strat = self.strategy[self.turn % len(self.strategy)]
         match strat:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)
@@ -191,6 +197,8 @@ class Enemy(Entity):
             case "mirror":
                 self.target = Strategy.mirror(self.pos, red_pos, player.pos,
                                               graph, player.last_valid_pos)
+            case "scatter":
+                self.target = Strategy.scatter(self.pos, self.home, graph)
 
     def update_movement(
             self,

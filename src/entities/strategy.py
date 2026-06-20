@@ -222,3 +222,12 @@ class Strategy(ABC):
         else:
             target = candidate
         return Strategy.follow(start, target, graph)
+
+    @staticmethod
+    def scatter(start: tuple[int, int],
+                home: tuple[int, int],
+                graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+        if abs(start[0] - home[0]) + abs(start[1] - home[1]) > 4:
+            return Strategy.follow(start, home, graph)
+        else:
+            return Strategy.random(start, graph)
