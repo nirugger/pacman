@@ -1,3 +1,5 @@
+import time
+
 from src.level.level import Level
 from src.entities.entity import Player, Red, Pink, Cyan, Orange, Enemy
 from src.data import (LevelData, LevelConfig, RESOLUTION,
@@ -53,6 +55,7 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.LOSE:
+                    self._get_score()
                     print("COGLIONE")
                     pg.quit()
                     sys.exit()
@@ -82,3 +85,19 @@ class App:
             case _:
                 raise ValueError("Unrecognised color")
         return enemy
+
+    def _get_score(self) -> None:
+        import json
+        from datetime import date
+        name = input("Enter your name: ")
+        with open("game_data/highscores.json", "r") as score_file:
+            scores = json.load(score_file)
+            scores['highscores'].append({"name": name,
+                                         "score": self.player.score,
+                                         "date": date.today().__str__()})
+            scores['highscores'] = sorted(scores['highscores'], reverse=True,
+                                          key=lambda x: x['score'])
+            scores.update({'highscores': scores['highscores'][:10]})
+            print(scores)
+        with open("game_data/highscores.json", "w") as score_file:
+            score_file.write(json.dumps(scores, indent=4))

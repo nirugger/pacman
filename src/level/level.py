@@ -147,7 +147,6 @@ class Level:
 
         clock = pg.time.Clock()
         while True:
-            print((self.seconds, self.scatter))
             dt = clock.tick(60) / 1000
             if not self.paused:
                 self.seconds += dt
