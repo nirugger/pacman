@@ -36,9 +36,9 @@ class Level:
         self.ghost_points = GHOST_POINTS
 
         self.paused = False
-        self.last_supergum = 0
+        self.last_supergum = 0.0
         self.fruit_check = True
-        self.last_fruit = 0
+        self.last_fruit = 0.0
         self.total_collected = 0
 
     def _build_enemies(self) -> list[Enemy]:
@@ -224,7 +224,6 @@ class Level:
             self.layout = self._build_layout()
             self.last_fruit = self.seconds
             self.fruit_check = False
-
 
         if self.graph[self.player.pos].fruit:
             self.graph[self.player.pos].fruit = False
