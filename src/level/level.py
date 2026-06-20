@@ -155,7 +155,6 @@ class Level:
                 return self.level_config
             if self.level_config['game_state'] is GameState.LOSE:
                 return self.level_config
-
             # if self._handle_events() == "menu":
             #     return self.level_config
             # print(self.player.center.x, self.player.center.y)

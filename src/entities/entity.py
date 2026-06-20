@@ -63,7 +63,7 @@ class Player(Entity):
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.speed = PLAYER_SPEED
-        self.lives: int = 1
+        self.lives: int = 99
         self.score: int = 0
         self.cheat: bool = False
 
@@ -178,7 +178,6 @@ class Enemy(Entity):
                 self.going_home = False
             return
         strat = self.strategy[self.turn % len(self.strategy)]
-        print(len(self.strategy))
         match strat:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)

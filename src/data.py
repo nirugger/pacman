@@ -62,17 +62,17 @@ class LevelConfig(TypedDict):
 
 LEVELS_DATA = {
     1: LevelData(max_gums=50, strategies={
-        "red": ("follow", "follow", "random", "follow", "eight_cells"),
+        "red": ("follow", "follow", "random", "follow", "eight_cell"),
         "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
-        "cyan": ("eight_cells", "mirror", "eight_cells", "anticipate",
-                 "eight_cells"),
+        "cyan": ("eight_cell", "mirror", "eight_cell", "anticipate",
+                 "eight_cell"),
         "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")}),
-    2: LevelData(max_gums=65, strategies={"red": ("follow", "follow", "random", "follow", "eight_cells"),
-                                          "pink": ("anticipate", "anticipate"),
-                                          "cyan": ("eight_cells", "eight_cells"),
-                                          "orange": ("mirror", "mirror")}),
-    3: LevelData(max_gums=80, strategies={"red": ("follow", "follow", "random", "follow", "eight_cells"),
-                                          "pink": ("anticipate", "anticipate"),
-                                          "cyan": ("eight_cells", "eight_cells"),
-                                          "orange": ("mirror", "mirror")})
+    2: LevelData(max_gums=65, strategies={"red": ("follow",),
+                                          "pink": ("anticipate",),
+                                          "cyan": ("eight_cell",),
+                                          "orange": ("mirror",)}),
+    3: LevelData(max_gums=80, strategies={"red": ("follow",),
+                                          "pink": ("anticipate",),
+                                          "cyan": ("eight_cell",),
+                                          "orange": ("mirror",)}),
 }
