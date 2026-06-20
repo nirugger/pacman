@@ -1,11 +1,12 @@
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
+from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
-                      SUPERGUM_TIME, LEVEL_TIME, GHOST_POINTS)
+                      SUPERGUM_TIME, LEVEL_TIME, GHOST_POINTS, FRUIT_TIME,
+                      FRUIT_POINTS)
 
 import pygame as pg
-import time
 import random
 import sys
 
@@ -23,7 +24,11 @@ class Level:
         self.seed = 42 if level_id == 1 else random.randint(1, 100)
         self.level_config = level_config
         self.player = self.level_config['player']
-        self.speed = self.level_config['data']['speed']
+        self.enemies = self._build_enemies()
+        self.entities = [self.player] + self.enemies
+        self.seconds = 0.0
+
+        self.speed = 1
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
         self.graph: dict[tuple[int, int], Cell] = self._build_graph()
         self.layout: pg.Surface = self._build_layout()
@@ -31,9 +36,32 @@ class Level:
         self.ghost_points = GHOST_POINTS
 
         self.paused = False
-        self.total_collected = 0
-        self.starting_time = time.time()
         self.last_supergum = 0
+        self.fruit_check = True
+        self.last_fruit = 0
+        self.total_collected = 0
+
+    def _build_enemies(self) -> list[Enemy]:
+        e: list[Enemy] = []
+        for color in ("red", "pink", "cyan", "orange"):
+            enemy: Enemy
+            match color:
+                case "red":
+                    enemy = Red(color, self.level_config['data']
+                                ['strategies'][color])
+                case "pink":
+                    enemy = Pink(color, self.level_config['data']
+                                 ['strategies'][color])
+                case "cyan":
+                    enemy = Cyan(color, self.level_config['data']
+                                 ['strategies'][color])
+                case "orange":
+                    enemy = Orange(color, self.level_config['data']
+                                   ['strategies'][color])
+                case _:
+                    raise ValueError("Unrecognised color")
+            e.append(enemy)
+        return e
 
     def _build_graph(self) -> dict[tuple[int, int], Cell]:
         max_gums = self.level_config['data']['max_gums']
@@ -50,6 +78,7 @@ class Level:
                 elif (i == len(self.maze.maze) - 1
                         and j == len(self.maze.maze[0]) - 1):
                     graph[(j, i)].sg = True
+
         counter = 0
         candidates = [
             c for c in graph.values()
@@ -85,22 +114,25 @@ class Level:
                 self.draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:
                 self.draw_gum(level_surface, (c.i, c.j))
+            elif c.fruit:
+                self.draw_fruit(level_surface, (c.j, c.i))
 
         self.playable_surface = level_surface.copy()
         return level_surface
 
-    def run(self) -> LevelConfig:
-        # self.player.set_rect(self.graph)
-        for e in self.level_config['entities']:
+    def setup_level(self) -> None:
+        for e in self.entities:
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)
             e.target_center = pg.math.Vector2(e.rect.center)
             e.home_center = pg.math.Vector2(e.rect.center)
-        self._reset_positions()
-        clock = pg.time.Clock()
-        self.starting_time = time.time()
         self.surface.fill((15, 20, 25))
-        # for e in self.level_config['entities']:
+
+    def run(self) -> LevelConfig:
+        # self.player.set_rect(self.graph)
+        self.setup_level()
+        # self.starting_time = time.time()
+        # for e in self.entities:
         #     if e is self.player:
         #         e.update_movement(self.graph)
         #     else:
@@ -109,14 +141,16 @@ class Level:
         #         )
         #         e.update_movement(self.graph)
 
-
+        clock = pg.time.Clock()
         while True:
             dt = clock.tick(60) / 1000
+            if not self.paused:
+                self.seconds += dt
             self.playable_surface = self.layout.copy()
             if self.paused:
                 self.speed = 0
             else:
-                self.speed = self.level_config['data']['speed']
+                self.speed = 1
             if self.level_config['game_state'] is GameState.WIN:
                 return self.level_config
             if self.level_config['game_state'] is GameState.LOSE:
@@ -134,18 +168,22 @@ class Level:
             self._handle_collisions()
 
     def _handle_time(self) -> None:
-        if time.time() - self.starting_time >= LEVEL_TIME:
+
+        if self.seconds >= LEVEL_TIME:
             self.level_config['game_state'] = GameState.LOSE
-        if time.time() - self.starting_time - self.last_supergum >= SUPERGUM_TIME:
+
+        if (self.seconds - self.last_supergum >= SUPERGUM_TIME):
             self.ghost_points = GHOST_POINTS
-            for e in self.level_config['enemies']:
+            for e in self.enemies:
                 e.frightened = False
 
+        if self.seconds - self.last_fruit >= FRUIT_TIME:
+            self.graph[MAZE_X // 2, MAZE_Y // 2].fruit = False
 
     def _handle_collisions(self) -> None:
-
-        for e in self.level_config['enemies']:
-            if e.rect.collidepoint(self.player.rect.center) and e.going_home is False:
+        for e in self.enemies:
+            if (e.rect.collidepoint(self.player.rect.center)
+                    and e.going_home is False):
                 if e.frightened:
                     e.going_home = True
                     e.frightened = False
@@ -155,12 +193,10 @@ class Level:
                 else:
                     if self.player.cheat:
                         return
-
-
                     self.player.lives -= 1
                     if self.player.lives == 0:
                         self.level_config['game_state'] = GameState.LOSE
-                    for ent in self.level_config['entities']:
+                    for ent in self.entities:
                         ent.reset_positions(self.graph)
 
     def _handle_collectibles(self) -> None:
@@ -168,22 +204,40 @@ class Level:
             self.graph[self.player.pos].sg = False
             self.player.score += SUPERGUM_POINTS
             self.layout = self._build_layout()
-            self.last_supergum = time.time() - self.starting_time
-            for e in self.level_config['enemies']:
+            self.last_supergum = self.seconds
+            self.total_collected += 1
+            self.fruit_check = True
+            for e in self.enemies:
                 if e.going_home is False:
                     e.frightened = True
-            self.total_collected += 1
         if self.graph[self.player.pos].g:
             self.graph[self.player.pos].g = False
             self.player.score += GUM_POINTS
             self.layout = self._build_layout()
             self.total_collected += 1
+            self.fruit_check = True
+
+        gums = self.level_config['data']['max_gums']
+        if ((self.total_collected == gums * 3 // 10 or
+                self.total_collected == gums * 7 // 10) and
+                self.fruit_check):
+            self.graph[(MAZE_X // 2, MAZE_Y // 2)].fruit = True
+            self.layout = self._build_layout()
+            self.last_fruit = self.seconds
+            self.fruit_check = False
+
+
+        if self.graph[self.player.pos].fruit:
+            self.graph[self.player.pos].fruit = False
+            self.player.score += FRUIT_POINTS
+            self.layout = self._build_layout()
+            self.fruit_check = False
+
         if self.total_collected == self.level_config['data']['max_gums'] + 4:
             self.level_config['game_state'] = GameState.WIN
 
     def _handle_vector_movement(self, dt: float) -> None:
-
-        for e in self.level_config['entities']:
+        for e in self.entities:
             mov = self.graph[e.target].center - e.center
             dist = mov.length()
             if int(dist) == 0:
@@ -195,7 +249,8 @@ class Level:
                     e.update_movement(self.graph)
                 else:
                     e.set_target_on_strategy(
-                        self.player.last_valid_pos, self.graph, self.player, self.level_config['enemies'][0].pos
+                        self.player.last_valid_pos, self.graph,
+                        self.player, self.enemies[0].pos
                     )
                     e.update_movement(self.graph)
             else:
@@ -203,15 +258,15 @@ class Level:
                 e.center += movement * self.speed
                 e.rect.center = (round(e.center.x), round(e.center.y))
 
-
     # def _handle_movement(self) -> None:
 
     #     now = (time.time_ns() - self.starting_time)
-    #     for e in self.level_config['entities']:
+    #     for e in self.entities:
     #         if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
     #            or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
     #            and (abs(e.rect.y - self.graph[e.pos].rect.y) >= self.edge
-    #            or abs(e.rect.y - self.graph[e.target].rect.y) <= self.speed)):
+    #            or abs(e.rect.y - self.graph[e.target].rect.y) <=
+    #  self.speed)):
 
     #             e.pos = e.target
     #             e.rect.x = self.graph[e.target].rect.x
@@ -283,15 +338,30 @@ class Level:
     def _reset_positions(self) -> None:
         self.player.reset_positions(self.graph)
 
-        for e in self.level_config['enemies']:
+        for e in self.enemies:
             e.reset_positions(self.graph)
 
     def _draw_frame(self) -> None:
-        for e in self.level_config['entities']:
+        for e in self.entities:
             e.draw(self.playable_surface)
 
         self.surface.blit(self.playable_surface, (PAD, PAD))
         pg.display.flip()
+
+    def draw_fruit(
+            self,
+            surface: pg.Surface,
+            coord: tuple[int, int]
+            ) -> None:
+
+        color = (random.randint(0, 255), random.randint(0, 255),
+                 random.randint(0, 255))
+
+        pg.draw.circle(
+            surface, color,
+            self.graph[(coord[0], coord[1])].rect.center,
+            radius=8, width=6
+        )
 
     def draw_super_gums(
             self,

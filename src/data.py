@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.entities.entity import Player, Enemy, Character
+    from src.entities.entity import Player
 
 from typing import TypedDict
 from enum import Enum, IntFlag
@@ -19,9 +19,11 @@ PACMAN_COLOR = (255, 255, 0)
 GUM_COLOR = (120, 255, 0)
 SUPERGUM_COLOR = (120, 255, 0)
 
-SUPERGUM_TIME = 15
-LEVEL_TIME = 900
+FRUIT_TIME = 10
+SUPERGUM_TIME = 12
+LEVEL_TIME = 90
 
+FRUIT_POINTS = 300
 GHOST_POINTS = 200
 SUPERGUM_POINTS = 50
 GUM_POINTS = 10
@@ -43,15 +45,15 @@ class GameState(Enum):
 
 
 class LevelData(TypedDict):
-    speed: int
     max_gums: int
-    ghost_points: int
+    strategies: dict[str, tuple[str, ...]]
+
 
 class LevelConfig(TypedDict):
 
     player: Player
-    enemies: list[Enemy]
-    entities: list[Character]
+    # enemies: list[Enemy]
+    # entities: list[Entity]
     data: LevelData
     game_state: GameState
     # status: GameStatus
@@ -59,7 +61,18 @@ class LevelConfig(TypedDict):
 
 
 LEVELS_DATA = {
-    1: LevelData(speed=1, max_gums=50),
-    2: LevelData(speed=1, max_gums=65),
-    3: LevelData(speed=1, max_gums=80),
-    }
+    1: LevelData(max_gums=50, strategies={
+        "red": ("follow", "follow", "random", "follow", "eight_cells"),
+        "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
+        "cyan": ("eight_cells", "mirror", "eight_cells", "anticipate",
+                 "eight_cells"),
+        "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")}),
+    2: LevelData(max_gums=65, strategies={"red": ("follow", "follow", "random", "follow", "eight_cells"),
+                                          "pink": ("anticipate", "anticipate"),
+                                          "cyan": ("eight_cells", "eight_cells"),
+                                          "orange": ("mirror", "mirror")}),
+    3: LevelData(max_gums=80, strategies={"red": ("follow", "follow", "random", "follow", "eight_cells"),
+                                          "pink": ("anticipate", "anticipate"),
+                                          "cyan": ("eight_cells", "eight_cells"),
+                                          "orange": ("mirror", "mirror")})
+}

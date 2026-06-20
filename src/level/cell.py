@@ -14,7 +14,7 @@ class Cell:
 
         self.sg = False
         self.g = False
-
+        self.fruit = False
 
     def draw(
             self,

@@ -17,7 +17,7 @@ PINK_SPEED = 110.0
 ORANGE_SPEED = 105.0
 
 
-class Character(ABC):
+class Entity(ABC):
     def __init__(self):
         self.home: tuple[int, int]
         self.pos: tuple[int, int]
@@ -39,12 +39,11 @@ class Character(ABC):
         ...
 
     @abstractmethod
-    def set_target_on_strategy(
-        self,
-        end: tuple[int, int],
-        graph: dict[tuple[int, int], Cell],
-        player: Player
-         ) -> None:
+    def set_target_on_strategy(self,
+                               end: tuple[int, int],
+                               graph: dict[tuple[int, int], Cell],
+                               player: Player
+                               ) -> None:
         ...
 
     @abstractmethod
@@ -56,7 +55,7 @@ class Character(ABC):
         ...
 
 
-class Player(Character):
+class Player(Entity):
     def __init__(self) -> None:
         self.home = (MAZE_X // 2, MAZE_Y // 2)
         self.pos = self.home
@@ -140,26 +139,29 @@ class Player(Character):
         if graph[self.pos].value != 15:
             self.last_valid_pos = self.pos
 
-    def reset_positions(self, graph: dict[tuple[int, int], Cell]):
+    def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
         self.pos = self.home
-        self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.target = self.home
         self.rect.center = graph[self.home].rect.center
         self.center = graph[self.home].center.copy()
+        self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
     def draw(self, surface: pg.Surface) -> None:
-        # pg.draw.circle(surface, PACMAN_COLOR, self.rect.center, 13)
-        pg.draw.circle(surface, PACMAN_COLOR, (int(self.center.x), int(self.center.y)), 13)
+        pg.draw.circle(surface, PACMAN_COLOR,
+                       (int(self.center.x), int(self.center.y)), 13)
 
 
-class Enemy(Character):
+class Enemy(Entity):
     def __init__(
             self,
-            color: str
+            color: str,
+            strategy: tuple[str, ...]
             ) -> None:
         self.color = color
         self.movement = {'x': 0, 'y': 0}
-        self.strategy: str = ''
+        self.strategy = strategy
+        # self.strategy: str = ''
+        self.turn: int = 0
         self.frightened = False
         self.going_home = False
 
@@ -175,8 +177,9 @@ class Enemy(Character):
             if self.pos == self.home:
                 self.going_home = False
             return
-
-        match self.strategy:
+        strat = self.strategy[self.turn % len(self.strategy)]
+        print(len(self.strategy))
+        match strat:
             case "follow":
                 self.target = Strategy.follow(self.pos, end, graph)
             case "random":
@@ -187,13 +190,14 @@ class Enemy(Character):
                 self.target = Strategy.eight_cell(self.pos, graph, end,
                                                   self.home)
             case "mirror":
-                self.target = Strategy.mirror(self.pos, red_pos, player.pos, graph, player.last_valid_pos)
+                self.target = Strategy.mirror(self.pos, red_pos, player.pos,
+                                              graph, player.last_valid_pos)
 
     def update_movement(
             self,
             graph: dict[tuple[int, int], Cell],
             ) -> None:
-
+        self.turn += 1
         x, y = self.pos
         nx, ny = self.target
         if nx < x:
@@ -212,7 +216,7 @@ class Enemy(Character):
             self.movement['x'] = 0
             self.movement['y'] = 0
 
-    def reset_positions(self, graph: dict[tuple[int, int], Cell]):
+    def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
         self.pos = self.home
         self.target = self.home
         self.movement = {'x': 0, 'y': 0}
@@ -223,46 +227,48 @@ class Enemy(Character):
     def draw(self, surface: pg.Surface) -> None:
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
         if self.frightened:
-            pg.draw.circle(surface, 'white', (int(self.center.x), int(self.center.y)), 13)
+            pg.draw.circle(surface, 'white',
+                           (int(self.center.x), int(self.center.y)), 13)
             return
-        pg.draw.circle(surface, self.color, (int(self.center.x), int(self.center.y)), 13)
+        if self.going_home:
+            pg.draw.circle(surface, 'blue',
+                           (int(self.center.x), int(self.center.y)), 13)
+            return
+        pg.draw.circle(surface, self.color,
+                       (int(self.center.x), int(self.center.y)), 13)
 
 
 class Red(Enemy):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(color, strategy)
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "follow"
         self.speed = RED_SPEED
 
 
 class Pink(Enemy):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(color, strategy)
         self.home = (0, 0)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "anticipate"
         self.speed = PINK_SPEED
 
 
 class Cyan(Enemy):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(color, strategy)
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "eight_cell"
         self.speed = CYAN_SPEED
 
 
 class Orange(Enemy):
-    def __init__(self, color: str) -> None:
-        super().__init__(color)
+    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(color, strategy)
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
-        self.strategy = "mirror"
         self.speed = ORANGE_SPEED
