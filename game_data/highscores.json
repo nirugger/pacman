@@ -1,8 +1,33 @@
 {
     "highscores": [
         {
+            "name": "pino",
+            "score": 2300,
+            "date": "2026-06-20"
+        },
+        {
+            "name": "ormp",
+            "score": 1680,
+            "date": "2026-06-20"
+        },
+        {
             "name": "GINO",
             "score": 1350,
+            "date": "2026-06-20"
+        },
+        {
+            "name": "pipo",
+            "score": 1350,
+            "date": "2026-06-20"
+        },
+        {
+            "name": "poppo",
+            "score": 1270,
+            "date": "2026-06-20"
+        },
+        {
+            "name": "assa",
+            "score": 1240,
             "date": "2026-06-20"
         }
     ]

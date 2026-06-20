@@ -55,7 +55,7 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.LOSE:
-                    self._get_score()
+                    self._save_score()
                     print("COGLIONE")
                     pg.quit()
                     sys.exit()
@@ -86,7 +86,7 @@ class App:
                 raise ValueError("Unrecognised color")
         return enemy
 
-    def _get_score(self) -> None:
+    def _save_score(self) -> None:
         import json
         from datetime import date
         name = input("Enter your name: ")
@@ -98,6 +98,5 @@ class App:
             scores['highscores'] = sorted(scores['highscores'], reverse=True,
                                           key=lambda x: x['score'])
             scores.update({'highscores': scores['highscores'][:10]})
-            print(scores)
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))

@@ -1,3 +1,4 @@
+
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
@@ -169,6 +170,7 @@ class Level:
             self._handle_collectibles()
             self._draw_frame()
             self._handle_collisions()
+            self._show_info()
 
     def _handle_time(self) -> None:
 
@@ -341,6 +343,32 @@ class Level:
                 pg.quit()
                 sys.exit()
         return
+
+    def _show_info(self) -> None:
+        width = (self.surface.get_width() - self.playable_surface.get_width()
+                 - 2 * PAD)
+        height = self.playable_surface.get_height()
+        info_surface = pg.Surface((width, height))
+        info_surface.fill("white")
+        thickness = 5
+        internal_rect = pg.Rect(thickness,
+                                thickness,
+                                width - 2 * thickness,
+                                height - 2 * thickness)
+        pg.draw.rect(info_surface, (15, 20, 25), internal_rect)
+        font = pg.font.SysFont("arial", 32)
+        for i in range(50, 200, 50):
+            if i == 50:
+                text = f"Time Left: {90 - int(self.seconds)}"
+            if i == 100:
+                text = f"Lives: {self.player.lives}"
+            if i == 150:
+                text = f"Score: {self.player.score}"
+            text_surface = font.render(text, True, "white")
+            info_surface.blit(text_surface, (10, i))
+            pg.display.flip()
+        self.surface.blit(info_surface, (self.playable_surface.get_width()
+                                         + PAD, PAD))
 
     def _reset_positions(self) -> None:
         self.player.reset_positions(self.graph)
