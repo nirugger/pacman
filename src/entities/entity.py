@@ -10,11 +10,11 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
-PLAYER_SPEED = 120.0
-RED_SPEED = 115.0
-CYAN_SPEED = 100.0
-PINK_SPEED = 110.0
-ORANGE_SPEED = 105.0
+PLAYER_SPEED = 120
+RED_SPEED = 115
+CYAN_SPEED = 100
+PINK_SPEED = 110
+ORANGE_SPEED = 105
 
 
 class Entity(ABC):
@@ -200,6 +200,8 @@ class Enemy(Entity):
                                               graph, player.last_valid_pos)
             case "scatter":
                 self.target = Strategy.scatter(self.pos, self.home, graph)
+        if self.target == self.pos:
+            self.target = Strategy.random(self.pos, graph)
 
     def update_movement(
             self,

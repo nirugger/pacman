@@ -68,21 +68,21 @@ class App:
         player = Player()
         return player
 
-    @staticmethod
-    def _create_enemy(color: str) -> Enemy:
-        enemy: Enemy
-        match color:
-            case "red":
-                enemy = Red(color)
-            case "pink":
-                enemy = Pink(color)
-            case "cyan":
-                enemy = Cyan(color)
-            case "orange":
-                enemy = Orange(color)
-            case _:
-                raise ValueError("Unrecognised color")
-        return enemy
+    # @staticmethod
+    # def _create_enemy(color: str) -> Enemy:
+    #     enemy: Enemy
+    #     match color:
+    #         case "red":
+    #             enemy = Red(color)
+    #         case "pink":
+    #             enemy = Pink(color)
+    #         case "cyan":
+    #             enemy = Cyan(color)
+    #         case "orange":
+    #             enemy = Orange(color)
+    #         case _:
+    #             raise ValueError("Unrecognised color")
+    #     return enemy
 
     def _save_score(self) -> None:
         import json

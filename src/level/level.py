@@ -104,7 +104,8 @@ class Level:
         self.edge = edge
 
         for c in graph.values():
-            c.rect = pg.Rect(c.i * self.edge, c.j * self.edge, self.edge, self.edge)
+            c.rect = pg.Rect(c.i * self.edge, c.j * self.edge,
+                             self.edge, self.edge)
             c.center = pg.math.Vector2(c.rect.center)
         return graph
 
@@ -346,10 +347,12 @@ class Level:
 
             if event.type == pg.MOUSEBUTTONDOWN:
 
-                if 'continue' in self.buttons and self.buttons['continue'].collidepoint(pg.mouse.get_pos()):
+                if ('continue' in self.buttons and self.buttons['continue'].
+                        collidepoint(pg.mouse.get_pos())):
                     self.paused = False
-                
-                if 'exit' in self.buttons and self.buttons['exit'].collidepoint(pg.mouse.get_pos()):
+
+                if ('exit' in self.buttons and self.buttons['exit'].
+                        collidepoint(pg.mouse.get_pos())):
                     self.level_config['game_state'] = GameState.LOSE
 
             if event.type == pg.QUIT:
@@ -442,16 +445,21 @@ class Level:
         surface.fill((15, 20, 25, 200))
 
         text_surface = font.render("CONTINUE", True, 'white')
-        self.buttons['continue'] = surface.blit(text_surface, (surface.get_width() // 2 - text_surface.get_width() // 2, surface.get_height() // 2 - font_h))
+        self.buttons['continue'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2
+                                                 - text_surface.get_width()
+                                                 // 2, surface.get_height() //
+                                                 2 - font_h))
         self.buttons['continue'].x += PAD
         self.buttons['continue'].y += PAD
 
         text_surface = font.render("EXIT", True, 'white')
-        self.buttons['exit'] = surface.blit(text_surface, (surface.get_width() // 2 - text_surface.get_width() // 2, surface.get_height() // 2 + font_h))
+        self.buttons['exit'] = surface.blit(text_surface,
+                                            (surface.get_width() // 2 -
+                                             text_surface.get_width() // 2,
+                                             surface.get_height() // 2 +
+                                             font_h))
         self.buttons['exit'].x += PAD
         self.buttons['exit'].y += PAD
-
-
-
 
         self.surface.blit(surface, (PAD, PAD))
