@@ -1,14 +1,29 @@
 {
     "highscores": [
         {
+            "name": "coglione",
+            "score": 2740,
+            "date": "2026-06-22"
+        },
+        {
             "name": "pino",
             "score": 2300,
             "date": "2026-06-20"
         },
         {
+            "name": "   ",
+            "score": 1760,
+            "date": "2026-06-22"
+        },
+        {
             "name": "ormp",
             "score": 1680,
             "date": "2026-06-20"
+        },
+        {
+            "name": "ciao",
+            "score": 1560,
+            "date": "2026-06-22"
         },
         {
             "name": "GINO",

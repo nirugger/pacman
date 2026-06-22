@@ -5,7 +5,7 @@ from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, LEVEL_TIME, GHOST_POINTS, FRUIT_TIME,
-                      FRUIT_POINTS)
+                      FRUIT_POINTS, CELL_COLOR)
 
 import pygame as pg
 import random
@@ -45,6 +45,8 @@ class Level:
         self.last_fruit = 0.0
         self.total_collected = 0
 
+        self.buttons: dict[str, pg.Rect] = {}
+
     def _build_enemies(self) -> list[Enemy]:
         e: list[Enemy] = []
         for color in ("red", "pink", "cyan", "orange"):
@@ -83,17 +85,15 @@ class Level:
                         and j == len(self.maze.maze[0]) - 1):
                     graph[(j, i)].sg = True
 
-        counter = 0
         candidates = [
             c for c in graph.values()
             if c.sg is False and c.value != 15
             and (c.j, c.i) != (MAZE_Y // 2, MAZE_X // 2)
             ]
-        while counter < max_gums:
+        for _ in range(max_gums):
             c = random.choice(candidates)
             candidates.remove(c)
             c.g = True
-            counter += 1
 
         screen_w = self.surface.get_width()
         screen_h = self.surface.get_height()
@@ -124,17 +124,17 @@ class Level:
             elif c.fruit:
                 self.draw_fruit(level_surface, (c.j, c.i))
 
-        self.playable_surface = level_surface.copy()
+        # self.playable_surface = level_surface.copy()
         return level_surface
 
     def setup_level(self) -> None:
-        self._reset_positions()
+        self.player.reset_positions(self.graph)
         for e in self.entities:
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)
             e.target_center = pg.math.Vector2(e.rect.center)
             e.home_center = pg.math.Vector2(e.rect.center)
-        self.surface.fill((15, 20, 25))
+        self.surface.fill((220, 220, 25))
 
     def run(self) -> LevelConfig:
         # self.player.set_rect(self.graph)
@@ -151,9 +151,10 @@ class Level:
 
         clock = pg.time.Clock()
         while True:
+            self.buttons.clear()
             dt = clock.tick(60) / 1000
-            if not self.paused:
-                self.seconds += dt
+            # if not self.paused:
+            self.seconds += dt * self.speed
             self.playable_surface = self.layout.copy()
             if self.paused:
                 self.speed = 0
@@ -165,15 +166,13 @@ class Level:
                 return self.level_config
             # if self._handle_events() == "menu":
             #     return self.level_config
-            # print(self.player.center.x, self.player.center.y)
-            self._handle_events()
             self._handle_time()
-            # self._handle_movement()
             self._handle_vector_movement(dt)
             self._handle_collectibles()
             self._draw_frame()
             self._handle_collisions()
             self._show_info()
+            self._handle_events()
 
     def _handle_time(self) -> None:
 
@@ -185,7 +184,7 @@ class Level:
             for e in self.enemies:
                 e.frightened = False
 
-        if SCATTER_RANGE[0] <= self.seconds <= SCATTER_RANGE[1]:
+        if SCATTER_RANGE[0] <= int(self.seconds) <= SCATTER_RANGE[1]:
             self.scatter = True
         else:
             self.scatter = False
@@ -313,9 +312,12 @@ class Level:
                     pass
 
                 if event.key == pg.K_RIGHT:
-                    self.paused = False
-                    self.player.movement['nx'] = 1
-                    self.player.movement['ny'] = 0
+                    if self.paused:
+                        pass
+                    else:
+                        self.paused = False
+                        self.player.movement['nx'] = 1
+                        self.player.movement['ny'] = 0
 
                 if event.key == pg.K_LEFT:
                     self.paused = False
@@ -342,6 +344,14 @@ class Level:
                     pg.quit()
                     sys.exit()
 
+            if event.type == pg.MOUSEBUTTONDOWN:
+
+                if 'continue' in self.buttons and self.buttons['continue'].collidepoint(pg.mouse.get_pos()):
+                    self.paused = False
+                
+                if 'exit' in self.buttons and self.buttons['exit'].collidepoint(pg.mouse.get_pos()):
+                    self.level_config['game_state'] = GameState.LOSE
+
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
@@ -352,7 +362,7 @@ class Level:
                  - 2 * PAD)
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
-        info_surface.fill("white")
+        info_surface.fill(CELL_COLOR)
         thickness = 5
         internal_rect = pg.Rect(thickness,
                                 thickness,
@@ -362,7 +372,7 @@ class Level:
         font = pg.font.SysFont("arial", 32)
         for i in range(50, 200, 50):
             if i == 50:
-                text = f"Time Left: {90 - int(self.seconds)}"
+                text = f"Time Left: {LEVEL_TIME - int(self.seconds)}"
             if i == 100:
                 text = f"Lives: {self.player.lives}"
             if i == 150:
@@ -373,17 +383,14 @@ class Level:
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + PAD, PAD))
 
-    def _reset_positions(self) -> None:
-        self.player.reset_positions(self.graph)
-
-        # for e in self.enemies:
-        #     e.reset_positions(self.graph)
-
     def _draw_frame(self) -> None:
         for e in self.entities:
             e.draw(self.playable_surface)
-
         self.surface.blit(self.playable_surface, (PAD, PAD))
+
+        if self.paused:
+            self.pause_menu()
+
         pg.display.flip()
 
     def draw_fruit(
@@ -425,3 +432,26 @@ class Level:
             self.graph[(coord[0], coord[1])].rect.center,
             radius=5,
         )
+
+    def pause_menu(self) -> None:
+        font = pg.font.SysFont('arial', 42)
+        font_h = font.get_height()
+
+        xy = self.playable_surface.get_size()
+        surface = pg.surface.Surface(xy, pg.SRCALPHA)
+        surface.fill((15, 20, 25, 200))
+
+        text_surface = font.render("CONTINUE", True, 'white')
+        self.buttons['continue'] = surface.blit(text_surface, (surface.get_width() // 2 - text_surface.get_width() // 2, surface.get_height() // 2 - font_h))
+        self.buttons['continue'].x += PAD
+        self.buttons['continue'].y += PAD
+
+        text_surface = font.render("EXIT", True, 'white')
+        self.buttons['exit'] = surface.blit(text_surface, (surface.get_width() // 2 - text_surface.get_width() // 2, surface.get_height() // 2 + font_h))
+        self.buttons['exit'].x += PAD
+        self.buttons['exit'].y += PAD
+
+
+
+
+        self.surface.blit(surface, (PAD, PAD))
