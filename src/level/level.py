@@ -95,25 +95,28 @@ class Level:
             c.g = True
             counter += 1
 
-        return graph
-
-    def _build_layout(self) -> pg.Surface:
         screen_w = self.surface.get_width()
         screen_h = self.surface.get_height()
         edge = min(
             (screen_h - 2 * PAD) // len(self.maze.maze),
             (screen_w - 2 * PAD) // len(self.maze.maze[0])
         )
-        surface_sizes = (edge * len(self.maze.maze[0]) + 1,
-                         edge * len(self.maze.maze) + 1)
         self.edge = edge
 
+        for c in graph.values():
+            c.rect = pg.Rect(c.i * self.edge, c.j * self.edge, self.edge, self.edge)
+            c.center = pg.math.Vector2(c.rect.center)
+        return graph
+
+    def _build_layout(self) -> pg.Surface:
+
+        surface_sizes = (self.edge * len(self.maze.maze[0]) + 1,
+                         self.edge * len(self.maze.maze) + 1)
         level_surface = pg.Surface(surface_sizes)
         level_surface.fill((15, 20, 25))
 
         for c in self.graph.values():
-            c.rect = c.draw(level_surface, edge)
-            c.center = pg.math.Vector2(c.rect.center)
+            c.draw(level_surface, self.edge)
             if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:

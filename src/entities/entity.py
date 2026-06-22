@@ -85,6 +85,7 @@ class Player(Entity):
                 self.movement['y'] = 0
                 self.movement['nx'] = 0
                 self.movement['ny'] = 0
+
         if self.movement['nx'] == -1:
             if graph[self.pos].value & Dir.W == 0 or self.cheat:
                 self.movement['x'] = -1

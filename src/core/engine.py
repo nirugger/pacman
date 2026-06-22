@@ -1,5 +1,3 @@
-import time
-
 from src.level.level import Level
 from src.entities.entity import Player, Red, Pink, Cyan, Orange, Enemy
 from src.data import (LevelData, LevelConfig, RESOLUTION,
