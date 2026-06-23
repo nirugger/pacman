@@ -181,7 +181,7 @@ class Level:
         if self.seconds >= self.max_time:
             self.level_config['game_state'] = GameState.LOSE
 
-        if (self.seconds - self.last_supergum >= SUPERGUM_TIME):
+        if self.seconds - self.last_supergum >= SUPERGUM_TIME:
             self.ghost_points = GHOST_POINTS
             for e in self.enemies:
                 e.frightened = False
