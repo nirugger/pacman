@@ -31,6 +31,7 @@ class Level:
         self.entities = [self.player] + self.enemies
         self.seconds = 0.0
         self.scatter = False
+        self.max_time = self.level_config['data']['time']
 
         self.speed = 1
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
@@ -177,7 +178,7 @@ class Level:
 
     def _handle_time(self) -> None:
 
-        if self.seconds >= LEVEL_TIME:
+        if self.seconds >= self.max_time:
             self.level_config['game_state'] = GameState.LOSE
 
         if (self.seconds - self.last_supergum >= SUPERGUM_TIME):
@@ -192,6 +193,7 @@ class Level:
 
         if self.seconds - self.last_fruit >= FRUIT_TIME:
             self.graph[MAZE_X // 2, MAZE_Y // 2].fruit = False
+            self.layout = self._build_layout()
 
     def _handle_collisions(self) -> None:
         for e in self.enemies:
@@ -252,7 +254,8 @@ class Level:
         for e in self.entities:
             mov = self.graph[e.target].center - e.center
             dist = mov.length()
-            if int(dist) == 0:
+            if ((self.graph[e.pos].center - e.center).length()
+                    >= (self.graph[e.pos].center - self.graph[e.target].center).length()):
                 e.pos = e.target
                 e.center = self.graph[e.pos].center.copy()
                 e.rect.center = (round(e.center.x), round(e.center.y))
@@ -375,7 +378,7 @@ class Level:
         font = pg.font.SysFont("arial", 32)
         for i in range(50, 200, 50):
             if i == 50:
-                text = f"Time Left: {LEVEL_TIME - int(self.seconds)}"
+                text = f"Time Left: {self.max_time - int(self.seconds)}"
             if i == 100:
                 text = f"Lives: {self.player.lives}"
             if i == 150:

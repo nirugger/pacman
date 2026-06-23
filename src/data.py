@@ -9,8 +9,8 @@ from enum import Enum, IntFlag
 
 
 RESOLUTION = (1280, 720)
-MAZE_X = 15
-MAZE_Y = 15
+MAZE_X = 13
+MAZE_Y = 13
 EDGE_THICK = 3
 PAD = 50
 
@@ -46,6 +46,7 @@ class GameState(Enum):
 
 class LevelData(TypedDict):
     max_gums: int
+    time: int
     strategies: dict[str, tuple[str, ...]]
 
 
@@ -61,18 +62,46 @@ class LevelConfig(TypedDict):
 
 
 LEVELS_DATA = {
-    1: LevelData(max_gums=50, strategies={
+    1: LevelData(max_gums=50, time=300, strategies={
         "red": ("follow", "follow", "random", "follow", "eight_cell"),
         "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
         "cyan": ("eight_cell", "mirror", "eight_cell", "anticipate",
                  "eight_cell"),
         "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")}),
-    2: LevelData(max_gums=65, strategies={"red": ("follow",),
-                                          "pink": ("anticipate",),
-                                          "cyan": ("eight_cell",),
-                                          "orange": ("mirror",)}),
-    3: LevelData(max_gums=80, strategies={"red": ("follow",),
-                                          "pink": ("anticipate",),
-                                          "cyan": ("eight_cell",),
-                                          "orange": ("mirror",)}),
+    2: LevelData(max_gums=65, time=280, strategies={"red": ("follow",),
+                                                    "pink": ("anticipate",),
+                                                    "cyan": ("eight_cell",),
+                                                    "orange": ("mirror",)}),
+    3: LevelData(max_gums=80, time=260, strategies={"red": ("follow",),
+                                                    "pink": ("anticipate",),
+                                                    "cyan": ("eight_cell",),
+                                                    "orange": ("mirror",)}),
+    4: LevelData(max_gums=95, time=240, strategies={"red": ("follow",),
+                                                    "pink": ("anticipate",),
+                                                    "cyan": ("eight_cell",),
+                                                    "orange": ("mirror",)}),
+    5: LevelData(max_gums=110, time=220, strategies={"red": ("follow",),
+                                                     "pink": ("anticipate",),
+                                                     "cyan": ("eight_cell",),
+                                                     "orange": ("mirror",)}),
+    6: LevelData(max_gums=125, time=200, strategies={"red": ("follow",),
+                                                     "pink": ("anticipate",),
+                                                     "cyan": ("eight_cell",),
+                                                     "orange": ("mirror",)}),
+    7: LevelData(max_gums=140, time=180, strategies={"red": ("follow",),
+                                                     "pink": ("anticipate",),
+                                                     "cyan": ("eight_cell",),
+                                                     "orange": ("mirror",)}),
+    8: LevelData(max_gums=155, time= 160,  strategies={"red": ("follow",),
+                                                       "pink": ("anticipate",),
+                                                       "cyan": ("eight_cell",),
+                                                       "orange": ("mirror",)}),
+    9: LevelData(max_gums=160, time=140,  strategies={"red": ("follow",),
+                                                      "pink": ("anticipate",),
+                                                      "cyan": ("eight_cell",),
+                                                      "orange": ("mirror",)}),
+    10: LevelData(max_gums=164, time=120, strategies={"red": ("follow",),
+                                                      "pink": ("anticipate",),
+                                                      "cyan": ("eight_cell",),
+                                                      "orange": ("mirror",)}),
 }
