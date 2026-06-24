@@ -128,7 +128,7 @@ class Level:
         return level_surface
 
     def setup_level(self) -> None:
-        self.player.reset_positions(self.graph)
+        # self.player.reset_positions(self.graph)
         for e in self.entities:
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)

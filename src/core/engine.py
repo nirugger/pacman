@@ -62,17 +62,19 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.NEW_GAME:
-                    print(self.scores)
+                    # print(self.scores)
                     if self.player.score > min([d['score'] for d in self.scores]):
+                        self._update_json_scores()
                         self.game_state = GameState.RECORD
                         continue
+                    self.player = self._create_player()
                     self.level = self.build_level(level_id=1)
                     self.game_config = self.level.run()
                     self.game_state = self.game_config['game_state']
 
                 case GameState.HIGHSCORES:
                     self.high_scores_menu()
-                
+
                 case GameState.RECORD:
                     self.high_scores_menu(record=True)
 
@@ -161,6 +163,7 @@ class App:
                 surface.blit(text, (centerx - ((padx * 2) + text.get_width()), pady))
                 text = self.menu_font.render(str(self.player.score), True, 'yellow')
                 surface.blit(text, (centerx + (padx * 3), pady))
+                self._update_record_name(index=i)
             else:
                 text = self.menu_font.render(names[i], True, 'yellow')
                 surface.blit(text, (centerx - ((padx * 2) + text.get_width()), pady))
@@ -231,6 +234,14 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
+    def _update_record_name(self, index: int) -> None:
+        with open("game_data/highscores.json", "r") as f:
+            scores = json.load(f)
+        scores['highscores'][index]['name'] = self.record_name
+        with open("game_data/highscores.json", "w") as score_file:
+            score_file.write(json.dumps(scores, indent=4))
+
+
     def _update_json_scores(self) -> None:
         with open("game_data/highscores.json", "r") as score_file:
             scores = json.load(score_file)
@@ -253,8 +264,8 @@ class App:
 
             if event.type == pg.KEYDOWN and self.game_state is GameState.RECORD:
                 if event.key == pg.K_RETURN:
+                    self.player = self._create_player()
                     self.game_state = GameState.HIGHSCORES
-                    self._update_json_scores()
                     return
                 if event.key == pg.K_BACKSPACE:
                     if len(self.record_name) == 0:
