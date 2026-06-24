@@ -55,7 +55,7 @@ class App:
             self.buttons.clear()
             match self.game_state:
                 case GameState.MAIN_MENU:
-                    self.main_menu()
+                    self._main_menu()
 
                 case GameState.CONTINUE:
                     self.game_config['game_state'] = GameState.IN_GAME
@@ -71,19 +71,19 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.HIGHSCORES:
-                    self.high_scores_menu()
+                    self._high_scores_menu()
 
                 case GameState.RECORD:
-                    self.high_scores_menu(record=True)
+                    self._high_scores_menu(record=True)
 
                 case GameState.RECORD_CONFIRM:
                     self._record_confirm()
 
                 case GameState.RESET_CONFIRM:
-                    self._reset_confirm()
+                    self._reset_confirm_menu()
 
                 case GameState.INSTRUCTIONS:
-                    self.instructions_menu()
+                    self._instructions_menu()
 
                 case GameState.WIN:
                     self._init_level(self.current_level + 1)
@@ -138,13 +138,7 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-    def _reset_game(self) -> None:
-        self._init_player()
-        self._init_level(level_id=1)
-        self.record_index = -1
-        self.record_name = ""
-
-    def high_scores_menu(self, record: bool = False) -> None:
+    def _high_scores_menu(self, record: bool = False) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
 
@@ -190,7 +184,7 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-    def _reset_confirm(self) -> None:
+    def _reset_confirm_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution, pg.SRCALPHA)
         surface.fill((15, 20, 25, 200))
 
@@ -212,13 +206,7 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-    def _reset_high_scores(self) -> None:
-        with open("game_data/backups/base_highscores.json", "r") as f:
-            scores = json.load(f)
-        with open("game_data/highscores.json", "w") as score_file:
-            score_file.write(json.dumps(scores, indent=4))
-
-    def instructions_menu(self) -> None:
+    def _instructions_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
 
@@ -237,7 +225,7 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-    def main_menu(self) -> None:
+    def _main_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
 
@@ -307,6 +295,18 @@ class App:
 
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
+
+    def _reset_high_scores(self) -> None:
+        with open("game_data/backups/base_highscores.json", "r") as f:
+            scores = json.load(f)
+        with open("game_data/highscores.json", "w") as score_file:
+            score_file.write(json.dumps(scores, indent=4))
+
+    def _reset_game(self) -> None:
+        self._init_player()
+        self._init_level(level_id=1)
+        self.record_index = -1
+        self.record_name = ""
 
     def _handle_events(self) -> None:
         for event in pg.event.get():
