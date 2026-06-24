@@ -10,11 +10,14 @@ from src.entities.strategy import Strategy
 from abc import ABC, abstractmethod
 import pygame as pg
 
-PLAYER_SPEED = 120
-RED_SPEED = 115
-CYAN_SPEED = 100
-PINK_SPEED = 110
-ORANGE_SPEED = 105
+
+
+
+PLAYER_SPEED = 120 + 30
+RED_SPEED = 115 + 30
+CYAN_SPEED = 100 + 30
+PINK_SPEED = 110 + 30
+ORANGE_SPEED = 105 + 30
 
 
 class Entity(ABC):
@@ -34,6 +37,8 @@ class Entity(ABC):
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
+
+
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
         ...
@@ -42,7 +47,9 @@ class Entity(ABC):
     def set_target_on_strategy(self,
                                end: tuple[int, int],
                                graph: dict[tuple[int, int], Cell],
-                               player: Player
+                               player: Player,
+                               red_pos: tuple[int, int],
+                               scatter: bool
                                ) -> None:
         ...
 
@@ -70,7 +77,10 @@ class Player(Entity):
     def set_target_on_strategy(
             self,
             end: tuple[int, int],
-            graph: dict[tuple[int, int], Cell]
+            graph: dict[tuple[int, int], Cell],
+            player: Player,
+            red_pos: tuple[int, int],
+            scatter: bool
             ) -> None:
         return
 
@@ -149,7 +159,7 @@ class Player(Entity):
 
     def draw(self, surface: pg.Surface) -> None:
         pg.draw.circle(surface, PACMAN_COLOR,
-                       (int(self.center.x), int(self.center.y)), 13)
+                       (int(self.center.x), int(self.center.y)), 20)
 
 
 class Enemy(Entity):
@@ -238,14 +248,14 @@ class Enemy(Entity):
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
         if self.frightened:
             pg.draw.circle(surface, 'white',
-                           (int(self.center.x), int(self.center.y)), 13)
+                           (int(self.center.x), int(self.center.y)), 20)
             return
         if self.going_home:
             pg.draw.circle(surface, 'blue',
-                           (int(self.center.x), int(self.center.y)), 13)
+                           (int(self.center.x), int(self.center.y)), 20)
             return
         pg.draw.circle(surface, self.color,
-                       (int(self.center.x), int(self.center.y)), 13)
+                       (int(self.center.x), int(self.center.y)), 20)
 
 
 class Red(Enemy):

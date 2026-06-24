@@ -12,7 +12,7 @@ RESOLUTION = (1280, 720)
 MAZE_X = 13
 MAZE_Y = 13
 EDGE_THICK = 3
-PAD = 50
+PAD = 15
 
 CELL_COLOR = (100, 0, 255)
 PACMAN_COLOR = (255, 255, 0)
@@ -38,10 +38,16 @@ class Dir(IntFlag):
 
 
 class GameState(Enum):
-    NEW_GAME = 1
-    WIN = 2
-    LOSE = 3
-    IN_GAME = 4
+
+    MAIN_MENU = 1
+    CONTINUE = 2
+    NEW_GAME = 3
+    HIGHSCORES = 4
+    INSTRUCTIONS = 5
+    RECORD = 6
+    IN_GAME = 11
+    WIN = 12
+    LOSE = 13
 
 
 class LevelData(TypedDict):

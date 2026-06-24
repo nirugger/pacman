@@ -33,18 +33,19 @@ class Level:
         self.scatter = False
         self.max_time = self.level_config['data']['time']
 
-        self.speed = 1
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
         self.graph: dict[tuple[int, int], Cell] = self._build_graph()
         self.layout: pg.Surface = self._build_layout()
         self.playable_surface: pg.Surface
         self.ghost_points = GHOST_POINTS
 
+        self.new_game = True
         self.paused = False
         self.last_supergum = 0.0
         self.fruit_check = True
         self.last_fruit = 0.0
         self.total_collected = 0
+        self.setup_level()
 
         self.buttons: dict[str, pg.Rect] = {}
 
@@ -111,7 +112,6 @@ class Level:
         return graph
 
     def _build_layout(self) -> pg.Surface:
-
         surface_sizes = (self.edge * len(self.maze.maze[0]) + 1,
                          self.edge * len(self.maze.maze) + 1)
         level_surface = pg.Surface(surface_sizes)
@@ -125,8 +125,6 @@ class Level:
                 self.draw_gum(level_surface, (c.i, c.j))
             elif c.fruit:
                 self.draw_fruit(level_surface, (c.j, c.i))
-
-        # self.playable_surface = level_surface.copy()
         return level_surface
 
     def setup_level(self) -> None:
@@ -137,46 +135,31 @@ class Level:
             e.target_center = pg.math.Vector2(e.rect.center)
             e.home_center = pg.math.Vector2(e.rect.center)
         self.surface.fill((220, 220, 25))
+        self.playable_surface = self.layout.copy()
 
     def run(self) -> LevelConfig:
-        # self.player.set_rect(self.graph)
-        self.setup_level()
-        # self.starting_time = time.time()
-        # for e in self.entities:
-        #     if e is self.player:
-        #         e.update_movement(self.graph)
-        #     else:
-        #         e.set_target_on_strategy(
-        #             self.player.last_valid_pos, self.graph, self.player
-        #         )
-        #         e.update_movement(self.graph)
-
+        self.surface.fill((220, 220, 25))
+        self._draw_frame()
         clock = pg.time.Clock()
         while True:
             self.buttons.clear()
-            dt = clock.tick(60) / 1000
-            # if not self.paused:
-            self.seconds += dt * self.speed
-            self.playable_surface = self.layout.copy()
-            if self.paused:
-                self.speed = 0
-            else:
-                self.speed = 1
+            dt = self._handle_time(clock)
             if self.level_config['game_state'] is GameState.WIN:
                 return self.level_config
-            if self.level_config['game_state'] is GameState.LOSE:
+            elif self.level_config['game_state'] is GameState.LOSE:
                 return self.level_config
-            # if self._handle_events() == "menu":
-            #     return self.level_config
-            self._handle_time()
+            elif self.level_config['game_state'] is GameState.MAIN_MENU:
+                return self.level_config
             self._handle_vector_movement(dt)
             self._handle_collectibles()
             self._draw_frame()
             self._handle_collisions()
-            self._show_info()
             self._handle_events()
 
-    def _handle_time(self) -> None:
+    def _handle_time(self, clock: pg.time.Clock) -> None:
+
+        dt = clock.tick(60) / 1000
+        self.seconds += dt * (not self.paused)
 
         if self.seconds >= self.max_time:
             self.level_config['game_state'] = GameState.LOSE
@@ -195,6 +178,8 @@ class Level:
             self.graph[MAZE_X // 2, MAZE_Y // 2].fruit = False
             self.layout = self._build_layout()
 
+        return dt
+
     def _handle_collisions(self) -> None:
         for e in self.enemies:
             if (e.rect.collidepoint(self.player.rect.center)
@@ -204,7 +189,6 @@ class Level:
                     e.frightened = False
                     self.player.score += self.ghost_points
                     self.ghost_points += GHOST_POINTS
-                    # e.reset_positions(self.graph)
                 else:
                     if self.player.cheat:
                         return
@@ -251,58 +235,25 @@ class Level:
             self.level_config['game_state'] = GameState.WIN
 
     def _handle_vector_movement(self, dt: float) -> None:
+        self.playable_surface = self.layout.copy()
         for e in self.entities:
-            mov = self.graph[e.target].center - e.center
-            dist = mov.length()
-            if ((self.graph[e.pos].center - e.center).length()
-                    >= (self.graph[e.pos].center - self.graph[e.target].center).length()):
+            to_move = self.graph[e.target].center - e.center
+            covered = self.graph[e.pos].center - e.center
+            to_cover = self.graph[e.pos].center - self.graph[e.target].center
+            if covered.length() >= to_cover.length() - 1:
                 e.pos = e.target
                 e.center = self.graph[e.pos].center.copy()
                 e.rect.center = (round(e.center.x), round(e.center.y))
 
-                if e is self.player:
-                    e.update_movement(self.graph)
-                else:
-                    e.set_target_on_strategy(
-                        self.player.last_valid_pos, self.graph,
-                        self.player, self.enemies[0].pos, self.scatter
-                    )
-                    e.update_movement(self.graph)
+                e.set_target_on_strategy(
+                    self.player.last_valid_pos, self.graph,
+                    self.player, self.enemies[0].pos, self.scatter
+                )
+                e.update_movement(self.graph)
             else:
-                movement = mov.normalize() * e.speed * dt
-                e.center += movement * self.speed
+                movement = to_move.normalize() * e.speed * dt
+                e.center += movement * (not self.paused)
                 e.rect.center = (round(e.center.x), round(e.center.y))
-
-    # def _handle_movement(self) -> None:
-
-    #     now = (time.time_ns() - self.starting_time)
-    #     for e in self.entities:
-    #         if ((abs(e.rect.x - self.graph[e.pos].rect.x) >= self.edge
-    #            or abs(e.rect.x - self.graph[e.target].rect.x) <= self.speed)
-    #            and (abs(e.rect.y - self.graph[e.pos].rect.y) >= self.edge
-    #            or abs(e.rect.y - self.graph[e.target].rect.y) <=
-    #  self.speed)):
-
-    #             e.pos = e.target
-    #             e.rect.x = self.graph[e.target].rect.x
-    #             e.rect.y = self.graph[e.target].rect.y
-
-    #             if e is self.player:
-    #                 e.update_movement(self.graph)
-    #             else:
-    #                 e.set_target_on_strategy(
-    #                     self.player.last_valid_pos, self.graph, self.player
-    #                     )
-    #                 e.update_movement(self.graph)
-
-    #         module = (now - self.starting_time) >= (e.speed)
-    #         if now - e.last_valid_module >= e.speed:
-    #             e.last_valid_module = now
-    #             # e.last_valid_module = module
-    #             e.rect.x += e.movement['x'] * self.speed
-    #             e.rect.y += e.movement['y'] * self.speed
-    #     if now - self.starting_time >= 10000000:
-    #         self.starting_time = now
 
     def _handle_events(self) -> None:
         """Handle keyboard and window events for the renderer."""
@@ -356,7 +307,7 @@ class Level:
 
                 if ('exit' in self.buttons and self.buttons['exit'].
                         collidepoint(pg.mouse.get_pos())):
-                    self.level_config['game_state'] = GameState.LOSE
+                    self.level_config['game_state'] = GameState.MAIN_MENU
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -385,13 +336,14 @@ class Level:
                 text = f"Score: {self.player.score}"
             text_surface = font.render(text, True, "white")
             info_surface.blit(text_surface, (10, i))
-            pg.display.flip()
+            # pg.display.flip()
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + PAD, PAD))
 
     def _draw_frame(self) -> None:
         for e in self.entities:
             e.draw(self.playable_surface)
+        self._show_info()
         self.surface.blit(self.playable_surface, (PAD, PAD))
 
         if self.paused:
