@@ -5,7 +5,7 @@ from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
-                      FRUIT_POINTS, CELL_COLOR)
+                      FRUIT_POINTS, CELL_COLOR, FONT)
 
 import pygame as pg
 import random
@@ -136,21 +136,24 @@ class Level:
             e.center = pg.math.Vector2(e.rect.center)
             e.target_center = pg.math.Vector2(e.rect.center)
             e.home_center = pg.math.Vector2(e.rect.center)
-        self.surface.fill((220, 220, 25))
+        # self.surface.fill((220, 220, 25))
         self.playable_surface = self.layout.copy()
 
     def run(self) -> LevelConfig:
-        self.surface.fill((220, 220, 25))
+        # self.surface.fill((220, 220, 25))
         self._draw_frame()
         clock = pg.time.Clock()
         while True:
             self.buttons.clear()
             dt = self._handle_time(clock)
             if self.level_config['game_state'] is GameState.WIN:
+                self.level_config['time'] = self.seconds
                 return self.level_config
             elif self.level_config['game_state'] is GameState.LOSE:
+                self.level_config['time'] = self.seconds
                 return self.level_config
             elif self.level_config['game_state'] is GameState.MAIN_MENU:
+                self.level_config['time'] = self.seconds
                 return self.level_config
             self._handle_vector_movement(dt)
             self._handle_collectibles()
@@ -331,7 +334,8 @@ class Level:
                                 width - 2 * thickness,
                                 height - 2 * thickness)
         pg.draw.rect(info_surface, (15, 20, 25), internal_rect)
-        font = pg.font.SysFont("arial", 32)
+        # font = pg.font.SysFont("arial", 32)
+        font = pg.font.Font(FONT, 32)
         for i in range(50, 200, 50):
             if i == 50:
                 text = f"Time Left: {self.max_time - int(self.seconds)}"
@@ -341,7 +345,6 @@ class Level:
                 text = f"Score: {self.player.score}"
             text_surface = font.render(text, True, "white")
             info_surface.blit(text_surface, (10, i))
-            # pg.display.flip()
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + PAD, PAD))
 
@@ -397,7 +400,7 @@ class Level:
         )
 
     def pause_menu(self) -> None:
-        font = pg.font.SysFont('arial', 42)
+        font = pg.font.Font(FONT, 42)
         font_h = font.get_height()
 
         xy = self.playable_surface.get_size()

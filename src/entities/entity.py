@@ -11,11 +11,11 @@ from abc import ABC, abstractmethod
 import pygame as pg
 
 
-PLAYER_SPEED = 120 + 100
-RED_SPEED = 115 + 100
-CYAN_SPEED = 100 + 100
-PINK_SPEED = 110 + 100
-ORANGE_SPEED = 105 + 100
+PLAYER_SPEED = 120 + 80
+RED_SPEED = 100 + 80
+CYAN_SPEED = 80 + 80
+PINK_SPEED = 100 + 80
+ORANGE_SPEED = 90 + 80
 
 
 class Entity(ABC):
@@ -66,7 +66,7 @@ class Player(Entity):
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.speed = PLAYER_SPEED
-        self.lives: int = 1
+        self.lives: int = 3
         self.score: int = 0
         self.cheat: bool = False
         self.has_been_cheating: bool = False

@@ -13,21 +13,33 @@ RESET := \033[0m
 all: install run clean
 
 install:
-	$(UV) sync
+	@clear
+	@echo "$(YELLOW) → Installing dependencies...$(RESET)"
+	@$(UV) sync
+	@echo "$(GREEN) ✓ Done $(RESET)"
 
 run: $(PACMAN) $(CONFIG)
-	$(UV) run $(PYTHON) $^
+	@echo "$(YELLOW) → Loading PAC-MAN...$(RESET)"
+	@$(UV) run $(PYTHON) $^
 
 debug: $(PACMAN) $(CONFIG)
-	$(UV) run $(PYTHON) -m pdb $^
+	@echo "$(YELLOW) → Entering debugger...$(RESET)"
+	@$(UV) run $(PYTHON) -m pdb $^
 
 lint:
-	$(UV) run flake8 $(PACMAN) src/
-	$(UV) run mypy $(PACMAN) src/ --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs
+	@echo "$(YELLOW) → Running flake8...$(RESET)"
+	@$(UV) run flake8 $(PACMAN) src/
+	@echo "$(YELLOW)→ Running mypy...$(RESET)"
+	@$(UV) run mypy --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs $(PACMAN) src/ \
+	&& echo "$(GREEN) ✓ Lint passed.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"
+
 
 lint-strict:
+	@echo "$(YELLOW) → Running flake8...$(RESET)"
 	@$(UV) run flake8 $(PACMAN) src/
-	@$(UV) run mypy $(PACMAN) src/
+	@echo "$(YELLOW) → Running mypy --strict...$(RESET)"
+	@$(UV) run mypy --strict $(PACMAN) src/ \
+	&& echo "$(GREEN) ✓ Lint passed.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"
 
 clean:
 	@echo "$(YELLOW) → Cleaning caches...$(RESET)"

@@ -4,15 +4,17 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.entities.entity import Player
 
+import os
 from typing import TypedDict
 from enum import Enum, IntFlag
 
-
+FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
+FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
 MAZE_X = 13
 MAZE_Y = 13
 EDGE_THICK = 3
-PAD = 15
+PAD = 10
 
 CELL_COLOR = (100, 0, 255)
 PACMAN_COLOR = (255, 255, 0)
@@ -70,6 +72,7 @@ class LevelConfig(TypedDict):
     data: LevelData
     game_state: GameState
     seed: int
+    time: int
     # enemies: list[Enemy]
     # entities: list[Entity]
     # status: GameStatus
