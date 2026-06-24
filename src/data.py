@@ -45,6 +45,8 @@ class GameState(Enum):
     HIGHSCORES = 4
     INSTRUCTIONS = 5
     RECORD = 6
+    RECORD_CONFIRM = 7
+    RESET_CONFIRM = 9
     IN_GAME = 11
     WIN = 12
     LOSE = 13

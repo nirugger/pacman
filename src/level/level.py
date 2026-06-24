@@ -4,7 +4,7 @@ from src.level.cell import Cell
 from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
 from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
-                      SUPERGUM_TIME, LEVEL_TIME, GHOST_POINTS, FRUIT_TIME,
+                      SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
                       FRUIT_POINTS, CELL_COLOR)
 
 import pygame as pg
@@ -128,7 +128,7 @@ class Level:
         return level_surface
 
     def setup_level(self) -> None:
-        # self.player.reset_positions(self.graph)
+        self.player.reset_positions(self.graph)
         for e in self.entities:
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)
@@ -290,6 +290,7 @@ class Level:
                     self.player.movement['ny'] = 1
 
                 if event.key == pg.K_c:
+                    self.player.has_been_cheating = True
                     self.player.cheat = not self.player.cheat
 
                 if event.key == pg.K_n and self.player.cheat:
@@ -305,7 +306,7 @@ class Level:
                         collidepoint(pg.mouse.get_pos())):
                     self.paused = False
 
-                if ('exit' in self.buttons and self.buttons['exit'].
+                if ('back_to_menu' in self.buttons and self.buttons['back_to_menu'].
                         collidepoint(pg.mouse.get_pos())):
                     self.level_config['game_state'] = GameState.MAIN_MENU
 
@@ -320,7 +321,7 @@ class Level:
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
         info_surface.fill(CELL_COLOR)
-        thickness = 5
+        thickness = EDGE_THICK
         internal_rect = pg.Rect(thickness,
                                 thickness,
                                 width - 2 * thickness,
@@ -408,13 +409,13 @@ class Level:
         self.buttons['continue'].x += PAD
         self.buttons['continue'].y += PAD
 
-        text_surface = font.render("EXIT", True, 'white')
-        self.buttons['exit'] = surface.blit(text_surface,
+        text_surface = font.render("BACK TO MENU", True, 'white')
+        self.buttons['back_to_menu'] = surface.blit(text_surface,
                                             (surface.get_width() // 2 -
                                              text_surface.get_width() // 2,
                                              surface.get_height() // 2 +
                                              font_h))
-        self.buttons['exit'].x += PAD
-        self.buttons['exit'].y += PAD
+        self.buttons['back_to_menu'].x += PAD
+        self.buttons['back_to_menu'].y += PAD
 
         self.surface.blit(surface, (PAD, PAD))

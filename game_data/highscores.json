@@ -1,53 +1,53 @@
 {
     "highscores": [
         {
-            "name": "",
+            "name": "CENTO",
+            "score": 100,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "NOVANTA",
+            "score": 90,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "OTTANTA",
+            "score": 80,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "SETTANTA",
+            "score": 70,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "SESSANTA",
+            "score": 60,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "CINQUANTA",
+            "score": 50,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "QUARANTA",
+            "score": 40,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "TRENTA",
             "score": 30,
             "date": "2026-06-24"
         },
         {
-            "name": "ciao",
-            "score": 0,
+            "name": "VENTI",
+            "score": 20,
             "date": "2026-06-24"
         },
         {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "",
-            "score": 0,
+            "name": "DIECI",
+            "score": 10,
             "date": "2026-06-24"
         }
     ]

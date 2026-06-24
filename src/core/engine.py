@@ -22,6 +22,8 @@ class App:
 
         self.title_font = pg.font.SysFont("arial", 90)
         self.menu_font = pg.font.SysFont("arial", 42)
+        self.instruction_font = pg.font.SysFont("arial", 33)
+        self.tip_font = pg.font.SysFont("arial", 27)
         # from src.scenes.menu import Menu
         self.game_state: GameState = GameState.MAIN_MENU
         self.app_config = config
@@ -37,6 +39,7 @@ class App:
         self.scores = self._init_scores()
 
         self.record_name = ""
+        self.record_index = -1
 
         self.buttons: dict[str, pg.Rect] = {}
 
@@ -62,13 +65,9 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.NEW_GAME:
-                    # print(self.scores)
-                    if self.player.score > min([d['score'] for d in self.scores]):
-                        self._update_json_scores()
-                        self.game_state = GameState.RECORD
+                    if self._save_score():
                         continue
-                    self.player = self._create_player()
-                    self.level = self.build_level(level_id=1)
+                    self._reset_game()
                     self.game_config = self.level.run()
                     self.game_state = self.game_config['game_state']
 
@@ -77,6 +76,12 @@ class App:
 
                 case GameState.RECORD:
                     self.high_scores_menu(record=True)
+
+                case GameState.RECORD_CONFIRM:
+                    self._record_confirm()
+
+                case GameState.RESET_CONFIRM:
+                    self._reset_confirm()
 
                 case GameState.INSTRUCTIONS:
                     self.instructions_menu()
@@ -88,7 +93,9 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.LOSE:
-                    self._save_score()
+                    if self._save_score():
+                        continue
+                    self._reset_game()
                     print("COGLIONE")
                     self.game_state = GameState.MAIN_MENU
 
@@ -125,11 +132,41 @@ class App:
     #             raise ValueError("Unrecognised color")
     #     return enemy
 
-    def _save_score(self) -> None:
-        if self.player.score <= min(d['score'] for d in self.scores):
-            return
-        self._update_json_scores()
-        self.game_state = GameState.RECORD
+    def _save_score(self) -> bool:
+        if self.player.has_been_cheating:
+            return False
+        if self.player.score > min(d['score'] for d in self.scores):
+            self.game_state = GameState.RECORD_CONFIRM
+            return True
+        return False
+
+    def _record_confirm(self) -> None:
+        surface = pg.surface.Surface(RESOLUTION)
+        surface.fill((15, 20, 25))
+        msg = self.menu_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?", True, 'yellow')
+        surface.blit(msg, (surface.get_width() // 2 - msg.get_width() // 2, self.title_font.get_height()))
+
+        text_surface = self.title_font.render("YES", True, 'yellow')
+        self.buttons['yes'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2 -
+                                                 text_surface.get_width() * 2,
+                                                 surface.get_height() // 2))
+
+        text_surface = self.title_font.render("NO", True, 'yellow')
+        self.buttons['no'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2 +
+                                                 text_surface.get_width(),
+                                                 surface.get_height() // 2))
+        self.screen.blit(surface, (0, 0))
+        pg.display.flip()
+
+
+
+    def _reset_game(self) -> None:
+        self.player = self._create_player()
+        self.level = self.build_level(level_id=1)
+        self.record_index = -1
+        self.record_name = ""
 
 
     def high_scores_menu(self, record=False) -> None:
@@ -147,29 +184,30 @@ class App:
         padx = columns.get_width()
         pady = self.title_font.get_height() + self.menu_font.get_height()
 
-        record_index = -1
-        if record:
-            record_index = 0
-            while record_index < len(scores):
-                if self.player.score > scores[record_index]:
-                    break
-                record_index += 1
+        # record_index = -1
+        # if record:
+        #     record_index = 0
+        #     while record_index < len(scores):
+        #         if self.player.score > scores[record_index]:
+        #             break
+        #         record_index += 1
 
         for i in range(len(names)):
             mult = i + 2
             pady = self.title_font.get_height() + (self.menu_font.get_height() * mult)
-            if i == record_index:
+            if i == self.record_index and record:
                 text = self.menu_font.render(self.record_name, True, 'yellow')
                 surface.blit(text, (centerx - ((padx * 2) + text.get_width()), pady))
-                text = self.menu_font.render(str(self.player.score), True, 'yellow')
-                surface.blit(text, (centerx + (padx * 3), pady))
-                self._update_record_name(index=i)
+                self._update_record_name()
             else:
                 text = self.menu_font.render(names[i], True, 'yellow')
                 surface.blit(text, (centerx - ((padx * 2) + text.get_width()), pady))
-                text = self.menu_font.render(str(scores[i]), True, 'yellow')
-                surface.blit(text, (centerx + (padx * 3), pady))
+            text = self.menu_font.render(str(scores[i]), True, 'yellow')
+            surface.blit(text, (centerx + (padx * 3), pady))
             surface.blit(columns, (centerx, pady))
+        
+        text = self.tip_font.render("press any key to go back to menu", True, 'yellow')
+        surface.blit(text, (centerx - text.get_width() // 2, self.screen.get_height() - text.get_height() * 2))
 
         # if record:
         #     with open("game_data/highscores.json", "w") as score_file:
@@ -179,11 +217,42 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
+    def _reset_confirm(self) -> None:
+        surface = pg.surface.Surface(RESOLUTION, pg.SRCALPHA)
+        surface.fill((15, 20, 25, 200))
+        msg = self.menu_font.render("DO YOU WANT TO RESET HIGHSCORES?", True, 'yellow')
+        surface.blit(msg, (surface.get_width() // 2 - msg.get_width() // 2, self.title_font.get_height()))
+
+        text_surface = self.title_font.render("YES", True, 'yellow')
+        self.buttons['yes'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2 -
+                                                 text_surface.get_width() * 2,
+                                                 surface.get_height() // 2))
+
+        text_surface = self.title_font.render("NO", True, 'yellow')
+        self.buttons['no'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2 +
+                                                 text_surface.get_width(),
+                                                 surface.get_height() // 2))
+        self.screen.blit(surface, (0, 0))
+        pg.display.flip()
+
+    def _reset_high_scores(self) -> None:
+        with open("game_data/backups/base_highscores.json", "r") as f:
+            scores = json.load(f)
+        with open("game_data/highscores.json", "w") as score_file:
+            score_file.write(json.dumps(scores, indent=4))
+
     def instructions_menu(self) -> None:
         surface = pg.surface.Surface(RESOLUTION)
         surface.fill((15, 20, 25))
+        centerx = surface.get_width() // 2
+
         title = self.title_font.render("INSTRUCTIONS", True, 'yellow')
-        surface.blit(title, (surface.get_width() // 2 - title.get_width() // 2, 0))
+        surface.blit(title, (surface.get_width() // 2 - title.get_width() // 2, self.menu_font.get_height()))
+
+        text = self.tip_font.render("press any key to go back to menu", True, 'yellow')
+        surface.blit(text, (centerx - text.get_width() // 2, self.screen.get_height() - text.get_height() * 2))
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
@@ -223,21 +292,28 @@ class App:
                                                  text_surface.get_width() // 2,
                                                  surface.get_height() // 2 +
                                                  (font_h * 2)))
-        
+
+        text_surface = self.menu_font.render("RESET", True, 'yellow')
+        self.buttons['reset'] = surface.blit(text_surface,
+                                                (surface.get_width() // 2 -
+                                                 text_surface.get_width() // 2,
+                                                 surface.get_height() // 2 +
+                                                 (font_h * 4)))
+
         text_surface = self.menu_font.render("EXIT", True, 'yellow')
         self.buttons['exit'] = surface.blit(text_surface,
                                                 (surface.get_width() // 2 -
                                                  text_surface.get_width() // 2,
                                                  surface.get_height() // 2 +
-                                                 (font_h * 3)))
+                                                 (font_h * 5)))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-    def _update_record_name(self, index: int) -> None:
+    def _update_record_name(self) -> None:
         with open("game_data/highscores.json", "r") as f:
             scores = json.load(f)
-        scores['highscores'][index]['name'] = self.record_name
+        scores['highscores'][self.record_index]['name'] = self.record_name
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
 
@@ -249,8 +325,11 @@ class App:
                                         "score": self.player.score,
                                         "date": date.today().__str__()})
             scores['highscores'] = sorted(scores['highscores'], reverse=True,
-                                        key=lambda x: x['score'])
+                                        key=lambda x: (x['score'], x['date']))
             scores.update({'highscores': scores['highscores'][:10]})
+            self.record_index = scores['highscores'].index({"name": self.record_name,
+                                                            "score": self.player.score,
+                                                            "date": date.today().__str__()})
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
 
@@ -262,17 +341,47 @@ class App:
                 self.game_state = GameState.MAIN_MENU
                 return
 
+            if event.type == pg.MOUSEBUTTONDOWN and self.game_state is GameState.RESET_CONFIRM:
+
+                if ('yes' in self.buttons and self.buttons['yes'].
+                        collidepoint(pg.mouse.get_pos())):
+                    self._reset_high_scores()
+                    self.game_state = GameState.MAIN_MENU
+                    return
+
+                if ('no' in self.buttons and self.buttons['no'].
+                        collidepoint(pg.mouse.get_pos())):
+                    self.game_state = GameState.MAIN_MENU
+                    return
+
+            if event.type == pg.MOUSEBUTTONDOWN and self.game_state is GameState.RECORD_CONFIRM:
+
+                if ('yes' in self.buttons and self.buttons['yes'].
+                        collidepoint(pg.mouse.get_pos())):
+                    self._update_json_scores()
+                    self.game_state = GameState.RECORD
+                    return
+
+                if ('no' in self.buttons and self.buttons['no'].
+                        collidepoint(pg.mouse.get_pos())):
+                    self._reset_game()
+                    self.game_state = GameState.MAIN_MENU
+                    return
+
+
             if event.type == pg.KEYDOWN and self.game_state is GameState.RECORD:
                 if event.key == pg.K_RETURN:
-                    self.player = self._create_player()
-                    self.game_state = GameState.HIGHSCORES
+                    self._reset_game()
+                    self.game_state = GameState.MAIN_MENU
                     return
                 if event.key == pg.K_BACKSPACE:
                     if len(self.record_name) == 0:
                         return
                     self.record_name = self.record_name[:-1]
                     return
-                self.record_name += chr(event.key)
+                if len(self.record_name) < 10:
+                    char = event.unicode
+                    self.record_name += char.upper()
                 return
 
             if event.type == pg.KEYDOWN:
@@ -301,6 +410,11 @@ class App:
                 if ('instructions' in self.buttons and self.buttons['instructions'].
                         collidepoint(pg.mouse.get_pos())):
                     self.game_state = GameState.INSTRUCTIONS
+                    return
+
+                if ('reset' in self.buttons and self.buttons['reset'].
+                        collidepoint(pg.mouse.get_pos())):
+                    self.game_state = GameState.RESET_CONFIRM
                     return
 
                 if ('exit' in self.buttons and self.buttons['exit'].

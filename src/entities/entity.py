@@ -37,8 +37,6 @@ class Entity(ABC):
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
-
-
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
         ...
@@ -70,9 +68,10 @@ class Player(Entity):
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
         self.speed = PLAYER_SPEED
-        self.lives: int = 99
+        self.lives: int = 1
         self.score: int = 0
         self.cheat: bool = False
+        self.has_been_cheating: bool = False
 
     def set_target_on_strategy(
             self,
