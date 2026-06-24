@@ -11,17 +11,15 @@ from abc import ABC, abstractmethod
 import pygame as pg
 
 
-
-
-PLAYER_SPEED = 120 + 30
-RED_SPEED = 115 + 30
-CYAN_SPEED = 100 + 30
-PINK_SPEED = 110 + 30
-ORANGE_SPEED = 105 + 30
+PLAYER_SPEED = 120 + 100
+RED_SPEED = 115 + 100
+CYAN_SPEED = 100 + 100
+PINK_SPEED = 110 + 100
+ORANGE_SPEED = 105 + 100
 
 
 class Entity(ABC):
-    def __init__(self):
+    def __init__(self) -> None:
         self.home: tuple[int, int]
         self.pos: tuple[int, int]
         self.target: tuple[int, int]

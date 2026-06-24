@@ -24,7 +24,9 @@ class Level:
 
         self.surface = surface
         self.level_id = level_id
-        self.seed = 42 if level_id == 1 else random.randint(1, 100)
+        self.seed = (level_config['seed']
+                     if level_id == 1
+                     else random.randint(1, 100))
         self.level_config = level_config
         self.player = self.level_config['player']
         self.enemies = self._build_enemies()
@@ -156,7 +158,7 @@ class Level:
             self._handle_collisions()
             self._handle_events()
 
-    def _handle_time(self, clock: pg.time.Clock) -> None:
+    def _handle_time(self, clock: pg.time.Clock) -> float:
 
         dt = clock.tick(60) / 1000
         self.seconds += dt * (not self.paused)
@@ -302,11 +304,13 @@ class Level:
 
             if event.type == pg.MOUSEBUTTONDOWN:
 
-                if ('continue' in self.buttons and self.buttons['continue'].
+                if ('continue' in self.buttons and
+                        self.buttons['continue'].
                         collidepoint(pg.mouse.get_pos())):
                     self.paused = False
 
-                if ('back_to_menu' in self.buttons and self.buttons['back_to_menu'].
+                if ('back_to_menu' in self.buttons and
+                        self.buttons['back_to_menu'].
                         collidepoint(pg.mouse.get_pos())):
                     self.level_config['game_state'] = GameState.MAIN_MENU
 
@@ -410,11 +414,10 @@ class Level:
         self.buttons['continue'].y += PAD
 
         text_surface = font.render("BACK TO MENU", True, 'white')
-        self.buttons['back_to_menu'] = surface.blit(text_surface,
-                                            (surface.get_width() // 2 -
-                                             text_surface.get_width() // 2,
-                                             surface.get_height() // 2 +
-                                             font_h))
+        self.buttons['back_to_menu'] = surface.blit(
+            text_surface,
+            (surface.get_width() // 2 - text_surface.get_width() // 2,
+             surface.get_height() // 2 + font_h))
         self.buttons['back_to_menu'].x += PAD
         self.buttons['back_to_menu'].y += PAD
 

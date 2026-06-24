@@ -52,6 +52,12 @@ class GameState(Enum):
     LOSE = 13
 
 
+class Config(TypedDict):
+    highscore_filename: str
+    resolution: dict[str, int]
+    seed: int
+
+
 class LevelData(TypedDict):
     max_gums: int
     time: int
@@ -61,10 +67,11 @@ class LevelData(TypedDict):
 class LevelConfig(TypedDict):
 
     player: Player
-    # enemies: list[Enemy]
-    # entities: list[Entity]
     data: LevelData
     game_state: GameState
+    seed: int
+    # enemies: list[Enemy]
+    # entities: list[Entity]
     # status: GameStatus
     # super_gums: list[SuperGum]
 
@@ -100,10 +107,10 @@ LEVELS_DATA = {
                                                      "pink": ("anticipate",),
                                                      "cyan": ("eight_cell",),
                                                      "orange": ("mirror",)}),
-    8: LevelData(max_gums=155, time= 160,  strategies={"red": ("follow",),
-                                                       "pink": ("anticipate",),
-                                                       "cyan": ("eight_cell",),
-                                                       "orange": ("mirror",)}),
+    8: LevelData(max_gums=155, time=160,  strategies={"red": ("follow",),
+                                                      "pink": ("anticipate",),
+                                                      "cyan": ("eight_cell",),
+                                                      "orange": ("mirror",)}),
     9: LevelData(max_gums=160, time=140,  strategies={"red": ("follow",),
                                                       "pink": ("anticipate",),
                                                       "cyan": ("eight_cell",),
