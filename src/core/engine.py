@@ -404,22 +404,22 @@ class App:
         surface.fill((15, 20, 25))
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
         # stats = []
-        msg = self.menu_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?",
-                                    True, 'yellow')
+        msg = self.tip_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?",
+                                   True, 'yellow')
         surface.blit(msg, (self.centerx - msg.get_width() // 2,
                            self.title_font.get_height()))
-
-        text_surface = self.title_font.render("YES", True, 'green')
-        padx = text_surface.get_width()
-        self.buttons['yes'] = surface.blit(text_surface,
-                                           (self.centerx - padx * 2,
-                                            self.centery))
-
-        text_surface = self.title_font.render("NO", True, 'red')
-        self.buttons['no'] = surface.blit(text_surface,
-                                          (self.centerx + padx,
-                                           self.centery))
-
+        padx = -220
+        for i in range(len(self.yes_no)):
+            text = self.title_font.render(self.yes_no[i].upper(),
+                                          True, 'yellow')
+            npadx = padx - text.get_width() // 2
+            self.buttons[self.yes_no[i]] = surface.blit(
+                text, (self.centerx + npadx, self.centery))
+            if self.yes_no[i] == self._hovered_button():
+                rect = self.buttons[self.yes_no[i]]
+                pg.draw.line(surface, 'yellow',
+                             rect.bottomleft, rect.bottomright, 5)
+            padx = +210
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
@@ -452,13 +452,13 @@ class App:
 
         # text_surface = self.title_font.render("NO", True, 'red')
         # padx = text_surface.get_width()
-        # self.buttons['no'] = surface.blit(text_surface,
-        #                                   (self.centerx + padx, self.centery))
+        # self.buttons['no'] = surface.blit(
+        #     text_surface, (self.centerx + padx, self.centery))
 
         # text_surface = self.title_font.render("YES", True, 'green')
         # padx = text_surface.get_width() * 2
-        # self.buttons['yes'] = surface.blit(text_surface,
-        #                                    (self.centerx - padx, self.centery))
+        # self.buttons['yes'] = surface.blit(
+        #     text_surface, (self.centerx - padx, self.centery))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
@@ -507,7 +507,7 @@ class App:
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
 
-    def _hovered_button(self) -> pg.Rect | None:
+    def _hovered_button(self) -> str | None:
         mx, my = pg.mouse.get_pos()
         for name, button in self.buttons.items():
             if button.collidepoint(mx, my):

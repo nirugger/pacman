@@ -77,7 +77,7 @@ class LevelConfig(TypedDict):
     data: LevelData
     game_state: GameState
     seed: int
-    time: int
+    time: float
     # enemies: list[Enemy]
     # entities: list[Entity]
     # status: GameStatus
