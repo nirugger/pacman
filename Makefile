@@ -19,7 +19,7 @@ install:
 	@echo "$(GREEN) ✓ Done $(RESET)"
 
 run: $(PACMAN) $(CONFIG)
-	@echo "$(YELLOW) → Loading PAC-MAN...$(RESET)"
+	@echo "$(YELLOW) → Loading PAC•MAN...$(RESET)"
 	@$(UV) run $(PYTHON) $^
 
 debug: $(PACMAN) $(CONFIG)

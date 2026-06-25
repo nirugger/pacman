@@ -31,6 +31,11 @@ SUPERGUM_POINTS = 50
 GUM_POINTS = 10
 STRATEGIES = ("follow", "random")
 
+ARROWS = {"left": "\u2190",
+          "up": "\u2191",
+          "right": "\u2192",
+          "down": "\u2193"}
+
 
 class Dir(IntFlag):
     N = 1

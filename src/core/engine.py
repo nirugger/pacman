@@ -4,6 +4,7 @@ from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT
 
 import json
 from datetime import date
+from time import time
 import random
 import pygame as pg
 import sys
@@ -21,6 +22,9 @@ class App:
         self.levels_data = LEVELS_DATA
         self.game_state: GameState = GameState.MAIN_MENU
         self.buttons: dict[str, pg.Rect] = {}
+        self.menu_keys = ["continue", "new_game", "high_scores",
+                          "instructions", "reset", "exit"]
+        self.yes_no = ["yes", "no"]
         self.total_game_time: float = 0.0
         self.to_new_game_flag = False
 
@@ -48,7 +52,7 @@ class App:
         self.centery = self.screen.get_height() // 2
 
     def _init_fonts(self) -> None:
-        self.title_font = pg.font.Font(FONT, 88)
+        self.title_font = pg.font.Font(FONT, 80)
         self.menu_font = pg.font.Font(FONT, 40)
         self.instruction_font = pg.font.Font(FONT, 32)
         self.tip_font = pg.font.Font(FONT, 24)
@@ -252,7 +256,6 @@ class App:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
-        # surface.blit(frame, (0, 0))
 
         pady = self.menu_font.get_height() + self.instruction_font.get_height()
 
@@ -260,35 +263,51 @@ class App:
         surface.blit(title, (self.centerx - title.get_width() // 2,
                              self.title_font.get_height() + pady))
 
-        text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
-        self.buttons['continue'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
-                           self.centery - pady))
-
-        text_surface = self.menu_font.render("NEW GAME", True, 'yellow')
-        self.buttons['new_game'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
-                           self.centery))
-
-        text_surface = self.menu_font.render("HIGH SCORES", True, 'yellow')
-        self.buttons['high_scores'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
+        pady = -70
+        for i in range(len(self.menu_keys)):
+            text = self.menu_font.render(self.menu_keys[i].upper(),
+                                         True, 'yellow')
+            self.buttons[self.menu_keys[i]] = surface.blit(
+                text, (self.centerx - text.get_width() // 2,
+                       self.centery + pady))
+            if self._hovered_button() == self.menu_keys[i]:
+                text = self.menu_font.render(
+                    "\u2192 " + self.menu_keys[i].upper() + " \u2190",
+                    True, 'yellow')
+                self.buttons[self.menu_keys[i]] = surface.blit(
+                    text, (self.centerx - text.get_width() // 2,
                            self.centery + pady))
+            pady += 70
 
-        text_surface = self.menu_font.render("INSTRUCTIONS", True, 'yellow')
-        self.buttons['instructions'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
-                           self.centery + pady * 2))
+        # text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
+        # self.buttons['continue'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery - pady))
 
-        text_surface = self.menu_font.render("RESET", True, 'yellow')
-        self.buttons['reset'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
-                           self.centery + pady * 3))
+        # text_surface = self.menu_font.render("NEW GAME", True, 'yellow')
+        # self.buttons['new_game'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery))
 
-        text_surface = self.menu_font.render("EXIT", True, 'yellow')
-        self.buttons['exit'] = surface.blit(
-            text_surface, (self.centerx - text_surface.get_width() // 2,
-                           self.centery + pady * 4))
+        # text_surface = self.menu_font.render("HIGH SCORES", True, 'yellow')
+        # self.buttons['high_scores'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery + pady))
+
+        # text_surface = self.menu_font.render("INSTRUCTIONS", True, 'yellow')
+        # self.buttons['instructions'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery + pady * 2))
+
+        # text_surface = self.menu_font.render("RESET", True, 'yellow')
+        # self.buttons['reset'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery + pady * 3))
+
+        # text_surface = self.menu_font.render("EXIT", True, 'yellow')
+        # self.buttons['exit'] = surface.blit(
+        #     text_surface, (self.centerx - text_surface.get_width() // 2,
+        #                    self.centery + pady * 4))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
@@ -340,12 +359,16 @@ class App:
 
             surface.blit(columns, (self.centerx, pady))
 
-        if record:
-            text = self.tip_font.render("enter your name",
-                                        True, color)
+        now = time()
+        if now - int(now) >= 0.5:
+            if record:
+                text = self.tip_font.render("enter your name",
+                                            True, color)
+            else:
+                text = self.tip_font.render("press any key to go back to menu",
+                                            True, 'yellow')
         else:
-            text = self.tip_font.render("press any key to go back to menu",
-                                        True, 'yellow')
+            text = self.tip_font.render("", True, 'yellow')
         surface.blit(text, (self.centerx - text.get_width() // 2,
                             self.screen.get_height() - text.get_height() * 2))
 
@@ -362,9 +385,12 @@ class App:
                      (self.centerx - title.get_width() // 2,
                       self.menu_font.get_height()))
 
-        text = self.tip_font.render("press any key to go back to menu",
-                                    True, 'yellow')
-
+        now = time()
+        if now - int(now) >= 0.5:
+            text = self.tip_font.render("press any key to go back to menu",
+                                        True, 'yellow')
+        else:
+            text = self.tip_font.render("", True, 'yellow')
         surface.blit(text,
                      (self.centerx - text.get_width() // 2,
                       self.screen.get_height() - text.get_height() * 2))
@@ -373,7 +399,6 @@ class App:
         pg.display.flip()
 
 #   TODO far diventare questo flusso una death screen
-
     def _record_confirm_window(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
@@ -408,18 +433,32 @@ class App:
         surface.blit(msg, (self.centerx - msg.get_width() // 2,
                            self.title_font.get_height()))
         msg = self.menu_font.render("RESET HIGHSCORES !?",
-                                    True, 'red')
+                                    True, 'yellow')
         surface.blit(msg, (self.centerx - msg.get_width() // 2,
                            self.title_font.get_height() * 2))
-        text_surface = self.title_font.render("NO", True, 'red')
-        padx = text_surface.get_width()
-        self.buttons['no'] = surface.blit(text_surface,
-                                          (self.centerx + padx, self.centery))
 
-        text_surface = self.title_font.render("YES", True, 'green')
-        padx = text_surface.get_width() * 2
-        self.buttons['yes'] = surface.blit(text_surface,
-                                           (self.centerx - padx, self.centery))
+        padx = -220
+        for i in range(len(self.yes_no)):
+            text = self.title_font.render(self.yes_no[i].upper(),
+                                          True, 'yellow')
+            npadx = padx - text.get_width() // 2
+            self.buttons[self.yes_no[i]] = surface.blit(
+                text, (self.centerx + npadx, self.centery))
+            if self.yes_no[i] == self._hovered_button():
+                rect = self.buttons[self.yes_no[i]]
+                pg.draw.line(surface, 'yellow',
+                             rect.bottomleft, rect.bottomright, 5)
+            padx = +210
+
+        # text_surface = self.title_font.render("NO", True, 'red')
+        # padx = text_surface.get_width()
+        # self.buttons['no'] = surface.blit(text_surface,
+        #                                   (self.centerx + padx, self.centery))
+
+        # text_surface = self.title_font.render("YES", True, 'green')
+        # padx = text_surface.get_width() * 2
+        # self.buttons['yes'] = surface.blit(text_surface,
+        #                                    (self.centerx - padx, self.centery))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
