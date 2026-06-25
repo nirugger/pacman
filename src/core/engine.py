@@ -190,6 +190,8 @@ class App:
                     and self.game_state is GameState.RECORD):
 
                 if event.key == pg.K_RETURN:
+                    if len(self.record_name) <= 0:
+                        return
                     self._reset_game()
                     self.game_state = GameState.MAIN_MENU
                     return
@@ -200,8 +202,9 @@ class App:
                     return
 
                 if len(self.record_name) < 10:
-                    char = event.unicode
-                    self.record_name += char
+                    char = str(event.unicode)
+                    if char.isalnum() or char == ' ':
+                        self.record_name += char
                 return
 
             if event.type == pg.KEYDOWN:

@@ -21,9 +21,19 @@
             "date": "2026-06-24"
         },
         {
+            "name": "CIAOACAOCP",
+            "score": 70,
+            "date": "2026-06-25"
+        },
+        {
             "name": "SETTANTA",
             "score": 70,
             "date": "2026-06-24"
+        },
+        {
+            "name": "prova",
+            "score": 60,
+            "date": "2026-06-25"
         },
         {
             "name": "SESSANTA",
@@ -31,23 +41,13 @@
             "date": "2026-06-24"
         },
         {
+            "name": "ikjmnnm",
+            "score": 50,
+            "date": "2026-06-25"
+        },
+        {
             "name": "CINQUANTA",
             "score": 50,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "QUARANTA",
-            "score": 40,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "TRENTA",
-            "score": 30,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "VENTI",
-            "score": 20,
             "date": "2026-06-24"
         }
     ]
