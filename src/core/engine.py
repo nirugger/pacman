@@ -1,6 +1,7 @@
 from src.level.level import Level
 from src.entities.entity import Player
-from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK
+from src.data import (LevelConfig, GameState, Config,
+                      LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK)
 
 import json
 from datetime import date
@@ -18,7 +19,7 @@ class App:
 
         self._init_config(config)
         self._init_screen()
-        self._init_sizes()
+        self._init_scaling_data()
 
         self.levels_data = LEVELS_DATA
         self.game_state: GameState = GameState.MAIN_MENU
@@ -53,7 +54,7 @@ class App:
         self.centerx = self.screen_size[0] // 2
         self.centery = self.screen_size[1] // 2
 
-    def _init_sizes(self) -> None:
+    def _init_scaling_data(self) -> None:
         self.edge = min(
             (self.screen_size[1] - 2 * PAD) // MAZE_Y,
             (self.screen_size[0] - 2 * PAD) // MAZE_X
@@ -65,6 +66,8 @@ class App:
             'superpacgum': max((self.edge - EDGE_THICK) // 3, 5),
             'fruit': max((self.edge - EDGE_THICK) // 4, 7),
         }
+
+        self.speed_mult = self.edge / 50
 
     def _init_fonts(self) -> None:
         self.title_font = pg.font.Font(FONT, 64)
@@ -83,7 +86,7 @@ class App:
         self.scores = scores['highscores']
 
     def _init_player(self) -> None:
-        player = Player()
+        player = Player("pacman")
         self.player = player
 
     def _init_level(self, level_id: int) -> None:
@@ -95,7 +98,8 @@ class App:
             'seed': self.first_seed,
             'time': 0.0,
             'edge': self.edge,
-            'radii': self.radii
+            'radii': self.radii,
+            'speed_mult': self.speed_mult
         }
         self.game_config = level_config
         self.level = Level(self.screen, level_config, level_id)

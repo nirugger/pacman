@@ -45,6 +45,15 @@ ARROWS = {"left": "\u2190",
           "down": "\u2193"}
 
 
+ENT_SPEED = {
+    'pacman': 200,
+    'red': 190,
+    'pink': 175,
+    'cyan': 185,
+    'orange': 180,
+}
+
+
 class Dir(IntFlag):
     N = 1
     E = 2
@@ -89,6 +98,7 @@ class LevelConfig(TypedDict):
     time: float
     edge: int
     radii: dict[str, int]
+    speed_mult: float
     # enemies: list[Enemy]
     # entities: list[Entity]
     # status: GameStatus
@@ -158,46 +168,65 @@ PALETTES = {
 }
 
 LEVELS_DATA = {
-    1: LevelData(max_gums=50, time=300, palette=PALETTES[1], strategies={
+    1: LevelData(max_gums=50, time=300, palette=PALETTES[1],
+                 strategies={
         "red": ("follow", "follow", "random", "follow", "eight_cell"),
         "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
         "cyan": ("eight_cell", "mirror", "eight_cell", "anticipate",
                  "eight_cell"),
         "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")}),
-    2: LevelData(max_gums=65, time=280, palette=PALETTES[2], strategies={"red": ("follow",),
-                                                    "pink": ("anticipate",),
-                                                    "cyan": ("eight_cell",),
-                                                    "orange": ("mirror",)}),
-    3: LevelData(max_gums=80, time=260, palette=PALETTES[3], strategies={"red": ("follow",),
-                                                    "pink": ("anticipate",),
-                                                    "cyan": ("eight_cell",),
-                                                    "orange": ("mirror",)}),
-    4: LevelData(max_gums=95, time=240, palette=PALETTES[4], strategies={"red": ("follow",),
-                                                    "pink": ("anticipate",),
-                                                    "cyan": ("eight_cell",),
-                                                    "orange": ("mirror",)}),
-    5: LevelData(max_gums=110, time=220, palette=PALETTES[5], strategies={"red": ("follow",),
-                                                     "pink": ("anticipate",),
-                                                     "cyan": ("eight_cell",),
-                                                     "orange": ("mirror",)}),
-    6: LevelData(max_gums=125, time=200, palette=PALETTES[6], strategies={"red": ("follow",),
-                                                     "pink": ("anticipate",),
-                                                     "cyan": ("eight_cell",),
-                                                     "orange": ("mirror",)}),
-    7: LevelData(max_gums=140, time=180, palette=PALETTES[7], strategies={"red": ("follow",),
-                                                     "pink": ("anticipate",),
-                                                     "cyan": ("eight_cell",),
-                                                     "orange": ("mirror",)}),
-    8: LevelData(max_gums=155, time=160,  palette=PALETTES[8], strategies={"red": ("follow",),
-                                                      "pink": ("anticipate",),
-                                                      "cyan": ("eight_cell",),
-                                                      "orange": ("mirror",)}),
-    9: LevelData(max_gums=160, time=140,  palette=PALETTES[9], strategies={"red": ("follow",),
-                                                      "pink": ("anticipate",),
-                                                      "cyan": ("eight_cell",),
-                                                      "orange": ("mirror",)}),
-    10: LevelData(max_gums=164, time=120, palette=PALETTES[10], strategies={"red": ("follow",),
-                                                      "pink": ("anticipate",),
-                                                      "cyan": ("eight_cell",),
-                                                      "orange": ("mirror",)}),
+    2: LevelData(max_gums=65, time=280, palette=PALETTES[2],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    3: LevelData(max_gums=80, time=260, palette=PALETTES[3],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    4: LevelData(max_gums=95, time=240, palette=PALETTES[4],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    5: LevelData(max_gums=110, time=220, palette=PALETTES[5],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    6: LevelData(max_gums=125, time=200, palette=PALETTES[6],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    7: LevelData(max_gums=140, time=180, palette=PALETTES[7],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    8: LevelData(max_gums=155, time=160,  palette=PALETTES[8],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    9: LevelData(max_gums=160, time=140,  palette=PALETTES[9],
+                 strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
+    10: LevelData(max_gums=164, time=120, palette=PALETTES[10],
+                  strategies={
+        "red": ("follow",),
+        "pink": ("anticipate",),
+        "cyan": ("eight_cell",),
+        "orange": ("mirror",)}),
 }

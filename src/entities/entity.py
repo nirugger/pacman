@@ -4,18 +4,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.level.cell import Cell
 
-from src.data import MAZE_X, MAZE_Y, Dir, PACMAN_R, GHOST_R, EDGE_THICK
+from src.data import MAZE_X, MAZE_Y, Dir, EDGE_THICK, ENT_SPEED
 from src.entities.strategy import Strategy
 
 from abc import ABC, abstractmethod
 import pygame as pg
 
-
-PLAYER_SPEED = 100 + 25
-RED_SPEED = 90 + 25
-CYAN_SPEED = 75 + 25
-PINK_SPEED = 85 + 25
-ORANGE_SPEED = 80 + 25
 
 # PLAYER_SPEED = 120 + 80
 # RED_SPEED = 100 + 80
@@ -25,12 +19,14 @@ ORANGE_SPEED = 80 + 25
 
 
 class Entity(ABC):
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
+        self.name: str = name
         self.home: tuple[int, int]
         self.pos: tuple[int, int]
         self.target: tuple[int, int]
         self.movement: dict[str, int]
         self.speed: int
+        self.speed_mult: float
         self.color: tuple[int, int, int]
 
         self.rect: pg.Rect
@@ -41,6 +37,8 @@ class Entity(ABC):
 
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
+
+    # def set_speed(self)
 
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
@@ -66,13 +64,14 @@ class Entity(ABC):
 
 
 class Player(Entity):
-    def __init__(self) -> None:
+    def __init__(self, name: str) -> None:
+        self.name = name
         self.home = (MAZE_X // 2, MAZE_Y // 2)
         self.pos = self.home
         self.target = self.home
         self.last_valid_pos = self.home
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
-        self.speed = PLAYER_SPEED
+        self.speed: int
         self.lives: int = 3
         self.score: int = 0
         self.cheat: bool = False
@@ -171,9 +170,11 @@ class Player(Entity):
 class Enemy(Entity):
     def __init__(
             self,
+            name: str,
             color: str,
             strategy: tuple[str, ...]
             ) -> None:
+        self.name = name
         self.color = color
         self.movement = {'x': 0, 'y': 0}
         self.strategy = strategy
@@ -268,36 +269,36 @@ class Enemy(Entity):
 
 
 class Red(Enemy):
-    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
-        super().__init__(color, strategy)
+    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(name, color, strategy)
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
-        self.speed = RED_SPEED
+        self.speed: int
 
 
 class Pink(Enemy):
-    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
-        super().__init__(color, strategy)
+    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(name, color, strategy)
         self.home = (0, 0)
         self.pos = self.home
         self.target = self.pos
-        self.speed = PINK_SPEED
+        self.speed: int
 
 
 class Cyan(Enemy):
-    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
-        super().__init__(color, strategy)
+    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
         self.target = self.pos
-        self.speed = CYAN_SPEED
+        self.speed: int
 
 
 class Orange(Enemy):
-    def __init__(self, color: str, strategy: tuple[str, ...]) -> None:
-        super().__init__(color, strategy)
+    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+        super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
-        self.speed = ORANGE_SPEED
+        self.speed: int

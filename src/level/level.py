@@ -2,10 +2,10 @@
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
-from src.data import (EDGE, MAZE_X, MAZE_Y, PAD,
+from src.data import (MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
-                      FRUIT_POINTS, FONT, GUM_R, SGUM_R, FRUIT_R)
+                      FRUIT_POINTS, FONT, ENT_SPEED)
 
 import pygame as pg
 import random
@@ -57,16 +57,20 @@ class Level:
             e: Enemy
             match color:
                 case "red":
-                    e = Red(self.level_config['data']['palette']['blinky'],
+                    e = Red(color,
+                            self.level_config['data']['palette']['blinky'],
                             self.level_config['data']['strategies'][color])
                 case "pink":
-                    e = Pink(self.level_config['data']['palette']['pinky'],
+                    e = Pink(color,
+                             self.level_config['data']['palette']['pinky'],
                              self.level_config['data']['strategies'][color])
                 case "cyan":
-                    e = Cyan(self.level_config['data']['palette']['inky'],
+                    e = Cyan(color,
+                             self.level_config['data']['palette']['inky'],
                              self.level_config['data']['strategies'][color])
                 case "orange":
-                    e = Orange(self.level_config['data']['palette']['clyde'],
+                    e = Orange(color,
+                               self.level_config['data']['palette']['clyde'],
                                self.level_config['data']['strategies'][color])
                 case _:
                     raise ValueError("Unrecognised color")
@@ -134,6 +138,7 @@ class Level:
         self.player.reset_positions(self.graph)
         self.player.color = self.level_config['data']['palette']['pacman']
         for e in self.entities:
+            e.speed = int(ENT_SPEED[e.name] * self.level_config['speed_mult'])
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)
             e.target_center = pg.math.Vector2(e.rect.center)

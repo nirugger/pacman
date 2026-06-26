@@ -27,15 +27,23 @@ class Cell:
 
         if self.value & Dir.N:
             pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y - EDGE_THICK), (x + edge, y - EDGE_THICK), width=EDGE_THICK)
+                         (x - EDGE_THICK, y - EDGE_THICK),
+                         (x + edge, y - EDGE_THICK),
+                         width=EDGE_THICK)
         if self.value & Dir.E:
             pg.draw.line(surface, color,
-                         (x + edge, y - EDGE_THICK), (x + edge, y + edge), width=EDGE_THICK)
+                         (x + edge, y - EDGE_THICK),
+                         (x + edge, y + edge),
+                         width=EDGE_THICK)
         if self.value & Dir.S:
             pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y + edge), (x + edge, y + edge), width=EDGE_THICK)
+                         (x - EDGE_THICK, y + edge),
+                         (x + edge, y + edge),
+                         width=EDGE_THICK)
         if self.value & Dir.W:
             pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y - EDGE_THICK), (x - EDGE_THICK, y + edge), width=EDGE_THICK)
+                         (x - EDGE_THICK, y - EDGE_THICK),
+                         (x - EDGE_THICK, y + edge),
+                         width=EDGE_THICK)
 
         return pg.Rect(x, y, edge, edge)

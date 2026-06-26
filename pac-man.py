@@ -27,6 +27,7 @@ def pac_main():
     app.run()
 
 
+# con risoluzioni troppo quadrate crasha nel setup della info surface, approfondire!!!!!!!!!!!
 if __name__ == "__main__":
     pg.init()
     pac_main()
