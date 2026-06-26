@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.level.cell import Cell
 
-from src.data import MAZE_X, MAZE_Y, Dir, PACMAN_COLOR
+from src.data import MAZE_X, MAZE_Y, Dir, PACMAN_R, GHOST_R, EDGE_THICK
 from src.entities.strategy import Strategy
 
 from abc import ABC, abstractmethod
@@ -163,7 +163,9 @@ class Player(Entity):
 
     def draw(self, surface: pg.Surface) -> None:
         pg.draw.circle(surface, self.color,
-                       (int(self.center.x), int(self.center.y)), 10)
+                       (int(self.center.x) + EDGE_THICK,
+                        int(self.center.y) + EDGE_THICK),
+                       PACMAN_R)
 
 
 class Enemy(Entity):
@@ -252,14 +254,17 @@ class Enemy(Entity):
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
         if self.frightened:
             pg.draw.circle(surface, 'white',
-                           (int(self.center.x), int(self.center.y)), 10)
+                           (int(self.center.x) + EDGE_THICK,
+                            int(self.center.y) + EDGE_THICK), GHOST_R)
             return
         if self.going_home:
             pg.draw.circle(surface, 'blue',
-                           (int(self.center.x), int(self.center.y)), 10)
+                           (int(self.center.x) + EDGE_THICK,
+                            int(self.center.y) + EDGE_THICK), GHOST_R)
             return
         pg.draw.circle(surface, self.color,
-                       (int(self.center.x), int(self.center.y)), 10)
+                       (int(self.center.x) + EDGE_THICK,
+                        int(self.center.y) + EDGE_THICK), GHOST_R)
 
 
 class Red(Enemy):

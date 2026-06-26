@@ -1,6 +1,6 @@
 from src.level.level import Level
 from src.entities.entity import Player
-from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT
+from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT, EDGE
 
 import json
 from datetime import date
@@ -52,10 +52,10 @@ class App:
         self.centery = self.screen.get_height() // 2
 
     def _init_fonts(self) -> None:
-        self.title_font = pg.font.Font(FONT, 80)
-        self.menu_font = pg.font.Font(FONT, 40)
-        self.instruction_font = pg.font.Font(FONT, 32)
-        self.tip_font = pg.font.Font(FONT, 24)
+        self.title_font = pg.font.Font(FONT, 64)
+        self.menu_font = pg.font.Font(FONT, 32)
+        self.instruction_font = pg.font.Font(FONT, 24)
+        self.tip_font = pg.font.Font(FONT, 16)
 
         # self.title_font = pg.font.SysFont("arial", 90)
         # self.menu_font = pg.font.SysFont("arial", 42)
@@ -258,7 +258,7 @@ class App:
     def _main_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
+        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=20)
 
         pady = self.menu_font.get_height() + self.instruction_font.get_height()
 

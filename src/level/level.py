@@ -2,10 +2,10 @@
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
-from src.data import (PAD, GUM_COLOR, SUPERGUM_COLOR, MAZE_X, MAZE_Y,
+from src.data import (EDGE, MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
-                      FRUIT_POINTS, CELL_COLOR, FONT)
+                      FRUIT_POINTS, FONT, GUM_R, SGUM_R, FRUIT_R)
 
 import pygame as pg
 import random
@@ -23,6 +23,8 @@ class Level:
             ) -> None:
 
         self.surface = surface
+        self.surface.fill('yellow')
+        self.pad = (self.surface.get_height() - (EDGE * MAZE_Y + 1)) // 2
         self.level_id = level_id
         self.seed = (level_config['seed']
                      if level_id == 1
@@ -52,26 +54,26 @@ class Level:
         self.buttons: dict[str, pg.Rect] = {}
 
     def _build_enemies(self) -> list[Enemy]:
-        e: list[Enemy] = []
+        enemies: list[Enemy] = []
         for color in ("red", "pink", "cyan", "orange"):
-            enemy: Enemy
+            e: Enemy
             match color:
                 case "red":
-                    enemy = Red(self.level_config['data']['palette']['blinky'],
-                                self.level_config['data']['strategies'][color])
+                    e = Red(self.level_config['data']['palette']['blinky'],
+                            self.level_config['data']['strategies'][color])
                 case "pink":
-                    enemy = Pink(self.level_config['data']['palette']['pinky'],
-                                 self.level_config['data']['strategies'][color])
+                    e = Pink(self.level_config['data']['palette']['pinky'],
+                             self.level_config['data']['strategies'][color])
                 case "cyan":
-                    enemy = Cyan(self.level_config['data']['palette']['inky'],
-                                 self.level_config['data']['strategies'][color])
+                    e = Cyan(self.level_config['data']['palette']['inky'],
+                             self.level_config['data']['strategies'][color])
                 case "orange":
-                    enemy = Orange(self.level_config['data']['palette']['clyde'],
-                                   self.level_config['data']['strategies'][color])
+                    e = Orange(self.level_config['data']['palette']['clyde'],
+                               self.level_config['data']['strategies'][color])
                 case _:
                     raise ValueError("Unrecognised color")
-            e.append(enemy)
-        return e
+            enemies.append(e)
+        return enemies
 
     def _build_graph(self) -> dict[tuple[int, int], Cell]:
         max_gums = self.level_config['data']['max_gums']
@@ -101,12 +103,11 @@ class Level:
 
         screen_w = self.surface.get_width()
         screen_h = self.surface.get_height()
-        edge = min(
-            (screen_h - 2 * PAD) // len(self.maze.maze),
-            (screen_w - 2 * PAD) // len(self.maze.maze[0])
-        )
-        self.edge = edge
-
+        # edge = min(
+        #     (screen_h - 2 * self.pad) // len(self.maze.maze),
+        #     (screen_w - 2 * self.pad) // len(self.maze.maze[0])
+        # )
+        self.edge = EDGE
         for c in graph.values():
             c.rect = pg.Rect(c.i * self.edge, c.j * self.edge,
                              self.edge, self.edge)
@@ -114,8 +115,8 @@ class Level:
         return graph
 
     def _build_layout(self) -> pg.Surface:
-        surface_sizes = (self.edge * len(self.maze.maze[0]) + EDGE_THICK,
-                         self.edge * len(self.maze.maze) + EDGE_THICK)
+        surface_sizes = (self.edge * MAZE_X + 2 * EDGE_THICK,
+                         self.edge * MAZE_Y + 2 * EDGE_THICK)
         level_surface = pg.Surface(surface_sizes)
         level_surface.fill(self.level_config['data']['palette']['bg'])
 
@@ -326,7 +327,7 @@ class Level:
 
     def _show_info(self) -> None:
         width = (self.surface.get_width() - self.playable_surface.get_width()
-                 - 2 * PAD)
+                 - 2 * self.pad)
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
         info_surface.fill(self.level_config['data']['palette']['walls'])
@@ -335,7 +336,9 @@ class Level:
                                 thickness,
                                 width - 2 * thickness,
                                 height - 2 * thickness)
-        pg.draw.rect(info_surface, self.level_config['data']['palette']['bg'], internal_rect)
+        pg.draw.rect(info_surface,
+                     self.level_config['data']['palette']['bg'],
+                     internal_rect)
         # font = pg.font.SysFont("arial", 32)
         font = pg.font.Font(FONT, 32)
         s = "S" if self.max_time - int(self.seconds) != 1 else ""
@@ -358,13 +361,13 @@ class Level:
             text_surface = font.render(text, True, "white")
             info_surface.blit(text_surface, (10, i))
         self.surface.blit(info_surface, (self.playable_surface.get_width()
-                                         + PAD, PAD))
+                                         + self.pad, self.pad))
 
     def _draw_frame(self) -> None:
         for e in self.entities:
             e.draw(self.playable_surface)
         self._show_info()
-        self.surface.blit(self.playable_surface, (PAD, PAD))
+        self.surface.blit(self.playable_surface, (self.pad, self.pad))
 
         if self.paused:
             self.pause_menu()
@@ -381,8 +384,9 @@ class Level:
 
         pg.draw.circle(
             surface, color,
-            self.graph[(coord[0], coord[1])].rect.center,
-            radius=8, width=6
+            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
+             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
+            radius=FRUIT_R, width=6
         )
 
     def draw_super_gums(
@@ -394,8 +398,9 @@ class Level:
         color = self.level_config['data']['palette']['spg']
         pg.draw.circle(
             surface, color,
-            self.graph[(coord[0], coord[1])].rect.center,
-            radius=7, width=5
+            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
+             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
+            radius=SGUM_R, width=5
         )
 
     def draw_gum(
@@ -408,8 +413,9 @@ class Level:
         color = self.level_config['data']['palette']['pg']
         pg.draw.circle(
             surface, color,
-            self.graph[(coord[0], coord[1])].rect.center,
-            radius=3,
+            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
+             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
+            radius=GUM_R,
         )
 
     def pause_menu(self) -> None:
@@ -426,15 +432,15 @@ class Level:
                                                  - text_surface.get_width()
                                                  // 2, surface.get_height() //
                                                  2 - font_h))
-        self.buttons['continue'].x += PAD
-        self.buttons['continue'].y += PAD
+        self.buttons['continue'].x += self.pad
+        self.buttons['continue'].y += self.pad
 
         text_surface = font.render("BACK TO MENU", True, 'white')
         self.buttons['back_to_menu'] = surface.blit(
             text_surface,
             (surface.get_width() // 2 - text_surface.get_width() // 2,
              surface.get_height() // 2 + font_h))
-        self.buttons['back_to_menu'].x += PAD
-        self.buttons['back_to_menu'].y += PAD
+        self.buttons['back_to_menu'].x += self.pad
+        self.buttons['back_to_menu'].y += self.pad
 
-        self.surface.blit(surface, (PAD, PAD))
+        self.surface.blit(surface, (self.pad, self.pad))
