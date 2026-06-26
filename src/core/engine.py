@@ -257,7 +257,7 @@ class App:
 
     def _main_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
-        surface.fill((15, 20, 25))
+        surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
 
         pady = self.menu_font.get_height() + self.instruction_font.get_height()

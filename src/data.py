@@ -11,9 +11,9 @@ from enum import Enum, IntFlag
 FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
-MAZE_X = 13
-MAZE_Y = 13
-EDGE_THICK = 3
+MAZE_X = 31
+MAZE_Y = 21
+EDGE_THICK = 5
 PAD = 10
 
 CELL_COLOR = (100, 0, 255)
@@ -69,6 +69,7 @@ class LevelData(TypedDict):
     max_gums: int
     time: int
     strategies: dict[str, tuple[str, ...]]
+    palette: dict[str, tuple[int, int, int]]
 
 
 class LevelConfig(TypedDict):
@@ -84,46 +85,108 @@ class LevelConfig(TypedDict):
     # super_gums: list[SuperGum]
 
 
+PALETTES = {
+    1: {"bg": (12, 14, 24), "walls": (110, 170, 255), "pacman": (255, 220, 40),
+        "blinky": (255, 70, 70), "pinky": (255, 140, 220),
+        "inky": (70, 255, 255), "clyde": (255, 170, 60),
+        "pg": (245, 245, 245), "spg": (255, 245, 170),
+        "fruit": (120, 255, 110), "text": (230, 230, 255), },
+
+    2: {"bg": (18, 10, 32), "walls": (180, 140, 255), "pacman": (255, 210, 90),
+        "blinky": (255, 70, 180), "pinky": (180, 110, 255),
+        "inky": (70, 255, 220), "clyde": (120, 220, 255),
+        "pg": (240, 240, 255), "spg": (255, 255, 180),
+        "fruit": (90, 255, 160), "text": (220, 210, 255), },
+
+    3: {"bg": (6, 24, 38), "walls": (175, 225, 235), "pacman": (255, 214, 64),
+        "blinky": (40, 200, 255), "pinky": (120, 255, 220),
+        "inky": (100, 170, 255), "clyde": (210, 245, 255),
+        "pg": (235, 245, 255), "spg": (255, 250, 190),
+        "fruit": (110, 255, 140), "text": (210, 235, 245), },
+
+    4: {"bg": (10, 20, 16), "walls": (160, 255, 215), "pacman": (255, 220, 70),
+        "blinky": (70, 255, 120), "pinky": (120, 255, 180),
+        "inky": (180, 255, 120), "clyde": (60, 210, 140),
+        "pg": (235, 245, 240), "spg": (255, 250, 170),
+        "fruit": (255, 120, 120), "text": (220, 255, 235), },
+
+    5: {"bg": (30, 12, 18), "walls": (255, 170, 130), "pacman": (255, 225, 90),
+        "blinky": (255, 90, 40), "pinky": (255, 140, 80),
+        "inky": (255, 190, 60), "clyde": (255, 120, 120),
+        "pg": (255, 245, 240), "spg": (255, 245, 180),
+        "fruit": (255, 80, 150), "text": (255, 220, 205), },
+
+    6: {"bg": (15, 18, 28), "walls": (210, 220, 255), "pacman": (255, 230, 100),
+        "blinky": (220, 220, 255), "pinky": (170, 190, 255),
+        "inky": (120, 170, 255), "clyde": (180, 240, 255),
+        "pg": (250, 250, 255), "spg": (255, 255, 190),
+        "fruit": (140, 255, 140), "text": (235, 240, 255), },
+
+    7: {"bg": (26, 8, 40), "walls": (255, 120, 255), "pacman": (255, 220, 90),
+        "blinky": (255, 40, 180), "pinky": (180, 40, 255),
+        "inky": (40, 255, 255), "clyde": (120, 255, 120),
+        "pg": (245, 240, 255), "spg": (255, 250, 180),
+        "fruit": (255, 255, 120), "text": (255, 210, 255), },
+
+    8: {"bg": (8, 20, 32), "walls": (200, 245, 255), "pacman": (255, 220, 75),
+        "blinky": (180, 240, 255), "pinky": (120, 220, 255),
+        "inky": (80, 170, 255), "clyde": (220, 255, 255),
+        "pg": (245, 255, 255), "spg": (255, 255, 210),
+        "fruit": (120, 255, 150), "text": (220, 245, 255), },
+
+    9: {"bg": (12, 28, 18), "walls": (190, 235, 175), "pacman": (255, 220, 70),
+        "blinky": (170, 255, 120), "pinky": (120, 220, 80),
+        "inky": (220, 255, 120), "clyde": (80, 180, 60),
+        "pg": (245, 250, 235), "spg": (255, 250, 170),
+        "fruit": (255, 110, 110), "text": (220, 245, 215), },
+
+    10: {"bg": (14, 14, 14), "walls": (210, 210, 210), "pacman": (255, 210, 60),
+         "blinky": (255, 215, 120), "pinky": (210, 190, 120),
+         "inky": (255, 240, 180), "clyde": (180, 160, 100),
+         "pg": (245, 245, 245), "spg": (255, 235, 120),
+         "fruit": (150, 255, 140), "text": (235, 235, 235), },
+}
+
 LEVELS_DATA = {
-    1: LevelData(max_gums=50, time=300, strategies={
+    1: LevelData(max_gums=50, time=300, palette=PALETTES[1], strategies={
         "red": ("follow", "follow", "random", "follow", "eight_cell"),
         "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
         "cyan": ("eight_cell", "mirror", "eight_cell", "anticipate",
                  "eight_cell"),
         "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")}),
-    2: LevelData(max_gums=65, time=280, strategies={"red": ("follow",),
+    2: LevelData(max_gums=65, time=280, palette=PALETTES[2], strategies={"red": ("follow",),
                                                     "pink": ("anticipate",),
                                                     "cyan": ("eight_cell",),
                                                     "orange": ("mirror",)}),
-    3: LevelData(max_gums=80, time=260, strategies={"red": ("follow",),
+    3: LevelData(max_gums=80, time=260, palette=PALETTES[3], strategies={"red": ("follow",),
                                                     "pink": ("anticipate",),
                                                     "cyan": ("eight_cell",),
                                                     "orange": ("mirror",)}),
-    4: LevelData(max_gums=95, time=240, strategies={"red": ("follow",),
+    4: LevelData(max_gums=95, time=240, palette=PALETTES[4], strategies={"red": ("follow",),
                                                     "pink": ("anticipate",),
                                                     "cyan": ("eight_cell",),
                                                     "orange": ("mirror",)}),
-    5: LevelData(max_gums=110, time=220, strategies={"red": ("follow",),
+    5: LevelData(max_gums=110, time=220, palette=PALETTES[5], strategies={"red": ("follow",),
                                                      "pink": ("anticipate",),
                                                      "cyan": ("eight_cell",),
                                                      "orange": ("mirror",)}),
-    6: LevelData(max_gums=125, time=200, strategies={"red": ("follow",),
+    6: LevelData(max_gums=125, time=200, palette=PALETTES[6], strategies={"red": ("follow",),
                                                      "pink": ("anticipate",),
                                                      "cyan": ("eight_cell",),
                                                      "orange": ("mirror",)}),
-    7: LevelData(max_gums=140, time=180, strategies={"red": ("follow",),
+    7: LevelData(max_gums=140, time=180, palette=PALETTES[7], strategies={"red": ("follow",),
                                                      "pink": ("anticipate",),
                                                      "cyan": ("eight_cell",),
                                                      "orange": ("mirror",)}),
-    8: LevelData(max_gums=155, time=160,  strategies={"red": ("follow",),
+    8: LevelData(max_gums=155, time=160,  palette=PALETTES[8], strategies={"red": ("follow",),
                                                       "pink": ("anticipate",),
                                                       "cyan": ("eight_cell",),
                                                       "orange": ("mirror",)}),
-    9: LevelData(max_gums=160, time=140,  strategies={"red": ("follow",),
+    9: LevelData(max_gums=160, time=140,  palette=PALETTES[9], strategies={"red": ("follow",),
                                                       "pink": ("anticipate",),
                                                       "cyan": ("eight_cell",),
                                                       "orange": ("mirror",)}),
-    10: LevelData(max_gums=164, time=120, strategies={"red": ("follow",),
+    10: LevelData(max_gums=164, time=120, palette=PALETTES[10], strategies={"red": ("follow",),
                                                       "pink": ("anticipate",),
                                                       "cyan": ("eight_cell",),
                                                       "orange": ("mirror",)}),

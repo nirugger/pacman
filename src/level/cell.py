@@ -19,22 +19,23 @@ class Cell:
     def draw(
             self,
             surface: pg.Surface,
-            edge: int
+            edge: int,
+            color: tuple[int, int, int]
             ) -> pg.Rect:
 
         x, y = self.i * edge, self.j * edge
 
         if self.value & Dir.N:
-            pg.draw.line(surface, CELL_COLOR,
+            pg.draw.line(surface, color,
                          (x, y), (x + edge, y), width=EDGE_THICK)
         if self.value & Dir.E:
-            pg.draw.line(surface, CELL_COLOR,
+            pg.draw.line(surface, color,
                          (x + edge, y), (x + edge, y + edge), width=EDGE_THICK)
         if self.value & Dir.S:
-            pg.draw.line(surface, CELL_COLOR,
+            pg.draw.line(surface, color,
                          (x, y + edge), (x + edge, y + edge), width=EDGE_THICK)
         if self.value & Dir.W:
-            pg.draw.line(surface, CELL_COLOR,
+            pg.draw.line(surface, color,
                          (x, y), (x, y + edge), width=EDGE_THICK)
 
         return pg.Rect(x, y, edge, edge)

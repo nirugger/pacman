@@ -11,11 +11,17 @@ from abc import ABC, abstractmethod
 import pygame as pg
 
 
-PLAYER_SPEED = 120 + 80
-RED_SPEED = 100 + 80
-CYAN_SPEED = 80 + 80
-PINK_SPEED = 100 + 80
-ORANGE_SPEED = 90 + 80
+PLAYER_SPEED = 100
+RED_SPEED = 90
+CYAN_SPEED = 75
+PINK_SPEED = 85
+ORANGE_SPEED = 80
+
+# PLAYER_SPEED = 120 + 80
+# RED_SPEED = 100 + 80
+# CYAN_SPEED = 81 + 80
+# PINK_SPEED = 100 + 80
+# ORANGE_SPEED = 90 + 80
 
 
 class Entity(ABC):
@@ -25,6 +31,7 @@ class Entity(ABC):
         self.target: tuple[int, int]
         self.movement: dict[str, int]
         self.speed: int
+        self.color: tuple[int, int, int]
 
         self.rect: pg.Rect
 
@@ -155,8 +162,8 @@ class Player(Entity):
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
     def draw(self, surface: pg.Surface) -> None:
-        pg.draw.circle(surface, PACMAN_COLOR,
-                       (int(self.center.x), int(self.center.y)), 20)
+        pg.draw.circle(surface, self.color,
+                       (int(self.center.x), int(self.center.y)), 10)
 
 
 class Enemy(Entity):
@@ -245,14 +252,14 @@ class Enemy(Entity):
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
         if self.frightened:
             pg.draw.circle(surface, 'white',
-                           (int(self.center.x), int(self.center.y)), 20)
+                           (int(self.center.x), int(self.center.y)), 10)
             return
         if self.going_home:
             pg.draw.circle(surface, 'blue',
-                           (int(self.center.x), int(self.center.y)), 20)
+                           (int(self.center.x), int(self.center.y)), 10)
             return
         pg.draw.circle(surface, self.color,
-                       (int(self.center.x), int(self.center.y)), 20)
+                       (int(self.center.x), int(self.center.y)), 10)
 
 
 class Red(Enemy):

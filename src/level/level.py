@@ -57,17 +57,17 @@ class Level:
             enemy: Enemy
             match color:
                 case "red":
-                    enemy = Red(color, self.level_config['data']
-                                ['strategies'][color])
+                    enemy = Red(self.level_config['data']['palette']['blinky'],
+                                self.level_config['data']['strategies'][color])
                 case "pink":
-                    enemy = Pink(color, self.level_config['data']
-                                 ['strategies'][color])
+                    enemy = Pink(self.level_config['data']['palette']['pinky'],
+                                 self.level_config['data']['strategies'][color])
                 case "cyan":
-                    enemy = Cyan(color, self.level_config['data']
-                                 ['strategies'][color])
+                    enemy = Cyan(self.level_config['data']['palette']['inky'],
+                                 self.level_config['data']['strategies'][color])
                 case "orange":
-                    enemy = Orange(color, self.level_config['data']
-                                   ['strategies'][color])
+                    enemy = Orange(self.level_config['data']['palette']['clyde'],
+                                   self.level_config['data']['strategies'][color])
                 case _:
                     raise ValueError("Unrecognised color")
             e.append(enemy)
@@ -114,23 +114,25 @@ class Level:
         return graph
 
     def _build_layout(self) -> pg.Surface:
-        surface_sizes = (self.edge * len(self.maze.maze[0]) + 1,
-                         self.edge * len(self.maze.maze) + 1)
+        surface_sizes = (self.edge * len(self.maze.maze[0]) + EDGE_THICK,
+                         self.edge * len(self.maze.maze) + EDGE_THICK)
         level_surface = pg.Surface(surface_sizes)
-        level_surface.fill((15, 20, 25))
+        level_surface.fill(self.level_config['data']['palette']['bg'])
 
+        color = self.level_config['data']['palette']['walls']
         for c in self.graph.values():
-            c.draw(level_surface, self.edge)
+            c.draw(level_surface, self.edge, color)
             if c.sg:
                 self.draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:
                 self.draw_gum(level_surface, (c.i, c.j))
             elif c.fruit:
-                self.draw_fruit(level_surface, (c.j, c.i))
+                self.draw_fruit(level_surface, (c.i, c.j))
         return level_surface
 
     def setup_level(self) -> None:
         self.player.reset_positions(self.graph)
+        self.player.color = self.level_config['data']['palette']['pacman']
         for e in self.entities:
             e.set_rect(self.graph)
             e.center = pg.math.Vector2(e.rect.center)
@@ -327,20 +329,30 @@ class Level:
                  - 2 * PAD)
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
-        info_surface.fill(CELL_COLOR)
+        info_surface.fill(self.level_config['data']['palette']['walls'])
         thickness = EDGE_THICK
         internal_rect = pg.Rect(thickness,
                                 thickness,
                                 width - 2 * thickness,
                                 height - 2 * thickness)
-        pg.draw.rect(info_surface, (15, 20, 25), internal_rect)
+        pg.draw.rect(info_surface, self.level_config['data']['palette']['bg'], internal_rect)
         # font = pg.font.SysFont("arial", 32)
         font = pg.font.Font(FONT, 32)
+        s = "S" if self.max_time - int(self.seconds) != 1 else ""
+        f"YOU MAY DIE IN {self.max_time - int(self.seconds)} SECOND{s}"
+        lives = (f"YOU MAY DIE {self.player.lives} MORE TIMES"
+                 if self.player.lives > 1 else "LAST LIFE, MAKE IT COUNT")
+        f"{lives}"
+        f"YOUR SCORE IS WORTH {self.player.score} POINTS"
+        "KEYS:"
+        "RUN TIME:"
+        "PACGUM "
+        "GHOST KILLED:"
         for i in range(50, 200, 50):
             if i == 50:
-                text = f"Time Left: {self.max_time - int(self.seconds)}"
+                text = f"TIME: {self.max_time - int(self.seconds)}"
             if i == 100:
-                text = f"Lives: {self.player.lives}"
+                text = f": {self.player.lives}"
             if i == 150:
                 text = f"Score: {self.player.score}"
             text_surface = font.render(text, True, "white")
@@ -350,6 +362,8 @@ class Level:
 
     def _draw_frame(self) -> None:
         for e in self.entities:
+            if e is self.player:
+                print(e.color)
             e.draw(self.playable_surface)
         self._show_info()
         self.surface.blit(self.playable_surface, (PAD, PAD))
@@ -365,8 +379,7 @@ class Level:
             coord: tuple[int, int]
             ) -> None:
 
-        color = (random.randint(0, 255), random.randint(0, 255),
-                 random.randint(0, 255))
+        color = self.level_config['data']['palette']['fruit']
 
         pg.draw.circle(
             surface, color,
@@ -380,10 +393,11 @@ class Level:
             coord: tuple[int, int]
             ) -> None:
 
+        color = self.level_config['data']['palette']['spg']
         pg.draw.circle(
-            surface, SUPERGUM_COLOR,
+            surface, color,
             self.graph[(coord[0], coord[1])].rect.center,
-            radius=10, width=4
+            radius=7, width=5
         )
 
     def draw_gum(
@@ -393,10 +407,11 @@ class Level:
             # app: App
             ) -> None:
 
+        color = self.level_config['data']['palette']['pg']
         pg.draw.circle(
-            surface, GUM_COLOR,
+            surface, color,
             self.graph[(coord[0], coord[1])].rect.center,
-            radius=5,
+            radius=3,
         )
 
     def pause_menu(self) -> None:

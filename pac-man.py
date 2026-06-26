@@ -6,9 +6,20 @@ from src.core.engine import App
 
 
 def pac_main():
-    with open('config.json', 'r') as file:
-        rawdata = json.load(file)
-    pg.init()
+    # import sys
+    # import os
+
+    # sys.stdout = open(os.devnull, "w")
+    # # sys.stderr = open(os.devnull, "w")
+
+    try:
+        with open('config.json', 'r') as file:
+            rawdata = json.load(file)
+    except (FileNotFoundError, PermissionError,
+            IsADirectoryError, json.JSONDecodeError) as e:
+        print(f"[ERROR]: {e}")
+        return
+
     data = Config(highscore_filename=rawdata['highscore_filename'],
                   resolution=rawdata['resolution'],
                   seed=rawdata['seed'])
@@ -17,9 +28,6 @@ def pac_main():
 
 
 if __name__ == "__main__":
-    # import sys
-    # import os
-
-    # sys.stdout = open(os.devnull, "w")
-    # # sys.stderr = open(os.devnull, "w")
+    pg.init()
     pac_main()
+    pg.quit()
