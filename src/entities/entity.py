@@ -11,11 +11,11 @@ from abc import ABC, abstractmethod
 import pygame as pg
 
 
-PLAYER_SPEED = 100
-RED_SPEED = 90
-CYAN_SPEED = 75
-PINK_SPEED = 85
-ORANGE_SPEED = 80
+PLAYER_SPEED = 100 + 25
+RED_SPEED = 90 + 25
+CYAN_SPEED = 75 + 25
+PINK_SPEED = 85 + 25
+ORANGE_SPEED = 80 + 25
 
 # PLAYER_SPEED = 120 + 80
 # RED_SPEED = 100 + 80

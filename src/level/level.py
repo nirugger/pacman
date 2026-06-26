@@ -362,8 +362,6 @@ class Level:
 
     def _draw_frame(self) -> None:
         for e in self.entities:
-            if e is self.player:
-                print(e.color)
             e.draw(self.playable_surface)
         self._show_info()
         self.surface.blit(self.playable_surface, (PAD, PAD))

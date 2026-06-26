@@ -1,6 +1,11 @@
 {
     "highscores": [
         {
+            "name": "il meglio",
+            "score": 5580,
+            "date": "2026-06-26"
+        },
+        {
             "name": "Reduardo",
             "score": 3830,
             "date": "2026-06-26"
@@ -43,11 +48,6 @@
         {
             "name": "TRENTA",
             "score": 30,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "VENTI",
-            "score": 20,
             "date": "2026-06-24"
         }
     ]
