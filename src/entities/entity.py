@@ -61,7 +61,7 @@ class Entity(ABC):
         ...
 
     @abstractmethod
-    def draw(self, surface: pg.Surface) -> None:
+    def draw(self, surface: pg.Surface, radius: int) -> None:
         ...
 
 
@@ -161,11 +161,11 @@ class Player(Entity):
         self.center = graph[self.home].center.copy()
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
-    def draw(self, surface: pg.Surface) -> None:
+    def draw(self, surface: pg.Surface, radius: int) -> None:
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
                         int(self.center.y) + EDGE_THICK),
-                       PACMAN_R)
+                       radius)
 
 
 class Enemy(Entity):
@@ -250,21 +250,21 @@ class Enemy(Entity):
         self.center = graph[self.home].center.copy()
         self.frightened = False
 
-    def draw(self, surface: pg.Surface) -> None:
+    def draw(self, surface: pg.Surface, radius: int) -> None:
         # pg.draw.circle(surface, self.color, self.rect.center, 13)
         if self.frightened:
             pg.draw.circle(surface, 'white',
                            (int(self.center.x) + EDGE_THICK,
-                            int(self.center.y) + EDGE_THICK), GHOST_R)
+                            int(self.center.y) + EDGE_THICK), radius)
             return
         if self.going_home:
             pg.draw.circle(surface, 'blue',
                            (int(self.center.x) + EDGE_THICK,
-                            int(self.center.y) + EDGE_THICK), GHOST_R)
+                            int(self.center.y) + EDGE_THICK), radius)
             return
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
-                        int(self.center.y) + EDGE_THICK), GHOST_R)
+                        int(self.center.y) + EDGE_THICK), radius)
 
 
 class Red(Enemy):

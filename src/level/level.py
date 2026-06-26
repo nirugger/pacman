@@ -2,7 +2,7 @@
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
 from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
-from src.data import (EDGE, MAZE_X, MAZE_Y,
+from src.data import (EDGE, MAZE_X, MAZE_Y, PAD,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
                       FRUIT_POINTS, FONT, GUM_R, SGUM_R, FRUIT_R)
@@ -23,8 +23,6 @@ class Level:
             ) -> None:
 
         self.surface = surface
-        self.surface.fill('yellow')
-        self.pad = (self.surface.get_height() - (EDGE * MAZE_Y + 1)) // 2
         self.level_id = level_id
         self.seed = (level_config['seed']
                      if level_id == 1
@@ -101,13 +99,14 @@ class Level:
             candidates.remove(c)
             c.g = True
 
-        screen_w = self.surface.get_width()
-        screen_h = self.surface.get_height()
+        # screen_w = self.surface.get_width()
+        # screen_h = self.surface.get_height()
         # edge = min(
-        #     (screen_h - 2 * self.pad) // len(self.maze.maze),
-        #     (screen_w - 2 * self.pad) // len(self.maze.maze[0])
+        #     (screen_h - 2 * PAD) // len(self.maze.maze),
+        #     (screen_w - 2 * PAD) // len(self.maze.maze[0])
         # )
-        self.edge = EDGE
+        self.edge = self.level_config['edge']
+        self.pad = (self.surface.get_height() - (self.edge * MAZE_Y + 1)) // 2
         for c in graph.values():
             c.rect = pg.Rect(c.i * self.edge, c.j * self.edge,
                              self.edge, self.edge)
@@ -139,11 +138,11 @@ class Level:
             e.center = pg.math.Vector2(e.rect.center)
             e.target_center = pg.math.Vector2(e.rect.center)
             e.home_center = pg.math.Vector2(e.rect.center)
-        # self.surface.fill((220, 220, 25))
+        self.surface.fill(self.level_config['data']['palette']['walls'])
         self.playable_surface = self.layout.copy()
 
     def run(self) -> LevelConfig:
-        # self.surface.fill((220, 220, 25))
+        self.surface.fill(self.level_config['data']['palette']['walls'])
         self._draw_frame()
         clock = pg.time.Clock()
         while True:
@@ -365,7 +364,10 @@ class Level:
 
     def _draw_frame(self) -> None:
         for e in self.entities:
-            e.draw(self.playable_surface)
+            radius = (self.level_config['radii']['pacman']
+                      if e is self.player
+                      else self.level_config['radii']['ghost'])
+            e.draw(self.playable_surface, radius)
         self._show_info()
         self.surface.blit(self.playable_surface, (self.pad, self.pad))
 
@@ -386,7 +388,7 @@ class Level:
             surface, color,
             (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
              self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=FRUIT_R, width=6
+            radius=self.level_config['radii']['fruit'], width=6
         )
 
     def draw_super_gums(
@@ -400,7 +402,8 @@ class Level:
             surface, color,
             (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
              self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=SGUM_R, width=5
+            radius=self.level_config['radii']['superpacgum'],
+            width=self.level_config['radii']['superpacgum'] - 5
         )
 
     def draw_gum(
@@ -415,7 +418,7 @@ class Level:
             surface, color,
             (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
              self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=GUM_R,
+            radius=self.level_config['radii']['pacgum'],
         )
 
     def pause_menu(self) -> None:

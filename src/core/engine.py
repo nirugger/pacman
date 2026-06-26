@@ -1,6 +1,6 @@
 from src.level.level import Level
 from src.entities.entity import Player
-from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT, EDGE
+from src.data import LevelConfig, GameState, Config, LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK
 
 import json
 from datetime import date
@@ -18,6 +18,7 @@ class App:
 
         self._init_config(config)
         self._init_screen()
+        self._init_sizes()
 
         self.levels_data = LEVELS_DATA
         self.game_state: GameState = GameState.MAIN_MENU
@@ -48,8 +49,22 @@ class App:
 
     def _init_screen(self) -> None:
         self.screen = pg.display.set_mode(self.resolution, pg.NOFRAME)
-        self.centerx = self.screen.get_width() // 2
-        self.centery = self.screen.get_height() // 2
+        self.screen_size = (self.screen.get_width(), self.screen.get_height())
+        self.centerx = self.screen_size[0] // 2
+        self.centery = self.screen_size[1] // 2
+
+    def _init_sizes(self) -> None:
+        self.edge = min(
+            (self.screen_size[1] - 2 * PAD) // MAZE_Y,
+            (self.screen_size[0] - 2 * PAD) // MAZE_X
+        )
+        self.radii = {
+            'pacman': (self.edge - EDGE_THICK) // 2,
+            'ghost': (self.edge - EDGE_THICK) // 2,
+            'pacgum': max((self.edge - EDGE_THICK) // 10, 2),
+            'superpacgum': max((self.edge - EDGE_THICK) // 3, 5),
+            'fruit': max((self.edge - EDGE_THICK) // 4, 7),
+        }
 
     def _init_fonts(self) -> None:
         self.title_font = pg.font.Font(FONT, 64)
@@ -78,7 +93,9 @@ class App:
             'data': self.levels_data[level_id],
             'game_state': GameState.IN_GAME,
             'seed': self.first_seed,
-            'time': 0.0
+            'time': 0.0,
+            'edge': self.edge,
+            'radii': self.radii
         }
         self.game_config = level_config
         self.level = Level(self.screen, level_config, level_id)
@@ -258,7 +275,7 @@ class App:
     def _main_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=20)
+        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=17)
 
         pady = self.menu_font.get_height() + self.instruction_font.get_height()
 
@@ -405,7 +422,7 @@ class App:
     def _record_confirm_window(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill((15, 20, 25))
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
+        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=25)
         # stats = []
         msg = self.tip_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?",
                                    True, 'yellow')

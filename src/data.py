@@ -13,11 +13,11 @@ FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
 MAZE_X = 31
 MAZE_Y = 21
-EDGE_THICK = 2
-EDGE = 32
-PAD = 10
+EDGE_THICK = 1
+EDGE = 30
+PAD = 15
 
-PACMAN_R = 14
+PACMAN_R = 21
 GHOST_R = 14
 GUM_R = 2
 SGUM_R = 6
@@ -87,6 +87,8 @@ class LevelConfig(TypedDict):
     game_state: GameState
     seed: int
     time: float
+    edge: int
+    radii: dict[str, int]
     # enemies: list[Enemy]
     # entities: list[Entity]
     # status: GameStatus
