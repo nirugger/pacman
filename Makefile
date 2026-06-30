@@ -41,6 +41,11 @@ lint-strict:
 	@$(UV) run mypy --strict $(PACMAN) src/ \
 	&& echo "$(GREEN) ✓ Lint passed.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"
 
+check-docstrings:
+	@echo "$(YELLOW) → Checking docstrings...$(RESET)"
+	@$(UV) run pydocstyle $(PACMAN) src/ \
+	&& echo "$(GREEN) ✓ Docstrings are valid.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"
+
 clean:
 	@echo "$(YELLOW) → Cleaning caches...$(RESET)"
 	@find . -type d -name "__pycache__" -not -path "./.venv/*" | xargs rm -rf

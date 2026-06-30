@@ -1,3 +1,5 @@
+"""Main module for the project."""
+
 import json
 import pygame as pg
 from src.data import Config
@@ -5,7 +7,7 @@ from src.data import Config
 from src.core.engine import App
 
 
-def pac_main() -> None:
+def _pac_main() -> None:
     # import sys
     # import os
 
@@ -31,5 +33,5 @@ def pac_main() -> None:
 # approfondire!!!!!!!!!!!
 if __name__ == "__main__":
     pg.init()
-    pac_main()
+    _pac_main()
     pg.quit()
