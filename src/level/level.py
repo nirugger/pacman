@@ -11,8 +11,6 @@ import pygame as pg
 import random
 import sys
 
-SCATTER_RANGE = (10, 20)
-
 
 class Level:
     def __init__(
@@ -33,6 +31,10 @@ class Level:
         self.entities = [self.player] + self.enemies
         self.seconds = 0.0
         self.scatter = False
+        self.scatter_duration = self.level_config['data']['scatter_duration']
+        self.chase_duration = self.level_config['data']['chase_duration']
+        self.last_scatter = 0.0
+        self.last_chase = 0.0
         self.max_time = self.level_config['data']['time']
 
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
@@ -181,10 +183,14 @@ class Level:
             for e in self.enemies:
                 e.frightened = False
 
-        if SCATTER_RANGE[0] <= int(self.seconds) <= SCATTER_RANGE[1]:
-            self.scatter = True
+        if self.scatter:
+            if self.seconds - self.last_scatter >= self.scatter_duration:
+                self.scatter = False
+                self.last_chase = self.seconds
         else:
-            self.scatter = False
+            if self.seconds - self.last_chase >= self.chase_duration:
+                self.scatter = True
+                self.last_scatter = self.seconds
 
         if self.seconds - self.last_fruit >= FRUIT_TIME:
             self.graph[MAZE_X // 2, MAZE_Y // 2].fruit = False
