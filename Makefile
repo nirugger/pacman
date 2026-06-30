@@ -42,6 +42,7 @@ lint-strict:
 	&& echo "$(GREEN) ✓ Lint passed.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"
 
 check-docstrings:
+	clear
 	@echo "$(YELLOW) → Checking docstrings...$(RESET)"
 	@$(UV) run pydocstyle $(PACMAN) src/ \
 	&& echo "$(GREEN) ✓ Docstrings are valid.$(RESET)" || echo "$(RED) ✗ Merda.$(RESET)"

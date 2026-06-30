@@ -1,3 +1,5 @@
+"""Define all the strategies used by the enemies in the game."""
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -12,6 +14,7 @@ import random
 
 
 class Strategy(ABC):
+    """Abstract class for the strategies used by the enemies in the game."""
 
     @staticmethod
     def follow(
@@ -19,7 +22,21 @@ class Strategy(ABC):
         end: tuple[int, int],
         graph: dict[tuple[int, int], Cell]
          ) -> tuple[int, int]:
+        """Find the shortest path from a given cell to another.
 
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            end (tuple[int, int]): The target cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to in order to
+            reach the target cell.
+        Raises:
+            ValueError: If there is no path from the starting cell to the
+            target cell.
+        """
         start_x, start_y = start
         end_x, end_y = end
         shortest_path = ''
@@ -65,7 +82,16 @@ class Strategy(ABC):
         start: tuple[int, int],
         graph: dict[tuple[int, int], Cell]
          ) -> tuple[int, int]:
+        """Find a random valid cell to move to from a given cell.
 
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to.
+        """
         x, y = start
         directions = ['N', 'S', 'E', 'W']
         random.shuffle(directions)
@@ -73,21 +99,38 @@ class Strategy(ABC):
             match d:
                 case 'N':
                     if graph[x, y].value & Dir.N == 0:
-                        return (x, y - 1)
+                        return x, y - 1
                 case 'S':
                     if graph[x, y].value & Dir.S == 0:
-                        return (x, y + 1)
+                        return x, y + 1
                 case 'E':
                     if graph[x, y].value & Dir.E == 0:
-                        return (x + 1, y)
+                        return x + 1, y
                 case 'W':
                     if graph[x, y].value & Dir.W == 0:
-                        return (x - 1, y)
+                        return x - 1, y
         raise ValueError("CAZZO!")
 
     @staticmethod
     def anticipate(start: tuple[int, int], graph: dict[tuple[int, int], Cell],
                    player: Player) -> tuple[int, int]:
+        """Try to anticipate the player's movement.
+
+        Calculate the target cell setting the cell which is 4 cells ahead of
+        the player un the direction they're moving. If such cell is not inside
+        the maze, or it is in the 42 pattern, the target will become the
+        player's last valid position.
+
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+            player (Player): The player object.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to in order to
+            reach the target cell.
+        """
         target = player.last_valid_pos
         player_x, player_y = player.last_valid_pos
         if player.movement['x'] == 1:
@@ -197,6 +240,23 @@ class Strategy(ABC):
                    graph: dict[tuple[int, int], Cell],
                    pacman_pos: tuple[int, int],
                    home: tuple[int, int]) -> tuple[int, int]:
+        """Implement cyan ghost's strategy.
+
+        If the ghost is more than 8 cells away from Pacman, it will follow him,
+        otherwise it will go to its home cell. If the ghost is already close to
+        its home cell, it will follow Pacman instead.
+
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+            pacman_pos (tuple[int, int]): The Pacman's current cell coordinates.
+            home (tuple[int, int]): The ghost's home cell coordinates.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to in order to
+            reach the target cell.
+        """
         if abs(start[0] - pacman_pos[0]) + abs(start[1] - pacman_pos[1]) > 8:
             target = pacman_pos
         else:
@@ -211,6 +271,25 @@ class Strategy(ABC):
                pacman_pos: tuple[int, int],
                graph: dict[tuple[int, int], Cell],
                last_valid_pos: tuple[int, int]) -> tuple[int, int]:
+        """Implement pink ghost's strategy.
+
+        The ghost will try to mirror Pacman's position with respect to the red
+        ghost's position. If the mirrored position is not valid, it will go to
+        the last valid position of Pacman instead.
+
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            red_pos (tuple[int, int]): The red ghost's current cell coordinates.
+            pacman_pos (tuple[int, int]): The Pacman's current cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+            last_valid_pos (tuple[int, int]): The Pacman's last valid cell
+            coordinates.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to in order to
+            reach the target cell.
+        """
         candidate = (2 * pacman_pos[0] - red_pos[0],
                      2 * pacman_pos[1] - red_pos[1])
         if not 0 < candidate[0] < MAZE_X:
@@ -227,6 +306,22 @@ class Strategy(ABC):
     def scatter(start: tuple[int, int],
                 home: tuple[int, int],
                 graph: dict[tuple[int, int], Cell]) -> tuple[int, int]:
+        """Implement scatter movement.
+
+        During scatter mode each ghost will go to its home cell.
+        If the ghost is already close to its home cell, it will move randomly
+        instead.
+
+        Args:
+            start (tuple[int, int]): The starting cell coordinates.
+            home (tuple[int, int]): The ghost's home cell coordinates.
+            graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
+            where the keys are the cell coordinates and the values are the Cell
+            objects.
+        Return:
+            tuple[int, int]: The next cell coordinates to move to in order to
+            reach the target cell.
+        """
         if abs(start[0] - home[0]) + abs(start[1] - home[1]) > 4:
             return Strategy.follow(start, home, graph)
         else:

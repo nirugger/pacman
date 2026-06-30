@@ -1,3 +1,5 @@
+"""Define all the characters of the game."""
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -19,6 +21,7 @@ import pygame as pg
 
 
 class Entity(ABC):
+    """Abstract class for all the characters of the game."""
     def __init__(self, name: str) -> None:
         self.name: str = name
         self.home: tuple[int, int]

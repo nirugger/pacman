@@ -1,3 +1,8 @@
+"""Define the main game engine.
+
+The engine manages the game loop, events, and state transitions.
+"""
+
 from src.level.level import Level
 from src.entities.entity import Player
 from src.data import (LevelConfig, GameState, Config,
@@ -12,11 +17,17 @@ import sys
 
 
 class App:
+    """Define the game engine class.
+
+    Set all the attributes needed throughout the game, initialize the game, the
+    screen and start the main loop.
+    """
+
     def __init__(
             self,
             config: Config
             ) -> None:
-
+        """Initialize the game engine with the provided configuration."""
         self._init_config(config)
         self._init_screen()
         self._init_scaling_data()
@@ -114,6 +125,10 @@ class App:
     #  ------ LOOP CYCLE & EVENTS --------------------------------------------
 
     def run(self) -> None:
+        """Run the game loop.
+
+        Check the game state and call the appropriate method.
+        """
         while True:
             self.buttons.clear()
             match self.game_state:

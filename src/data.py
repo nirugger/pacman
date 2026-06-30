@@ -1,3 +1,5 @@
+"""Contain utility macros and classes for the game."""
+
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
@@ -55,6 +57,8 @@ ENT_SPEED = {
 
 
 class Dir(IntFlag):
+    """Set the values of the directions as bit flags for easy manipulation."""
+
     N = 1
     E = 2
     S = 4
@@ -62,6 +66,7 @@ class Dir(IntFlag):
 
 
 class GameState(Enum):
+    """Enumerate the different states of the game."""
 
     MAIN_MENU = 1
     CONTINUE = 2
@@ -77,12 +82,16 @@ class GameState(Enum):
 
 
 class Config(TypedDict):
+    """Define the configuration settings for the game."""
+
     highscore_filename: str
     resolution: dict[str, int]
     seed: int
 
 
 class LevelData(TypedDict):
+    """Define the data structure for a game level."""
+
     max_gums: int
     time: int
     strategies: dict[str, tuple[str, ...]]
@@ -92,6 +101,7 @@ class LevelData(TypedDict):
 
 
 class LevelConfig(TypedDict):
+    """Define the configuration for a game level."""
 
     player: Player
     data: LevelData
