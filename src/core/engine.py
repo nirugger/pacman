@@ -176,36 +176,38 @@ class App:
 
             if (event.type == pg.MOUSEBUTTONDOWN
                     and self.game_state is GameState.RESET_CONFIRM):
+                if event.button == 1:
 
-                if ('yes' in self.buttons and self.buttons['yes'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self._reset_high_scores()
-                    self.game_state = GameState.MAIN_MENU
-                    return
+                    if ('yes' in self.buttons and self.buttons['yes'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self._reset_high_scores()
+                        self.game_state = GameState.MAIN_MENU
+                        return
 
-                if ('no' in self.buttons and self.buttons['no'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.MAIN_MENU
-                    return
+                    if ('no' in self.buttons and self.buttons['no'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.MAIN_MENU
+                        return
 
             if (event.type == pg.MOUSEBUTTONDOWN
                     and self.game_state is GameState.RECORD_CONFIRM):
 
-                if ('yes' in self.buttons and self.buttons['yes'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self._update_json_scores()
-                    self.game_state = GameState.RECORD
-                    return
-
-                if ('no' in self.buttons and self.buttons['no'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self._reset_game()
-                    if self.to_new_game_flag:
-                        self.to_new_game_flag = False
-                        self.game_state = GameState.NEW_GAME
+                if event.button == 1:
+                    if ('yes' in self.buttons and self.buttons['yes'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self._update_json_scores()
+                        self.game_state = GameState.RECORD
                         return
-                    self.game_state = GameState.MAIN_MENU
-                    return
+
+                    if ('no' in self.buttons and self.buttons['no'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self._reset_game()
+                        if self.to_new_game_flag:
+                            self.to_new_game_flag = False
+                            self.game_state = GameState.NEW_GAME
+                            return
+                        self.game_state = GameState.MAIN_MENU
+                        return
 
             if (event.type == pg.KEYDOWN
                     and self.game_state is GameState.RECORD):
@@ -234,41 +236,42 @@ class App:
                     sys.exit()
 
             if event.type == pg.MOUSEBUTTONDOWN:
-                if ('continue' in self.buttons and
-                        self.buttons['continue'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.CONTINUE
-                    return
+                if event.button == 1:
+                    if ('continue' in self.buttons and
+                            self.buttons['continue'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.CONTINUE
+                        return
 
-                if ('new_game' in self.buttons and
-                        self.buttons['new_game'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.NEW_GAME
-                    return
+                    if ('new_game' in self.buttons and
+                            self.buttons['new_game'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.NEW_GAME
+                        return
 
-                if ('high_scores' in self.buttons and
-                        self.buttons['high_scores'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.HIGHSCORES
-                    return
+                    if ('high_scores' in self.buttons and
+                            self.buttons['high_scores'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.HIGHSCORES
+                        return
 
-                if ('instructions' in self.buttons and
-                        self.buttons['instructions'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.INSTRUCTIONS
-                    return
+                    if ('instructions' in self.buttons and
+                            self.buttons['instructions'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.INSTRUCTIONS
+                        return
 
-                if ('reset' in self.buttons and
-                        self.buttons['reset'].
-                        collidepoint(pg.mouse.get_pos())):
-                    self.game_state = GameState.RESET_CONFIRM
-                    return
+                    if ('reset' in self.buttons and
+                            self.buttons['reset'].
+                            collidepoint(pg.mouse.get_pos())):
+                        self.game_state = GameState.RESET_CONFIRM
+                        return
 
-                if ('exit' in self.buttons and
-                        self.buttons['exit'].
-                        collidepoint(pg.mouse.get_pos())):
-                    pg.quit()
-                    sys.exit()
+                    if ('exit' in self.buttons and
+                            self.buttons['exit'].
+                            collidepoint(pg.mouse.get_pos())):
+                        pg.quit()
+                        sys.exit()
 
             if event.type == pg.QUIT:
                 pg.quit()
