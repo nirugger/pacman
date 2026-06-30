@@ -5,7 +5,7 @@ from src.data import Config
 from src.core.engine import App
 
 
-def pac_main():
+def pac_main() -> None:
     # import sys
     # import os
 
@@ -27,7 +27,8 @@ def pac_main():
     app.run()
 
 
-# con risoluzioni troppo quadrate crasha nel setup della info surface, approfondire!!!!!!!!!!!
+# con risoluzioni troppo quadrate crasha nel setup della info surface,
+# approfondire!!!!!!!!!!!
 if __name__ == "__main__":
     pg.init()
     pac_main()

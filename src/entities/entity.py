@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.level.cell import Cell
 
-from src.data import MAZE_X, MAZE_Y, Dir, EDGE_THICK, ENT_SPEED
+from src.data import MAZE_X, MAZE_Y, Dir, EDGE_THICK
 from src.entities.strategy import Strategy
 
 from abc import ABC, abstractmethod
@@ -27,7 +27,7 @@ class Entity(ABC):
         self.movement: dict[str, int]
         self.speed: int
         self.speed_mult: float
-        self.color: tuple[int, int, int]
+        self.color: str | tuple[int, int, int]
 
         self.rect: pg.Rect
 
@@ -171,7 +171,7 @@ class Enemy(Entity):
     def __init__(
             self,
             name: str,
-            color: str,
+            color: str | tuple[int, int, int],
             strategy: tuple[str, ...]
             ) -> None:
         self.name = name
@@ -269,7 +269,8 @@ class Enemy(Entity):
 
 
 class Red(Enemy):
-    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+    def __init__(self, name: str, color: str | tuple[int, int, int],
+                 strategy: tuple[str, ...]) -> None:
         super().__init__(name, color, strategy)
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
@@ -278,7 +279,8 @@ class Red(Enemy):
 
 
 class Pink(Enemy):
-    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+    def __init__(self, name: str, color: str | tuple[int, int, int],
+                 strategy: tuple[str, ...]) -> None:
         super().__init__(name, color, strategy)
         self.home = (0, 0)
         self.pos = self.home
@@ -287,7 +289,8 @@ class Pink(Enemy):
 
 
 class Cyan(Enemy):
-    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+    def __init__(self, name: str, color: str | tuple[int, int, int],
+                 strategy: tuple[str, ...]) -> None:
         super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
@@ -296,7 +299,8 @@ class Cyan(Enemy):
 
 
 class Orange(Enemy):
-    def __init__(self, name: str, color: str, strategy: tuple[str, ...]) -> None:
+    def __init__(self, name: str, color: str | tuple[int, int, int],
+                 strategy: tuple[str, ...]) -> None:
         super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
