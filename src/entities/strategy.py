@@ -45,7 +45,7 @@ class Strategy(ABC):
                       (-1, 0, 8, 'W'), (0, -1, 1, 'N')]
 
         if (start_x, start_y) == (end_x, end_y):
-            return (start_x, start_y)
+            return start_x, start_y
 
         visited = [[False] * MAZE_X for _ in range(MAZE_Y)]
         visited[start_y][start_x] = True
@@ -65,13 +65,13 @@ class Strategy(ABC):
                     shortest_path = ways + way
 
                     if shortest_path[0] == 'N':
-                        return (start_x, start_y - 1)
+                        return start_x, start_y - 1
                     if shortest_path[0] == 'S':
-                        return (start_x, start_y + 1)
+                        return start_x, start_y + 1
                     if shortest_path[0] == 'E':
-                        return (start_x + 1, start_y)
+                        return start_x + 1, start_y
                     if shortest_path[0] == 'W':
-                        return (start_x - 1, start_y)
+                        return start_x - 1, start_y
 
                 visited[ny][nx] = True
                 queue.append((nx, ny, ways + way))

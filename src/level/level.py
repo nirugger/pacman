@@ -117,6 +117,29 @@ class Level:
             c.rect = pg.Rect(c.i * self.edge, c.j * self.edge,
                              self.edge, self.edge)
             c.center = pg.math.Vector2(c.rect.center)
+        # return graph
+        return self._destroy_dead_ends(graph)
+
+    @staticmethod
+    def _destroy_dead_ends(graph: dict[tuple[int, int], Cell]) -> dict[tuple[int, int], Cell]:
+        for tup in graph:
+            x, y = tup
+            if graph[(x, y)].value == 14:
+                if y < MAZE_Y - 1 and graph[(x, y + 1)].value != 15:
+                    graph[(x, y)].value -= 4
+                    graph[(x, y + 1)].value -= 1
+            elif graph[(x, y)].value == 11:
+                if y > 0 and graph[(x, y - 1)].value != 15:
+                    graph[(x, y)].value -= 1
+                    graph[(x, y - 1)].value -= 4
+            elif graph[(x, y)].value == 13:
+                if x > 0 and graph[(x - 1, y)].value != 15:
+                    graph[(x, y)].value -= 8
+                    graph[(x - 1, y)].value -= 2
+            elif graph[(x, y)].value == 7:
+                if x < MAZE_X - 1 and graph[(x + 1, y)].value != 15:
+                    graph[(x, y)].value -= 2
+                    graph[(x + 1, y)].value -= 8
         return graph
 
     def _build_layout(self) -> pg.Surface:
