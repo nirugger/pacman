@@ -1,6 +1,8 @@
 """Define all the characters of the game."""
 
 from __future__ import annotations
+
+import time
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -185,6 +187,12 @@ class Enemy(Entity):
         self.turn: int = 0
         self.frightened = False
         self.going_home = False
+        self.waiting = False
+        self.last_wait = 0.0
+
+    def _check_wait(self):
+        if time.time() - self.last_wait > 5.0:
+            self.waiting = False
 
     def set_target_on_strategy(
             self,
@@ -194,15 +202,23 @@ class Enemy(Entity):
             red_pos: tuple[int, int],
             scatter: bool
             ) -> None:
+        self._check_wait()
+        if self.waiting:
+            return
         if self.going_home:
             self.target = Strategy.follow(self.pos, self.home, graph)
             if self.pos == self.home:
+                self.last_wait = time.time()
                 self.going_home = False
+                self.waiting = True
             return
         if self.frightened:
             strat = "random"
         elif scatter:
             strat = "scatter"
+        elif self.waiting:
+            self.target = Strategy.follow(self.pos, self.home, graph)
+            return
         else:
             strat = self.strategy[self.turn % len(self.strategy)]
         match strat:

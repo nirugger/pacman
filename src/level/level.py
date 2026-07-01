@@ -224,6 +224,9 @@ class Level:
     def _handle_collisions(self) -> None:
         for e in self.enemies:
             if (e.rect.collidepoint(self.player.rect.center)
+                    and e.waiting is True):
+                return
+            if (e.rect.collidepoint(self.player.rect.center)
                     and e.going_home is False):
                 if e.frightened:
                     e.going_home = True
