@@ -1,21 +1,6 @@
 {
     "highscores": [
         {
-            "name": "tre",
-            "score": 4400,
-            "date": "2026-07-01"
-        },
-        {
-            "name": "sev",
-            "score": 1380,
-            "date": "2026-07-01"
-        },
-        {
-            "name": "nodeadends",
-            "score": 1270,
-            "date": "2026-07-01"
-        },
-        {
             "name": "CENTO",
             "score": 100,
             "date": "2026-06-24"
@@ -48,6 +33,21 @@
         {
             "name": "QUARANTA",
             "score": 40,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "TRENTA",
+            "score": 30,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "VENTI",
+            "score": 20,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "DIECI",
+            "score": 10,
             "date": "2026-06-24"
         }
     ]

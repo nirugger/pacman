@@ -1,10 +1,19 @@
+"""Module defining the Cell class for representing a cell in the maze."""
+
 import pygame as pg
 from src.data import Dir, EDGE_THICK
 
 
 class Cell:
+    """Class representing a cell in the maze."""
 
     def __init__(self, pos: tuple[int, int], value: int) -> None:
+        """Initialize a cell with its position and value.
+
+        Args:
+            pos (tuple[int, int]): The (i, j) position of the cell in the grid.
+            value (int): The value representing the walls of the cell.
+        """
         self.i = pos[0]
         self.j = pos[1]
         self.value = value
@@ -22,7 +31,16 @@ class Cell:
             edge: int,
             color: tuple[int, int, int]
             ) -> pg.Rect:
+        """Draw the cell on the given surface.
 
+        Args:
+            surface (pg.Surface): The surface to draw the cell on.
+            edge (int): The length of the edge of the cell.
+            color (tuple[int, int, int]): The color of the walls of the cell.
+
+        Returns:
+            pg.Rect: The rectangle representing the cell's position and size.
+        """
         x, y = self.i * edge + EDGE_THICK, self.j * edge + EDGE_THICK
 
         if self.value & Dir.N:

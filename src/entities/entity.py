@@ -24,7 +24,9 @@ import pygame as pg
 
 class Entity(ABC):
     """Abstract class for all the characters of the game."""
+
     def __init__(self, name: str) -> None:
+        """Initialize the entity with a name and set up its attributes."""
         self.name: str = name
         self.home: tuple[int, int]
         self.pos: tuple[int, int]
@@ -41,12 +43,24 @@ class Entity(ABC):
         self.home_center: pg.math.Vector2
 
     def set_rect(self, graph: dict[tuple[int, int], 'Cell']) -> None:
+        """Set the rectangle of the entity.
+
+        Such that rectangle will be used for rendering the entity, and it is
+        based on the position in the maze: more precisely, is it a copy of the
+        rectangle of the cell in the maze corresponding to the entity's
+        position.
+
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+        """
         self.rect = graph[(self.pos[0], self.pos[1])].rect.copy()
 
     # def set_speed(self)
 
     @abstractmethod
     def update_movement(self, graph: dict[tuple[int, int], Cell]) -> None:
+        """Update the movement of the entity."""
         ...
 
     @abstractmethod
@@ -57,19 +71,46 @@ class Entity(ABC):
                                red_pos: tuple[int, int],
                                scatter: bool
                                ) -> None:
+        """Define the next cell the entity will move to.
+
+        Args:
+            end (tuple[int, int]): The target position for the entity.
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+            player (Player): The player object, used for certain strategies.
+            red_pos (tuple[int, int]): The position of the red enemy, used for
+            certain strategies.
+            scatter (bool): A flag indicating whether the entity should scatter
+            or not, affecting its strategy.
+        """
         ...
 
     @abstractmethod
     def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
+        """Set the entity's position back to its home position.
+
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+        """
         ...
 
     @abstractmethod
     def draw(self, surface: pg.Surface, radius: int) -> None:
+        """Draw the entity on the given surface.
+
+        Args:
+            surface (pg.Surface): The surface on which to draw the entity.
+            radius (int): The radius of the circle representing the entity.
+        """
         ...
 
 
 class Player(Entity):
+    """Class representing the player character in the game."""
+
     def __init__(self, name: str) -> None:
+        """Initialize the player with a name and set up its attributes."""
         self.name = name
         self.home = (MAZE_X // 2, MAZE_Y // 2)
         self.pos = self.home
@@ -90,13 +131,34 @@ class Player(Entity):
             red_pos: tuple[int, int],
             scatter: bool
             ) -> None:
+        """Do nothing, as the player does not have a strategy for movement.
+
+        Args:
+            end (tuple[int, int]): The target position for the entity.
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+            player (Player): The player object, used for certain strategies.
+            red_pos (tuple[int, int]): The position of the red enemy, used for
+            certain strategies.
+            scatter (bool): A flag indicating whether the entity should scatter
+            or not, affecting its strategy.
+        """
         return
 
     def update_movement(
             self,
             graph: dict[tuple[int, int], Cell]
             ) -> None:
+        """Update the player's movement.
 
+        Check the next intended direction and, when such direction is available,
+        update the current movement accordingly. Then check the current
+        movement and set the player's target accordingly. Evebutally, save the
+        player's last valid position to avoid crashes in cheating mode.
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+        """
         if self.movement['nx'] == 1:
             if graph[self.pos].value & Dir.E == 0 or self.cheat:
                 self.movement['x'] = 1
@@ -159,6 +221,12 @@ class Player(Entity):
             self.last_valid_pos = self.pos
 
     def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
+        """Reset the player's position and movement.
+
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each
+            cell is represented by its coordinates and a Cell object.
+        """
         self.pos = self.home
         self.target = self.home
         # self.rect.center = graph[self.home].rect.center
@@ -166,6 +234,12 @@ class Player(Entity):
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
     def draw(self, surface: pg.Surface, radius: int) -> None:
+        """Draw the player on the given surface.
+
+        Args:
+            surface (pg.Surface): The surface on which to draw the player.
+            radius (int): The radius of the circle representing the player.
+        """
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
                         int(self.center.y) + EDGE_THICK),
@@ -173,12 +247,23 @@ class Player(Entity):
 
 
 class Enemy(Entity):
+    """Class representing an enemy character in the game."""
+
     def __init__(
             self,
             name: str,
             color: str | tuple[int, int, int],
             strategy: tuple[str, ...]
             ) -> None:
+        """Initialize the enemy with a name, color, and strategy.
+
+        Args:
+            name (str): The name of the enemy.
+            color (str | tuple[int, int, int]): The color of the enemy, either
+            as a string or an RGB tuple.
+            strategy (tuple[str, ...]): A tuple of strategies that the enemy
+            will follow during the game.
+        """
         self.name = name
         self.color = color
         self.movement = {'x': 0, 'y': 0}
@@ -202,6 +287,18 @@ class Enemy(Entity):
             red_pos: tuple[int, int],
             scatter: bool
             ) -> None:
+        """Set the next cell the enemy will move to.
+
+        Args:
+            end (tuple[int, int]): The target position for the enemy.
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+            player (Player): The player object, used for certain strategies.
+            red_pos (tuple[int, int]): The position of the red enemy, used for
+            certain strategies.
+            scatter (bool): A flag indicating whether the enemy should scatter
+            or not, affecting its strategy.
+        """
         self._check_wait()
         if self.waiting:
             return
@@ -243,6 +340,12 @@ class Enemy(Entity):
             self,
             graph: dict[tuple[int, int], Cell],
             ) -> None:
+        """Update the enemy's movement based on its target.
+
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+        """
         self.turn += 1
         x, y = self.pos
         nx, ny = self.target
@@ -263,6 +366,12 @@ class Enemy(Entity):
             self.movement['y'] = 0
 
     def reset_positions(self, graph: dict[tuple[int, int], Cell]) -> None:
+        """Reset the enemy's position to its home position.
+
+        Args:
+            graph (dict[tuple[int, int], Cell]): The maze graph where each cell
+            is represented by its coordinates and a Cell object.
+        """
         self.pos = self.home
         self.target = self.home
         self.movement = {'x': 0, 'y': 0}
@@ -271,7 +380,12 @@ class Enemy(Entity):
         self.frightened = False
 
     def draw(self, surface: pg.Surface, radius: int) -> None:
-        # pg.draw.circle(surface, self.color, self.rect.center, 13)
+        """Draw the enemy on the given surface.
+
+        Args:
+            surface (pg.Surface): The surface on which to draw the enemy.
+            radius (int): The radius of the circle representing the enemy.
+        """
         if self.frightened:
             pg.draw.circle(surface, 'white',
                            (int(self.center.x) + EDGE_THICK,
@@ -288,8 +402,11 @@ class Enemy(Entity):
 
 
 class Red(Enemy):
+    """Class representing the red enemy character in the game."""
+
     def __init__(self, name: str, color: str | tuple[int, int, int],
                  strategy: tuple[str, ...]) -> None:
+        """Initialize the red enemy with a name, color, and strategy."""
         super().__init__(name, color, strategy)
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
@@ -298,8 +415,11 @@ class Red(Enemy):
 
 
 class Pink(Enemy):
+    """Class representing the pink enemy character in the game."""
+
     def __init__(self, name: str, color: str | tuple[int, int, int],
                  strategy: tuple[str, ...]) -> None:
+        """Initialize the pink enemy with a name, color, and strategy."""
         super().__init__(name, color, strategy)
         self.home = (0, 0)
         self.pos = self.home
@@ -308,8 +428,11 @@ class Pink(Enemy):
 
 
 class Cyan(Enemy):
+    """Class representing the cyan enemy character in the game."""
+
     def __init__(self, name: str, color: str | tuple[int, int, int],
                  strategy: tuple[str, ...]) -> None:
+        """Initialize the cyan enemy with a name, color, and strategy."""
         super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
@@ -318,8 +441,11 @@ class Cyan(Enemy):
 
 
 class Orange(Enemy):
+    """Class representing the orange enemy character in the game."""
+
     def __init__(self, name: str, color: str | tuple[int, int, int],
                  strategy: tuple[str, ...]) -> None:
+        """Initialize the orange enemy with a name, color, and strategy."""
         super().__init__(name, color, strategy)
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home

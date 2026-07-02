@@ -1,3 +1,4 @@
+"""Module for the Level class, which represents a level in the game."""
 
 from mazegenerator import MazeGenerator
 from src.level.cell import Cell
@@ -13,13 +14,15 @@ import sys
 
 
 class Level:
+    """Class representing a level in the game."""
+
     def __init__(
             self,
             surface: pg.Surface,
             level_config: LevelConfig,
             level_id: int = 1,
             ) -> None:
-
+        """Initialize a level with the given surface, configuration, and ID."""
         self.surface = surface
         self.level_id = level_id
         self.seed = (level_config['seed']
@@ -152,14 +155,19 @@ class Level:
         for c in self.graph.values():
             c.draw(level_surface, self.edge, color)
             if c.sg:
-                self.draw_super_gums(level_surface, (c.i, c.j))
+                self._draw_super_gums(level_surface, (c.i, c.j))
             elif c.g:
-                self.draw_gum(level_surface, (c.i, c.j))
+                self._draw_gum(level_surface, (c.i, c.j))
             elif c.fruit:
-                self.draw_fruit(level_surface, (c.i, c.j))
+                self._draw_fruit(level_surface, (c.i, c.j))
         return level_surface
 
     def setup_level(self) -> None:
+        """Set up the level.
+
+        Reset the positions of the entities, set their colors and speeds, and
+        fill the surface with the wall color.
+        """
         self.player.reset_positions(self.graph)
         self.player.color = self.level_config['data']['palette']['pacman']
         for e in self.entities:
@@ -172,6 +180,11 @@ class Level:
         self.playable_surface = self.layout.copy()
 
     def run(self) -> LevelConfig:
+        """Run the level.
+
+        Returns:
+            LevelConfig: The updated level configuration after the level is run.
+        """
         self.surface.fill(self.level_config['data']['palette']['walls'])
         self._draw_frame()
         clock = pg.time.Clock()
@@ -409,11 +422,11 @@ class Level:
         self.surface.blit(self.playable_surface, (self.pad, self.pad))
 
         if self.paused:
-            self.pause_menu()
+            self._pause_menu()
 
         pg.display.flip()
 
-    def draw_fruit(
+    def _draw_fruit(
             self,
             surface: pg.Surface,
             coord: tuple[int, int]
@@ -428,7 +441,7 @@ class Level:
             radius=self.level_config['radii']['fruit'], width=6
         )
 
-    def draw_super_gums(
+    def _draw_super_gums(
             self,
             surface: pg.Surface,
             coord: tuple[int, int]
@@ -443,7 +456,7 @@ class Level:
             width=self.level_config['radii']['superpacgum'] - 5
         )
 
-    def draw_gum(
+    def _draw_gum(
             self,
             surface: pg.Surface,
             coord: tuple[int, int]
@@ -458,7 +471,7 @@ class Level:
             radius=self.level_config['radii']['pacgum'],
         )
 
-    def pause_menu(self) -> None:
+    def _pause_menu(self) -> None:
         font = pg.font.Font(FONT, 42)
         font_h = font.get_height()
 
