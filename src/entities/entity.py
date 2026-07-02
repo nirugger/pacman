@@ -96,7 +96,7 @@ class Entity(ABC):
         ...
 
     @abstractmethod
-    def draw(self, surface: pg.Surface, radius: int) -> None:
+    def draw(self, surface: pg.Surface) -> None:
         """Draw the entity on the given surface.
 
         Args:
@@ -109,7 +109,7 @@ class Entity(ABC):
 class Player(Entity):
     """Class representing the player character in the game."""
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, radius: int) -> None:
         """Initialize the player with a name and set up its attributes."""
         self.name = name
         self.home = (MAZE_X // 2, MAZE_Y // 2)
@@ -122,6 +122,12 @@ class Player(Entity):
         self.score: int = 0
         self.cheat: bool = False
         self.has_been_cheating: bool = False
+        self.gums: int = 0
+        self.ghosts: int = 0
+        self.fruits: int = 0
+        self.radius = radius
+        self.width: int = radius // 3
+        self.has_reached_max: bool = False
 
     def set_target_on_strategy(
             self,
@@ -234,17 +240,27 @@ class Player(Entity):
         self.center = graph[self.home].center.copy()
         self.movement = {'x': 0, 'y': 0, 'nx': 0, 'ny': 0}
 
-    def draw(self, surface: pg.Surface, radius: int) -> None:
+    def draw(self, surface: pg.Surface, t: bool) -> None:
         """Draw the player on the given surface.
 
         Args:
             surface (pg.Surface): The surface on which to draw the player.
             radius (int): The radius of the circle representing the player.
         """
+        # span = radius - radius // 3
+        # if t:
+        if self.has_reached_max is False:
+            self.width += 1
+        else:
+            self.width -= 1
+        if self.width >= self.radius:
+            self.has_reached_max = True
+        if self.width <= self.radius // 3:
+            self.has_reached_max = False
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
                         int(self.center.y) + EDGE_THICK),
-                       radius)
+                       self.radius, self.width)
 
 
 class Enemy(Entity):
@@ -254,7 +270,8 @@ class Enemy(Entity):
             self,
             name: str,
             color: str | tuple[int, int, int],
-            strategy: tuple[str, ...]
+            strategy: tuple[str, ...],
+            radius: int
             ) -> None:
         """Initialize the enemy with a name, color, and strategy.
 
@@ -275,6 +292,9 @@ class Enemy(Entity):
         self.going_home = False
         self.waiting = False
         self.last_wait = 0.0
+        self.radius = radius
+        self.inner_radius = radius - radius // 3
+        self.has_reached_max = False
 
     def _check_wait(self) -> None:
         if time.time() - self.last_wait > 5.0:
@@ -380,18 +400,30 @@ class Enemy(Entity):
         self.center = graph[self.home].center.copy()
         self.frightened: float = 0.0
 
-    def draw(self, surface: pg.Surface, radius: int) -> None:
+    def draw(self, surface: pg.Surface, t: bool) -> None:
         """Draw the enemy on the given surface.
 
         Args:
             surface (pg.Surface): The surface on which to draw the enemy.
             radius (int): The radius of the circle representing the enemy.
         """
+        if t:
+            if self.has_reached_max is False:
+                self.inner_radius += 1
+            else:
+                self.inner_radius -= 1
+            if self.inner_radius >= self.radius:
+                self.has_reached_max = True
+            if self.inner_radius <= self. radius - self.radius // 2:
+                self.has_reached_max = False
+
         if self.frightened:
             if self.frightened >= 3.0:
-                pg.draw.circle(surface, 'white',
+                pg.draw.circle(surface, self.color,
                                (int(self.center.x) + EDGE_THICK,
-                                int(self.center.y) + EDGE_THICK), radius)
+                                int(self.center.y) + EDGE_THICK),
+                               self.inner_radius,
+                               self.radius - self.inner_radius)
                 return
             else:
                 color = ('white'
@@ -399,27 +431,30 @@ class Enemy(Entity):
                          else self.color)
                 pg.draw.circle(surface, color,
                                (int(self.center.x) + EDGE_THICK,
-                                int(self.center.y) + EDGE_THICK), radius)
+                                int(self.center.y) + EDGE_THICK),
+                               self.inner_radius,
+                               self.radius - self.inner_radius)
                 return
 
         if self.going_home:
             pg.draw.circle(surface, 'blue',
                            (int(self.center.x) + EDGE_THICK,
-                            int(self.center.y) + EDGE_THICK), radius)
+                            int(self.center.y) + EDGE_THICK),
+                           self.inner_radius)
             return
 
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
-                        int(self.center.y) + EDGE_THICK), radius)
+                        int(self.center.y) + EDGE_THICK), self.inner_radius)
 
 
 class Red(Enemy):
     """Class representing the red enemy character in the game."""
 
     def __init__(self, name: str, color: str | tuple[int, int, int],
-                 strategy: tuple[str, ...]) -> None:
+                 strategy: tuple[str, ...], radius: int) -> None:
         """Initialize the red enemy with a name, color, and strategy."""
-        super().__init__(name, color, strategy)
+        super().__init__(name, color, strategy, radius)
         self.home = (0, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos
@@ -430,9 +465,9 @@ class Pink(Enemy):
     """Class representing the pink enemy character in the game."""
 
     def __init__(self, name: str, color: str | tuple[int, int, int],
-                 strategy: tuple[str, ...]) -> None:
+                 strategy: tuple[str, ...], radius: int) -> None:
         """Initialize the pink enemy with a name, color, and strategy."""
-        super().__init__(name, color, strategy)
+        super().__init__(name, color, strategy, radius)
         self.home = (0, 0)
         self.pos = self.home
         self.target = self.pos
@@ -443,9 +478,9 @@ class Cyan(Enemy):
     """Class representing the cyan enemy character in the game."""
 
     def __init__(self, name: str, color: str | tuple[int, int, int],
-                 strategy: tuple[str, ...]) -> None:
+                 strategy: tuple[str, ...], radius: int) -> None:
         """Initialize the cyan enemy with a name, color, and strategy."""
-        super().__init__(name, color, strategy)
+        super().__init__(name, color, strategy, radius)
         self.home = (MAZE_X - 1, 0)
         self.pos = self.home
         self.target = self.pos
@@ -456,9 +491,9 @@ class Orange(Enemy):
     """Class representing the orange enemy character in the game."""
 
     def __init__(self, name: str, color: str | tuple[int, int, int],
-                 strategy: tuple[str, ...]) -> None:
+                 strategy: tuple[str, ...], radius: int) -> None:
         """Initialize the orange enemy with a name, color, and strategy."""
-        super().__init__(name, color, strategy)
+        super().__init__(name, color, strategy, radius)
         self.home = (MAZE_X - 1, MAZE_Y - 1)
         self.pos = self.home
         self.target = self.pos

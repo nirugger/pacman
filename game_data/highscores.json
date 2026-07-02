@@ -1,6 +1,11 @@
 {
     "highscores": [
         {
+            "name": "sonofortis",
+            "score": 5670,
+            "date": "2026-07-03"
+        },
+        {
             "name": "CENTO",
             "score": 100,
             "date": "2026-06-24"
@@ -24,11 +29,6 @@
             "name": "SESSANTA",
             "score": 60,
             "date": "2026-06-24"
-        },
-        {
-            "name": "lkmdfsklm",
-            "score": 50,
-            "date": "2026-07-02"
         },
         {
             "name": "CINQUANTA",

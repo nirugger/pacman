@@ -37,7 +37,10 @@ def _pac_main() -> None:
             'x' not in resolution or 'y' not in resolution:
         resolution = DEFAULT_CONFIG['resolution']
     elif (not isinstance(resolution['x'], int) or
-          not isinstance(resolution['y'], int)):
+          not isinstance(resolution['y'], int) or
+          resolution['y'] > 57 / 100 * resolution['x'] or
+          resolution['x'] > 1980 or resolution['y'] > 1000 or
+          resolution['x'] < 426 or resolution['y'] < 240):
         resolution = DEFAULT_CONFIG['resolution']
     seed = rawdata.get('seed', DEFAULT_CONFIG['seed'])
     if not isinstance(seed, int):

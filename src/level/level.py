@@ -46,6 +46,7 @@ class Level:
         self.playable_surface: pg.Surface
         self.ghost_points = GHOST_POINTS
 
+        self.temp_bool = True
         self.new_game = True
         self.paused = False
         self.last_supergum = 0.0
@@ -64,19 +65,23 @@ class Level:
                 case "red":
                     e = Red(color,
                             self.level_config['data']['palette']['blinky'],
-                            self.level_config['data']['strategies'][color])
+                            self.level_config['data']['strategies'][color],
+                            self.level_config['radii']['ghost'])
                 case "pink":
                     e = Pink(color,
                              self.level_config['data']['palette']['pinky'],
-                             self.level_config['data']['strategies'][color])
+                             self.level_config['data']['strategies'][color],
+                             self.level_config['radii']['ghost'])
                 case "cyan":
                     e = Cyan(color,
                              self.level_config['data']['palette']['inky'],
-                             self.level_config['data']['strategies'][color])
+                             self.level_config['data']['strategies'][color],
+                             self.level_config['radii']['ghost'])
                 case "orange":
                     e = Orange(color,
                                self.level_config['data']['palette']['clyde'],
-                               self.level_config['data']['strategies'][color])
+                               self.level_config['data']['strategies'][color],
+                               self.level_config['radii']['ghost'])
                 case _:
                     raise ValueError("Unrecognised color")
             enemies.append(e)
@@ -259,6 +264,7 @@ class Level:
                     e.frightened = 0.0
                     self.player.score += self.ghost_points
                     self.ghost_points += GHOST_POINTS
+                    self.player.ghosts += 1
                 else:
                     if self.player.cheat:
                         return
@@ -275,6 +281,7 @@ class Level:
             self.layout = self._build_layout()
             self.last_supergum = self.seconds
             self.total_collected += 1
+            self.player.gums += 1
             self.fruit_check = True
             for e in self.enemies:
                 if e.going_home is False:
@@ -284,6 +291,7 @@ class Level:
             self.player.score += GUM_POINTS
             self.layout = self._build_layout()
             self.total_collected += 1
+            self.player.gums += 1
             self.fruit_check = True
 
         gums = self.level_config['data']['max_gums']
@@ -298,6 +306,7 @@ class Level:
         if self.graph[self.player.pos].fruit:
             self.graph[self.player.pos].fruit = False
             self.player.score += FRUIT_POINTS
+            self.player.fruits += 1
             self.layout = self._build_layout()
             self.fruit_check = False
 
@@ -393,16 +402,16 @@ class Level:
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
         info_surface.fill(self.level_config['data']['palette']['walls'])
-        thickness = EDGE_THICK
-        internal_rect = pg.Rect(thickness,
-                                thickness,
-                                width - 2 * thickness,
-                                height - 2 * thickness)
-        pg.draw.rect(info_surface,
-                     self.level_config['data']['palette']['bg'],
-                     internal_rect)
+        # thickness = EDGE_THICK
+        # internal_rect = pg.Rect(thickness,
+        #                         thickness,
+        #                         width - 2 * thickness,
+        #                         height - 2 * thickness)
+        # pg.draw.rect(info_surface,
+        #              self.level_config['data']['palette']['bg'],
+        #              internal_rect)
         # font = pg.font.SysFont("arial", 32)
-        font = pg.font.Font(FONT, max(int(16 * self.level_config['font_mult']),
+        font = pg.font.Font(FONT, max(int(20 * self.level_config['font_mult']),
                                       10))
         s = "S" if self.max_time - int(self.seconds) != 1 else ""
         f"YOU MAY DIE IN {self.max_time - int(self.seconds)} SECOND{s}"
@@ -414,26 +423,33 @@ class Level:
         "RUN TIME:"
         "PACGUM "
         "GHOST KILLED:"
-        for i in range(50, 200, 50):
-            if i == 50:
+        cx = info_surface.get_width() // 2
+        n = int(50 * self.level_config['font_mult'])
+        for i in range(n, n * 7, n):
+            if i == n:
                 text = f"TIME: {self.max_time - int(self.seconds)}"
-            if i == 100:
+            if i == n * 2:
                 text = f"LIVES: {self.player.lives}"
-            if i == 150:
+            if i == n * 3:
                 text = f"SCORE: {self.player.score}"
+            if i == n * 4:
+                text = f"GUMS: {self.player.gums}"
+            if i == n * 5:
+                text = f"FRUITS: {self.player.fruits}"
+            if i == n * 6:
+                text = f"GHOSTS: {self.player.ghosts}"
             text_surface = font.render(text, True,
                                        self.level_config['data']
-                                       ['palette']['text'])
-            info_surface.blit(text_surface, (10, i))
+                                       ['palette']['bg'])
+            padx = cx - text_surface.get_width() // 2
+            info_surface.blit(text_surface, (padx, i))
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + self.pad, self.pad))
 
     def _draw_frame(self) -> None:
+        self.temp_bool = not self.temp_bool
         for e in self.entities:
-            radius = (self.level_config['radii']['pacman']
-                      if e is self.player
-                      else self.level_config['radii']['ghost'])
-            e.draw(self.playable_surface, radius)
+            e.draw(self.playable_surface, self.temp_bool)
         self._show_info()
         self.surface.blit(self.playable_surface, (self.pad, self.pad))
 

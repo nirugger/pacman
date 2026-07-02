@@ -99,7 +99,7 @@ class App:
         self.scores = scores['highscores']
 
     def _init_player(self) -> None:
-        player = Player("pacman")
+        player = Player("pacman", self.radii['pacman'])
         self.player = player
 
     def _init_level(self, level_id: int) -> None:
@@ -113,7 +113,7 @@ class App:
             'edge': self.edge,
             'radii': self.radii,
             'font_mult': self.font_mult,
-            'speed_mult': self.speed_mult
+            'speed_mult': self.speed_mult,
         }
         self.game_config = level_config
         self.level = Level(self.screen, level_config, level_id)
@@ -316,21 +316,21 @@ class App:
         surface.blit(title, (self.centerx - title.get_width() // 2,
                              self.title_font.get_height() + pady))
 
-        pady = int(-70 * self.font_mult)
+        pady = int(-50 * self.font_mult)
         for i in range(len(self.menu_keys)):
-            text = self.menu_font.render(self.menu_keys[i].upper(),
+            text = self.menu_font.render(self.menu_keys[i].upper().replace('_', ' '),
                                          True, 'yellow')
             self.buttons[self.menu_keys[i]] = surface.blit(
                 text, (self.centerx - text.get_width() // 2,
                        self.centery + pady))
             if self._hovered_button() == self.menu_keys[i]:
                 text = self.menu_font.render(
-                    "\u2192 " + self.menu_keys[i].upper() + " \u2190",
+                    "\u2192 " + self.menu_keys[i].upper().replace('_', ' ') + " \u2190",
                     True, 'yellow')
                 self.buttons[self.menu_keys[i]] = surface.blit(
                     text, (self.centerx - text.get_width() // 2,
                            self.centery + pady))
-            pady += int(70 * self.font_mult)
+            pady += int(50 * self.font_mult)
 
         # text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
         # self.buttons['continue'] = surface.blit(
@@ -370,7 +370,7 @@ class App:
             record: bool = False
             ) -> None:
         surface = pg.surface.Surface(self.resolution)
-        surface.fill((15, 20, 25))
+        surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
 
         # title = self.title_font.render("HIGHSCORES", True, 'yellow')
@@ -429,7 +429,7 @@ class App:
 
     def _instructions_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
-        surface.fill((15, 20, 25))
+        surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
 
         title = self.title_font.render("INSTRUCTIONS", True, 'yellow')
@@ -453,7 +453,7 @@ class App:
 #   TODO far diventare questo flusso una death screen
     def _record_confirm_window(self) -> None:
         surface = pg.surface.Surface(self.resolution)
-        surface.fill((15, 20, 25))
+        surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=25)
         # stats = []
         msg = self.tip_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?",
@@ -478,7 +478,8 @@ class App:
 
     def _reset_confirm_window(self) -> None:
         surface = pg.surface.Surface(self.resolution, pg.SRCALPHA)
-        surface.fill((15, 20, 25, 200))
+        r, g, b = self.game_config['data']['palette']['bg']
+        surface.fill((r, g, b, 200))
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
 
         msg = self.menu_font.render("DO YOU WANT TO",

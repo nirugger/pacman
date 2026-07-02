@@ -64,4 +64,7 @@ class Cell:
                          (x - EDGE_THICK, y + edge),
                          width=EDGE_THICK)
 
+        # if self.value == 15:
+        #     pg.draw.rect(surface, color, self.rect, width=edge // 3)
+
         return pg.Rect(x, y, edge, edge)
