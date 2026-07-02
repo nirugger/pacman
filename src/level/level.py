@@ -214,12 +214,23 @@ class Level:
         self.seconds += dt * (not self.paused)
 
         if self.seconds >= self.max_time:
-            self.level_config['game_state'] = GameState.LOSE
+            self.player.lives -= 1
+            self.seconds = 0.0
+            if self.player.lives == 0:
+                self.level_config['game_state'] = GameState.LOSE
+            for ent in self.entities:
+                ent.reset_positions(self.graph)
 
-        if self.seconds - self.last_supergum >= SUPERGUM_TIME:
-            self.ghost_points = GHOST_POINTS
-            for e in self.enemies:
-                e.frightened = False
+        for e in self.enemies:
+            if e.frightened > 0.0:
+                e.frightened -= dt * (not self.paused)
+                if e.frightened <= 0.0:
+                    e.frightened = 0.0
+
+        # if self.seconds - self.last_supergum >= SUPERGUM_TIME:
+        #     self.ghost_points = GHOST_POINTS
+        #     for e in self.enemies:
+        #         e.frightened = False
 
         if self.scatter:
             if self.seconds - self.last_scatter >= self.scatter_duration:
@@ -245,7 +256,7 @@ class Level:
                     and e.going_home is False):
                 if e.frightened:
                     e.going_home = True
-                    e.frightened = False
+                    e.frightened = 0.0
                     self.player.score += self.ghost_points
                     self.ghost_points += GHOST_POINTS
                 else:
@@ -267,7 +278,7 @@ class Level:
             self.fruit_check = True
             for e in self.enemies:
                 if e.going_home is False:
-                    e.frightened = True
+                    e.frightened = float(SUPERGUM_TIME)
         if self.graph[self.player.pos].g:
             self.graph[self.player.pos].g = False
             self.player.score += GUM_POINTS
@@ -391,7 +402,8 @@ class Level:
                      self.level_config['data']['palette']['bg'],
                      internal_rect)
         # font = pg.font.SysFont("arial", 32)
-        font = pg.font.Font(FONT, 32)
+        font = pg.font.Font(FONT, max(int(16 * self.level_config['font_mult']),
+                                      10))
         s = "S" if self.max_time - int(self.seconds) != 1 else ""
         f"YOU MAY DIE IN {self.max_time - int(self.seconds)} SECOND{s}"
         lives = (f"YOU MAY DIE {self.player.lives} MORE TIMES"
@@ -406,10 +418,12 @@ class Level:
             if i == 50:
                 text = f"TIME: {self.max_time - int(self.seconds)}"
             if i == 100:
-                text = f": {self.player.lives}"
+                text = f"LIVES: {self.player.lives}"
             if i == 150:
-                text = f"Score: {self.player.score}"
-            text_surface = font.render(text, True, "white")
+                text = f"SCORE: {self.player.score}"
+            text_surface = font.render(text, True,
+                                       self.level_config['data']
+                                       ['palette']['text'])
             info_surface.blit(text_surface, (10, i))
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + self.pad, self.pad))
@@ -474,14 +488,16 @@ class Level:
         )
 
     def _pause_menu(self) -> None:
-        font = pg.font.Font(FONT, 42)
+        font = pg.font.Font(FONT, int(42 * self.level_config['font_mult']))
         font_h = font.get_height()
 
         xy = self.playable_surface.get_size()
         surface = pg.surface.Surface(xy, pg.SRCALPHA)
         surface.fill((15, 20, 25, 200))
 
-        text_surface = font.render("CONTINUE", True, 'white')
+        text_surface = font.render("CONTINUE", True,
+                                   self.level_config['data']['palette']
+                                   ['text'])
         self.buttons['continue'] = surface.blit(text_surface,
                                                 (surface.get_width() // 2
                                                  - text_surface.get_width()
@@ -490,7 +506,9 @@ class Level:
         self.buttons['continue'].x += self.pad
         self.buttons['continue'].y += self.pad
 
-        text_surface = font.render("BACK TO MENU", True, 'white')
+        text_surface = font.render("BACK TO MENU", True,
+                                   self.level_config['data']['palette']
+                                   ['text'])
         self.buttons['back_to_menu'] = surface.blit(
             text_surface,
             (surface.get_width() // 2 - text_surface.get_width() // 2,

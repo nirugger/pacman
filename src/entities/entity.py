@@ -271,7 +271,7 @@ class Enemy(Entity):
         self.strategy = strategy
         # self.strategy: str = ''
         self.turn: int = 0
-        self.frightened = False
+        self.frightened: float = 0.0
         self.going_home = False
         self.waiting = False
         self.last_wait = 0.0
@@ -378,7 +378,7 @@ class Enemy(Entity):
         self.movement = {'x': 0, 'y': 0}
         self.rect.center = graph[self.home].rect.center
         self.center = graph[self.home].center.copy()
-        self.frightened = False
+        self.frightened: float = 0.0
 
     def draw(self, surface: pg.Surface, radius: int) -> None:
         """Draw the enemy on the given surface.
@@ -388,15 +388,26 @@ class Enemy(Entity):
             radius (int): The radius of the circle representing the enemy.
         """
         if self.frightened:
-            pg.draw.circle(surface, 'white',
-                           (int(self.center.x) + EDGE_THICK,
-                            int(self.center.y) + EDGE_THICK), radius)
-            return
+            if self.frightened >= 3.0:
+                pg.draw.circle(surface, 'white',
+                               (int(self.center.x) + EDGE_THICK,
+                                int(self.center.y) + EDGE_THICK), radius)
+                return
+            else:
+                color = ('white'
+                         if self.frightened - int(self.frightened) <= 0.5
+                         else self.color)
+                pg.draw.circle(surface, color,
+                               (int(self.center.x) + EDGE_THICK,
+                                int(self.center.y) + EDGE_THICK), radius)
+                return
+
         if self.going_home:
             pg.draw.circle(surface, 'blue',
                            (int(self.center.x) + EDGE_THICK,
                             int(self.center.y) + EDGE_THICK), radius)
             return
+
         pg.draw.circle(surface, self.color,
                        (int(self.center.x) + EDGE_THICK,
                         int(self.center.y) + EDGE_THICK), radius)

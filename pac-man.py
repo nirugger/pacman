@@ -14,17 +14,24 @@ def _pac_main() -> None:
     # sys.stdout = open(os.devnull, "w")
     # # sys.stderr = open(os.devnull, "w")
 
+    string = ''
     try:
         with open('config.json', 'r') as file:
-            rawdata = json.load(file)
+            for line in file:
+                if line.strip().startswith('#'):
+                    continue
+                string += line
+            rawdata = json.loads(string)
+            # rawdata = json.load(file)
     except (FileNotFoundError, PermissionError,
             IsADirectoryError, json.JSONDecodeError) as e:
         print(f"[ERROR]: {e}")
         return
 
-    data = Config(highscore_filename=rawdata['highscore_filename'],
-                  resolution=rawdata['resolution'],
-                  seed=rawdata['seed'])
+    data = Config(highscore_filename=rawdata.get('highscore_filename',
+                                                 'highscores.json'),
+                  resolution=rawdata.get('resolution', {'x': 1080, 'y': 720}),
+                  seed=rawdata.get('seed', 42))
     app = App(data)
     app.run()
 

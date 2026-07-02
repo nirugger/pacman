@@ -13,7 +13,7 @@ from enum import Enum, IntFlag
 FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
-MAZE_X = 21
+MAZE_X = 31
 MAZE_Y = 21
 EDGE_THICK = 1
 EDGE = 30
@@ -110,6 +110,7 @@ class LevelConfig(TypedDict):
     time: float
     edge: int
     radii: dict[str, int]
+    font_mult: float
     speed_mult: float
     # enemies: list[Enemy]
     # entities: list[Entity]
@@ -182,35 +183,39 @@ PALETTES = {
 LEVELS_DATA = {
     1: LevelData(max_gums=50, time=300, palette=PALETTES[1],
                  strategies={
-        "red": ("follow", "follow", "random", "follow", "eight_cell"),
-        "pink": ("anticipate", "random", "anticipate", "anticipate", "follow"),
-        "cyan": ("eight_cell", "mirror", "eight_cell", "anticipate",
-                 "eight_cell"),
-        "orange": ("mirror", "mirror", "follow", "anticipate", "mirror")},
+        "red": ("follow", "random", "random", "random", "random"),
+        "pink": ("anticipate", "random", "random", "random", "random"),
+        "cyan": ("eight_cell", "random", "random", "random",
+                 "random"),
+        "orange": ("mirror", "random", "random", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=20.0),
     2: LevelData(max_gums=65, time=280, palette=PALETTES[2],
                  strategies={
-        "red": ("follow",),
-        "pink": ("anticipate",),
-        "cyan": ("eight_cell",),
-        "orange": ("mirror",)},
+        "red": ("follow", "follow", "random", "random", "random"),
+        "pink": ("anticipate", "anticipate", "random", "random", "random"),
+        "cyan": ("eight_cell", "eight_cell", "random", "random",
+                 "random"),
+        "orange": ("mirror", "mirror", "random", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=25.0),
     3: LevelData(max_gums=80, time=260, palette=PALETTES[3],
                  strategies={
-        "red": ("follow",),
-        "pink": ("anticipate",),
-        "cyan": ("eight_cell",),
-        "orange": ("mirror",)},
+        "red": ("follow", "follow", "follow", "random", "random"),
+        "pink": ("anticipate", "anticipate", "anticipate", "random", "random"),
+        "cyan": ("eight_cell", "eight_cell", "eight_cell", "random",
+                 "random"),
+        "orange": ("mirror", "mirror", "mirror", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=30.0),
     4: LevelData(max_gums=95, time=240, palette=PALETTES[4],
                  strategies={
-        "red": ("follow",),
-        "pink": ("anticipate",),
-        "cyan": ("eight_cell",),
-        "orange": ("mirror",)},
+        "red": ("follow", "follow", "follow", "follow", "random"),
+        "pink": ("anticipate", "anticipate", "anticipate", "anticipate",
+                 "random"),
+        "cyan": ("eight_cell", "eight_cell", "eight_cell", "eight_cell",
+                 "random"),
+        "orange": ("mirror", "mirror", "mirror", "mirror", "random")},
                  scatter_duration=10.0,
                  chase_duration=35.0),
     5: LevelData(max_gums=110, time=220, palette=PALETTES[5],

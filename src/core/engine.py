@@ -75,16 +75,18 @@ class App:
             'ghost': (self.edge - EDGE_THICK) // 2,
             'pacgum': max((self.edge - EDGE_THICK) // 10, 2),
             'superpacgum': max((self.edge - EDGE_THICK) // 3, 5),
-            'fruit': max((self.edge - EDGE_THICK) // 4, 7),
+            'fruit': max((self.edge - EDGE_THICK) // 4, 4),
         }
 
         self.speed_mult = self.edge / 50
+        self.font_mult = self.edge / 30
 
     def _init_fonts(self) -> None:
-        self.title_font = pg.font.Font(FONT, 64)
-        self.menu_font = pg.font.Font(FONT, 32)
-        self.instruction_font = pg.font.Font(FONT, 24)
-        self.tip_font = pg.font.Font(FONT, 16)
+        self.title_font = pg.font.Font(FONT, max(int(64 * self.font_mult), 24))
+        self.menu_font = pg.font.Font(FONT, max(int(32 * self.font_mult), 16))
+        self.instruction_font = pg.font.Font(FONT,
+                                             max(int(24 * self.font_mult), 8))
+        self.tip_font = pg.font.Font(FONT, max(int(16 * self.font_mult), 8))
 
         # self.title_font = pg.font.SysFont("arial", 90)
         # self.menu_font = pg.font.SysFont("arial", 42)
@@ -110,6 +112,7 @@ class App:
             'time': 0.0,
             'edge': self.edge,
             'radii': self.radii,
+            'font_mult': self.font_mult,
             'speed_mult': self.speed_mult
         }
         self.game_config = level_config
@@ -165,9 +168,15 @@ class App:
 
                 case GameState.WIN:
                     self.total_game_time += self.game_config['time']
-                    self._init_level(self.current_level + 1)
-                    self.game_config = self.level.run()
-                    self.game_state = self.game_config['game_state']
+                    if self.current_level == 10:
+                        if self._save_score():
+                            self.game_state = GameState.RECORD_CONFIRM
+                            continue
+                        self.game_state = GameState.MAIN_MENU
+                    else:
+                        self._init_level(self.current_level + 1)
+                        self.game_config = self.level.run()
+                        self.game_state = self.game_config['game_state']
 
                 case GameState.LOSE:
                     self.total_game_time += self.game_config['time']
@@ -183,9 +192,11 @@ class App:
         for event in pg.event.get():
 
             if ((event.type == pg.KEYDOWN
-                 or event.type == pg.MOUSEBUTTONDOWN)
+                 or event.type == pg.MOUSEBUTTONDOWN and event.button not in
+                 {4, 5})
                 and (self.game_state is GameState.HIGHSCORES
                      or self.game_state is GameState.INSTRUCTIONS)):
+
                 self.game_state = GameState.MAIN_MENU
                 return
 
@@ -305,7 +316,7 @@ class App:
         surface.blit(title, (self.centerx - title.get_width() // 2,
                              self.title_font.get_height() + pady))
 
-        pady = -70
+        pady = int(-70 * self.font_mult)
         for i in range(len(self.menu_keys)):
             text = self.menu_font.render(self.menu_keys[i].upper(),
                                          True, 'yellow')
@@ -319,7 +330,7 @@ class App:
                 self.buttons[self.menu_keys[i]] = surface.blit(
                     text, (self.centerx - text.get_width() // 2,
                            self.centery + pady))
-            pady += 70
+            pady += int(70 * self.font_mult)
 
         # text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
         # self.buttons['continue'] = surface.blit(
@@ -373,7 +384,6 @@ class App:
         columns = self.menu_font.render(':', True, 'yellow')
 
         padx = columns.get_width()
-        pady = self.title_font.get_height() + self.tip_font.get_height()
 
         for i in range(len(names)):
             mult = i
@@ -412,7 +422,7 @@ class App:
         else:
             text = self.tip_font.render("", True, 'yellow')
         surface.blit(text, (self.centerx - text.get_width() // 2,
-                            self.screen.get_height() - text.get_height() * 2))
+                            self.screen.get_height() - (text.get_height() + 10) * 2))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
@@ -435,7 +445,7 @@ class App:
             text = self.tip_font.render("", True, 'yellow')
         surface.blit(text,
                      (self.centerx - text.get_width() // 2,
-                      self.screen.get_height() - text.get_height() * 2))
+                      self.screen.get_height() - (text.get_height() + 10) * 2))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
@@ -450,7 +460,7 @@ class App:
                                    True, 'yellow')
         surface.blit(msg, (self.centerx - msg.get_width() // 2,
                            self.title_font.get_height()))
-        padx = -220
+        padx = int(-220 * self.font_mult)
         for i in range(len(self.yes_no)):
             text = self.title_font.render(self.yes_no[i].upper(),
                                           True, 'yellow')
@@ -460,8 +470,9 @@ class App:
             if self.yes_no[i] == self._hovered_button():
                 rect = self.buttons[self.yes_no[i]]
                 pg.draw.line(surface, 'yellow',
-                             rect.bottomleft, rect.bottomright, 5)
-            padx = +210
+                             rect.bottomleft, rect.bottomright,
+                             max(int(5 * self.font_mult), 1))
+            padx = int(+210 * self.font_mult)
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
@@ -479,7 +490,7 @@ class App:
         surface.blit(msg, (self.centerx - msg.get_width() // 2,
                            self.title_font.get_height() * 2))
 
-        padx = -220
+        padx = int(-220 * self.font_mult)
         for i in range(len(self.yes_no)):
             text = self.title_font.render(self.yes_no[i].upper(),
                                           True, 'yellow')
@@ -489,8 +500,9 @@ class App:
             if self.yes_no[i] == self._hovered_button():
                 rect = self.buttons[self.yes_no[i]]
                 pg.draw.line(surface, 'yellow',
-                             rect.bottomleft, rect.bottomright, 5)
-            padx = +210
+                             rect.bottomleft, rect.bottomright,
+                             max(int(5 * self.font_mult), 1))
+            padx = int(+210 * self.font_mult)
 
         # text_surface = self.title_font.render("NO", True, 'red')
         # padx = text_surface.get_width()
@@ -548,6 +560,7 @@ class App:
             scores = json.load(f)
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
+        self._init_scores()
 
     def _hovered_button(self) -> str | None:
         mx, my = pg.mouse.get_pos()
