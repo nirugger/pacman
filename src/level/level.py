@@ -124,7 +124,8 @@ class Level:
         return self._destroy_dead_ends(graph)
 
     @staticmethod
-    def _destroy_dead_ends(graph: dict[tuple[int, int], Cell]) -> dict[tuple[int, int], Cell]:
+    def _destroy_dead_ends(graph: dict[tuple[int, int], Cell]) \
+            -> dict[tuple[int, int], Cell]:
         for tup in graph:
             x, y = tup
             if graph[(x, y)].value == 14:
@@ -183,7 +184,8 @@ class Level:
         """Run the level.
 
         Returns:
-            LevelConfig: The updated level configuration after the level is run.
+            LevelConfig: The updated level configuration after the level is
+            run.
         """
         self.surface.fill(self.level_config['data']['palette']['walls'])
         self._draw_frame()

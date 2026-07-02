@@ -251,7 +251,8 @@ class Strategy(ABC):
             graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
             where the keys are the cell coordinates and the values are the Cell
             objects.
-            pacman_pos (tuple[int, int]): The Pacman's current cell coordinates.
+            pacman_pos (tuple[int, int]): The Pacman's current cell
+            coordinates.
             home (tuple[int, int]): The ghost's home cell coordinates.
         Return:
             tuple[int, int]: The next cell coordinates to move to in order to
@@ -279,8 +280,10 @@ class Strategy(ABC):
 
         Args:
             start (tuple[int, int]): The starting cell coordinates.
-            red_pos (tuple[int, int]): The red ghost's current cell coordinates.
-            pacman_pos (tuple[int, int]): The Pacman's current cell coordinates.
+            red_pos (tuple[int, int]): The red ghost's current cell
+            coordinates.
+            pacman_pos (tuple[int, int]): The Pacman's current cell
+            coordinates.
             graph (dict[tuple[int, int], Cell]): The maze graph: a dictionary
             where the keys are the cell coordinates and the values are the Cell
             objects.

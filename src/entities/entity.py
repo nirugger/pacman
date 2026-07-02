@@ -151,10 +151,11 @@ class Player(Entity):
             ) -> None:
         """Update the player's movement.
 
-        Check the next intended direction and, when such direction is available,
-        update the current movement accordingly. Then check the current
-        movement and set the player's target accordingly. Evebutally, save the
-        player's last valid position to avoid crashes in cheating mode.
+        Check the next intended direction and, when such direction is
+        available, update the current movement accordingly. Then check the
+        current movement and set the player's target accordingly. Eventually,
+        save the player's last valid position to avoid crashes in cheating
+        mode.
         Args:
             graph (dict[tuple[int, int], Cell]): The maze graph where each cell
             is represented by its coordinates and a Cell object.
@@ -275,7 +276,7 @@ class Enemy(Entity):
         self.waiting = False
         self.last_wait = 0.0
 
-    def _check_wait(self):
+    def _check_wait(self) -> None:
         if time.time() - self.last_wait > 5.0:
             self.waiting = False
 
