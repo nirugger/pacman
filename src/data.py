@@ -55,6 +55,12 @@ ENT_SPEED = {
     'orange': 180,
 }
 
+DEFAULT_CONFIG = {
+    "highscore_filename": "highscores.json",
+    "resolution": {"x": 1280, "y": 720},
+    "seed": 42
+}
+
 
 class Dir(IntFlag):
     """Set the values of the directions as bit flags for easy manipulation."""

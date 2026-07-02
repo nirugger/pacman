@@ -2,7 +2,7 @@
 
 import json
 import pygame as pg
-from src.data import Config
+from src.data import Config, DEFAULT_CONFIG
 
 from src.core.engine import App
 
@@ -28,10 +28,24 @@ def _pac_main() -> None:
         print(f"[ERROR]: {e}")
         return
 
-    data = Config(highscore_filename=rawdata.get('highscore_filename',
-                                                 'highscores.json'),
-                  resolution=rawdata.get('resolution', {'x': 1080, 'y': 720}),
-                  seed=rawdata.get('seed', 42))
+    highscore_filename = rawdata.get('highscore_filename',
+                                     DEFAULT_CONFIG['highscore_filename'])
+    if not isinstance(highscore_filename, str):
+        highscore_filename = DEFAULT_CONFIG['highscore_filename']
+    resolution = rawdata.get('resolution', DEFAULT_CONFIG['resolution'])
+    if not isinstance(resolution, dict) or \
+            'x' not in resolution or 'y' not in resolution:
+        resolution = DEFAULT_CONFIG['resolution']
+    elif (not isinstance(resolution['x'], int) or
+          not isinstance(resolution['y'], int)):
+        resolution = DEFAULT_CONFIG['resolution']
+    seed = rawdata.get('seed', DEFAULT_CONFIG['seed'])
+    if not isinstance(seed, int):
+        seed = DEFAULT_CONFIG['seed']
+
+    data = Config(highscore_filename=highscore_filename,
+                  resolution=resolution,
+                  seed=seed)
     app = App(data)
     app.run()
 

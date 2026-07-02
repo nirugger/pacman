@@ -1,5 +1,6 @@
 {
 	"highscore_filename": "highscores.json",
-	#porcamadonnachicazzomettecommentineijson ,
+	#porcamadonnachicazzomettecommentineijson
+	"resolution": {"x": "1280", "y": "720"},
 	"seed": 42
 }
