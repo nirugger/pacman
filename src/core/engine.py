@@ -78,7 +78,7 @@ class App:
             'fruit': max((self.edge - EDGE_THICK) // 4, 4),
         }
 
-        self.speed_mult = self.edge / 50
+        self.speed_mult = self.edge / 42
         self.font_mult = self.edge / 30
 
     def _init_fonts(self) -> None:
