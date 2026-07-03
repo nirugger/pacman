@@ -114,6 +114,8 @@ class App:
             'radii': self.radii,
             'font_mult': self.font_mult,
             'speed_mult': self.speed_mult,
+            'death_screen': self.screen,
+            'death_screen_size': self.screen_size
         }
         self.game_config = level_config
         self.level = Level(self.screen, level_config, level_id)
@@ -121,6 +123,7 @@ class App:
     def _reset_game(self) -> None:
         self._init_player()
         self._init_level(level_id=1)
+        self._save_score()
         self.record_index = -1
         self.record_name = ""
         self.total_game_time = 0.0
@@ -144,9 +147,6 @@ class App:
                     self.game_state = self.game_config['game_state']
 
                 case GameState.NEW_GAME:
-                    if self._save_score():
-                        self.to_new_game_flag = True
-                        continue
                     self._reset_game()
                     self.game_config = self.level.run()
                     self.game_state = self.game_config['game_state']
@@ -169,10 +169,8 @@ class App:
                 case GameState.WIN:
                     self.total_game_time += self.game_config['time']
                     if self.current_level == 10:
-                        if self._save_score():
-                            self.game_state = GameState.RECORD_CONFIRM
-                            continue
-                        self.game_state = GameState.MAIN_MENU
+                        self._save_score()
+                        self.game_state = GameState.RECORD_CONFIRM
                     else:
                         self._init_level(self.current_level + 1)
                         self.game_config = self.level.run()
@@ -180,11 +178,12 @@ class App:
 
                 case GameState.LOSE:
                     self.total_game_time += self.game_config['time']
-                    if self._save_score():
-                        continue
-                    self._reset_game()
-                    print("COGLIONE")
-                    self.game_state = GameState.MAIN_MENU
+                    self._save_score()
+                    self.game_state = GameState.RECORD_CONFIRM
+                    
+                    # self._reset_game()
+                    # print("COGLIONE")
+                    # self.game_state = GameState.MAIN_MENU
 
             self._handle_events()
 
@@ -218,22 +217,31 @@ class App:
             if (event.type == pg.MOUSEBUTTONDOWN
                     and self.game_state is GameState.RECORD_CONFIRM):
 
-                if event.button == 1:
-                    if ('yes' in self.buttons and self.buttons['yes'].
-                            collidepoint(pg.mouse.get_pos())):
-                        self._update_json_scores()
-                        self.game_state = GameState.RECORD
-                        return
-
-                    if ('no' in self.buttons and self.buttons['no'].
-                            collidepoint(pg.mouse.get_pos())):
-                        self._reset_game()
-                        if self.to_new_game_flag:
-                            self.to_new_game_flag = False
-                            self.game_state = GameState.NEW_GAME
+                if self.gameover_msg == "press any key to save your score".upper():
+                    self._update_json_scores()
+                    self.game_state = GameState.RECORD
+                    return
+                    if event.button == 1:
+                        if ('yes' in self.buttons and self.buttons['yes'].
+                                collidepoint(pg.mouse.get_pos())):
+                            self._update_json_scores()
+                            self.game_state = GameState.RECORD
                             return
-                        self.game_state = GameState.MAIN_MENU
-                        return
+
+                        if ('no' in self.buttons and self.buttons['no'].
+                                collidepoint(pg.mouse.get_pos())):
+                            self._reset_game()
+                            if self.to_new_game_flag:
+                                self.to_new_game_flag = False
+                                self.game_state = GameState.NEW_GAME
+                                return
+                            self.game_state = GameState.MAIN_MENU
+                            return
+                else:
+                    self.game_state = GameState.MAIN_MENU
+                    self._reset_game()
+
+
 
             if (event.type == pg.KEYDOWN
                     and self.game_state is GameState.RECORD):
@@ -318,14 +326,15 @@ class App:
 
         pady = int(-50 * self.font_mult)
         for i in range(len(self.menu_keys)):
-            text = self.menu_font.render(self.menu_keys[i].upper().replace('_', ' '),
-                                         True, 'yellow')
+            text = self.menu_font.render(
+                self.menu_keys[i].upper().replace('_', ' '),
+                True, 'yellow')
             self.buttons[self.menu_keys[i]] = surface.blit(
                 text, (self.centerx - text.get_width() // 2,
                        self.centery + pady))
             if self._hovered_button() == self.menu_keys[i]:
                 text = self.menu_font.render(
-                    "\u2192 " + self.menu_keys[i].upper().replace('_', ' ') + " \u2190",
+                    "→ " + self.menu_keys[i].upper().replace('_', ' ') + " ←",
                     True, 'yellow')
                 self.buttons[self.menu_keys[i]] = surface.blit(
                     text, (self.centerx - text.get_width() // 2,
@@ -452,27 +461,48 @@ class App:
 
 #   TODO far diventare questo flusso una death screen
     def _record_confirm_window(self) -> None:
-        surface = pg.surface.Surface(self.resolution)
+        # self.screen.fill(self.game_config['data']['palette']['bg'])
+        gameover = self.game_config['death_screen']
+
+        sizes = self.game_config['death_screen_size']
+        surface = pg.surface.Surface(sizes)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=25)
-        # stats = []
-        msg = self.tip_font.render("DO YOU WANT TO SAVE YOUR LAST SCORE?",
-                                   True, 'yellow')
-        surface.blit(msg, (self.centerx - msg.get_width() // 2,
-                           self.title_font.get_height()))
-        padx = int(-220 * self.font_mult)
-        for i in range(len(self.yes_no)):
-            text = self.title_font.render(self.yes_no[i].upper(),
-                                          True, 'yellow')
-            npadx = padx - text.get_width() // 2
-            self.buttons[self.yes_no[i]] = surface.blit(
-                text, (self.centerx + npadx, self.centery))
-            if self.yes_no[i] == self._hovered_button():
-                rect = self.buttons[self.yes_no[i]]
-                pg.draw.line(surface, 'yellow',
-                             rect.bottomleft, rect.bottomright,
-                             max(int(5 * self.font_mult), 1))
-            padx = int(+210 * self.font_mult)
+        surface.blit(gameover, (0, 0))
+        cx, cy = sizes[0] // 2, sizes[1] // 2
+
+        if self.gameover_msg == "press any key to save your score".upper():
+
+        # surface = pg.surface.Surface(self.resolution)
+        # surface.fill(self.game_config['data']['palette']['bg'])
+        # pg.draw.rect(surface, 'yellow', surface.get_rect(), width=25)
+            # stats = []
+            msg = self.tip_font.render(self.gameover_msg,
+                                    True, self.game_config['data']['palette']['text'])
+            surface.blit(msg, (cx - msg.get_width() // 2,
+                               cy + self.title_font.get_height()))
+            # padx = int(-220 * self.font_mult)
+            # for i in range(len(self.yes_no)):
+            #     text = self.title_font.render(self.yes_no[i].upper(),
+            #                                 True, 'yellow')
+            #     npadx = padx - text.get_width() // 2
+            #     self.buttons[self.yes_no[i]] = surface.blit(
+            #         text, (cx + npadx, cy))
+            #     if self.yes_no[i] == self._hovered_button():
+            #         rect = self.buttons[self.yes_no[i]]
+            #         pg.draw.line(surface, 'yellow',
+            #                     rect.bottomleft, rect.bottomright,
+            #                     max(int(5 * self.font_mult), 1))
+                # else:
+                #     rect = self.buttons[self.yes_no[i]]
+                #     pg.draw.line(surface, self.game_config['data']['palette']['bg'],
+                #                 rect.bottomleft, rect.bottomright,
+                #                 max(int(5 * self.font_mult), 1))
+                # padx = int(+210 * self.font_mult)
+        else:
+            msg = self.tip_font.render(self.gameover_msg, True, self.game_config['data']['palette']['text'])
+            surface.blit(msg, (cx - msg.get_width() // 2,
+                               cy + self.title_font.get_height()))
+
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
@@ -548,13 +578,16 @@ class App:
         with open("game_data/highscores.json", "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
 
-    def _save_score(self) -> bool:
+    def _save_score(self) -> None:
         if self.player.has_been_cheating:
-            return False
+            return
+        
+
         if self.player.score > min(d['score'] for d in self.scores):
-            self.game_state = GameState.RECORD_CONFIRM
-            return True
-        return False
+            self.gameover_msg = "press any key to save your score".upper()
+        else:
+            self.gameover_msg = "press any key to go back to menu".upper()
+        return
 
     def _reset_high_scores(self) -> None:
         with open("game_data/backups/base_highscores.json", "r") as f:

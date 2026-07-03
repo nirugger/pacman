@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 import os
 from typing import TypedDict
 from enum import Enum, IntFlag
+import pygame as pg
 
 FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
@@ -118,6 +119,8 @@ class LevelConfig(TypedDict):
     radii: dict[str, int]
     font_mult: float
     speed_mult: float
+    death_screen: pg.Surface
+    death_screen_size: tuple[int, int]
     # enemies: list[Enemy]
     # entities: list[Entity]
     # status: GameStatus

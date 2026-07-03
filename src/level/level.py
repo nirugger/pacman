@@ -43,6 +43,9 @@ class Level:
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
         self.graph: dict[tuple[int, int], Cell] = self._build_graph()
         self.layout: pg.Surface = self._build_layout()
+        self.level_config['death_screen_size'] = (
+            (self.layout.get_size()[0] + self.pad,
+             self.layout.get_size()[1] + self.pad))
         self.playable_surface: pg.Surface
         self.ghost_points = GHOST_POINTS
 
@@ -200,12 +203,16 @@ class Level:
             dt = self._handle_time(clock)
             if self.level_config['game_state'] is GameState.WIN:
                 self.level_config['time'] = self.seconds
+                if self.level_id == 10:
+                    self.level_config['death_screen'] = self._game_over()
                 return self.level_config
             elif self.level_config['game_state'] is GameState.LOSE:
                 self.level_config['time'] = self.seconds
+                self.level_config['death_screen'] = self._game_over()
                 return self.level_config
             elif self.level_config['game_state'] is GameState.MAIN_MENU:
                 self.level_config['time'] = self.seconds
+                self.level_config['death_screen'] = self._game_over()
                 return self.level_config
             self._handle_vector_movement(dt)
             self._handle_collectibles()
@@ -446,6 +453,30 @@ class Level:
         self.surface.blit(info_surface, (self.playable_surface.get_width()
                                          + self.pad, self.pad))
 
+    def _game_over(self) -> pg.Surface:
+        font = pg.font.Font(FONT, int(42 * self.level_config['font_mult']))
+        font_h = font.get_height()
+
+        xy = self.playable_surface.get_size()
+        surface = pg.surface.Surface(xy, pg.SRCALPHA)
+        r, g, b = self.level_config['data']['palette']['bg']
+        surface.fill((r, g, b, 200))
+
+        msg = "GAME OVER!" if self.player.lives == 0 else "CONGRATULATIONS!"
+        # msg = ("CONGRATULATIONS!"
+        #        if self.level_id == 10 and self.total_collected == self.level_config['data']['max_gums'] + 4
+            #    else "GAME OVER!")
+        text_surface = (font.render(msg, True,
+                        self.level_config['data']['palette']['text']))
+        surface.blit(text_surface,
+                     (surface.get_width() // 2 - text_surface.get_width() // 2,
+                      surface.get_height() // 2 - font_h))
+
+        self.surface.blit(surface, (self.pad, self.pad))
+        return self.surface
+
+
+
     def _draw_frame(self) -> None:
         self.temp_bool = not self.temp_bool
         for e in self.entities:
@@ -509,7 +540,8 @@ class Level:
 
         xy = self.playable_surface.get_size()
         surface = pg.surface.Surface(xy, pg.SRCALPHA)
-        surface.fill((15, 20, 25, 200))
+        r, g, b = self.level_config['data']['palette']['bg']
+        surface.fill((r, g, b, 200))
 
         text_surface = font.render("CONTINUE", True,
                                    self.level_config['data']['palette']
