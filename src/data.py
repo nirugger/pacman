@@ -35,6 +35,7 @@ SUPERGUM_COLOR = (120, 255, 0)
 FRUIT_TIME = 10
 SUPERGUM_TIME = 12
 LEVEL_TIME = 900
+MAX_PACGUMS = MAZE_Y * MAZE_X - 23
 
 FRUIT_POINTS = 300
 GHOST_POINTS = 200
@@ -190,7 +191,7 @@ PALETTES = {
 }
 
 LEVELS_DATA = {
-    1: LevelData(max_gums=50, time=300, palette=PALETTES[1],
+    1: LevelData(max_gums=MAX_PACGUMS // 2 + MAX_PACGUMS // 20, time=300, palette=PALETTES[1],
                  strategies={
         "red": ("follow", "random", "random", "random", "random"),
         "pink": ("anticipate", "random", "random", "random", "random"),
@@ -199,7 +200,7 @@ LEVELS_DATA = {
         "orange": ("mirror", "random", "random", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=20.0),
-    2: LevelData(max_gums=65, time=280, palette=PALETTES[2],
+    2: LevelData(max_gums=MAX_PACGUMS // 2 + MAX_PACGUMS // 20, time=280, palette=PALETTES[2],
                  strategies={
         "red": ("follow", "follow", "random", "random", "random"),
         "pink": ("anticipate", "anticipate", "random", "random", "random"),
@@ -208,7 +209,7 @@ LEVELS_DATA = {
         "orange": ("mirror", "mirror", "random", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=25.0),
-    3: LevelData(max_gums=80, time=260, palette=PALETTES[3],
+    3: LevelData(max_gums=MAX_PACGUMS // 2 + 2 * MAX_PACGUMS // 20, time=260, palette=PALETTES[3],
                  strategies={
         "red": ("follow", "follow", "follow", "random", "random"),
         "pink": ("anticipate", "anticipate", "anticipate", "random", "random"),
@@ -217,7 +218,7 @@ LEVELS_DATA = {
         "orange": ("mirror", "mirror", "mirror", "random", "random")},
                  scatter_duration=10.0,
                  chase_duration=30.0),
-    4: LevelData(max_gums=95, time=240, palette=PALETTES[4],
+    4: LevelData(max_gums=MAX_PACGUMS // 2 + 3 * MAX_PACGUMS // 20, time=240, palette=PALETTES[4],
                  strategies={
         "red": ("follow", "follow", "follow", "follow", "random"),
         "pink": ("anticipate", "anticipate", "anticipate", "anticipate",
@@ -227,7 +228,7 @@ LEVELS_DATA = {
         "orange": ("mirror", "mirror", "mirror", "mirror", "random")},
                  scatter_duration=10.0,
                  chase_duration=35.0),
-    5: LevelData(max_gums=110, time=220, palette=PALETTES[5],
+    5: LevelData(max_gums=MAX_PACGUMS // 2 + 4 * MAX_PACGUMS // 20, time=220, palette=PALETTES[5],
                  strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
@@ -235,7 +236,7 @@ LEVELS_DATA = {
         "orange": ("mirror",)},
                  scatter_duration=10.0,
                  chase_duration=40.0),
-    6: LevelData(max_gums=125, time=200, palette=PALETTES[6],
+    6: LevelData(max_gums=MAX_PACGUMS // 2 + 5 * MAX_PACGUMS // 20, time=200, palette=PALETTES[6],
                  strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
@@ -243,7 +244,7 @@ LEVELS_DATA = {
         "orange": ("mirror",)},
                  scatter_duration=10.0,
                  chase_duration=45.0),
-    7: LevelData(max_gums=140, time=180, palette=PALETTES[7],
+    7: LevelData(max_gums=MAX_PACGUMS // 2 + 6 * MAX_PACGUMS // 20, time=180, palette=PALETTES[7],
                  strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
@@ -251,7 +252,7 @@ LEVELS_DATA = {
         "orange": ("mirror",)},
                  scatter_duration=10.0,
                  chase_duration=50.0),
-    8: LevelData(max_gums=155, time=160,  palette=PALETTES[8],
+    8: LevelData(max_gums=MAX_PACGUMS // 2 + 7 * MAX_PACGUMS // 20, time=160,  palette=PALETTES[8],
                  strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
@@ -259,7 +260,7 @@ LEVELS_DATA = {
         "orange": ("mirror",)},
                  scatter_duration=10.0,
                  chase_duration=55.0),
-    9: LevelData(max_gums=160, time=140,  palette=PALETTES[9],
+    9: LevelData(max_gums=MAX_PACGUMS // 2 + 8 * MAX_PACGUMS // 20, time=140,  palette=PALETTES[9],
                  strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
@@ -267,7 +268,7 @@ LEVELS_DATA = {
         "orange": ("mirror",)},
                  scatter_duration=10.0,
                  chase_duration=60.0),
-    10: LevelData(max_gums=164, time=120, palette=PALETTES[10],
+    10: LevelData(max_gums=MAX_PACGUMS, time=120, palette=PALETTES[10],
                   strategies={
         "red": ("follow",),
         "pink": ("anticipate",),
