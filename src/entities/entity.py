@@ -295,6 +295,7 @@ class Enemy(Entity):
         self.radius = radius
         self.inner_radius = radius - radius // 3
         self.has_reached_max = False
+        self.last_blinking = 0.0
 
     def _check_wait(self) -> None:
         if time.time() - self.last_wait > 5.0:
@@ -407,7 +408,7 @@ class Enemy(Entity):
             surface (pg.Surface): The surface on which to draw the enemy.
             radius (int): The radius of the circle representing the enemy.
         """
-        if t:
+        if t and not self.going_home:
             if self.has_reached_max is False:
                 self.inner_radius += 1
             else:
@@ -437,10 +438,12 @@ class Enemy(Entity):
                 return
 
         if self.going_home:
-            pg.draw.circle(surface, 'blue',
-                           (int(self.center.x) + EDGE_THICK,
-                            int(self.center.y) + EDGE_THICK),
-                           self.inner_radius)
+            if time.time() - self.last_blinking >= 0.075:
+                pg.draw.circle(surface, self.color,
+                               (int(self.center.x) + EDGE_THICK,
+                                int(self.center.y) + EDGE_THICK),
+                               self.radius)
+                self.last_blinking = time.time()
             return
 
         pg.draw.circle(surface, self.color,
