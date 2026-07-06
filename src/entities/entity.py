@@ -96,12 +96,13 @@ class Entity(ABC):
         ...
 
     @abstractmethod
-    def draw(self, surface: pg.Surface) -> None:
+    def draw(self, surface: pg.Surface, t: bool) -> None:
         """Draw the entity on the given surface.
 
         Args:
             surface (pg.Surface): The surface on which to draw the entity.
-            radius (int): The radius of the circle representing the entity.
+            t (bool): A flag indicating whether to apply a certain effect
+            when drawing the entity, such as a pulsing effect.
         """
         ...
 
@@ -399,7 +400,7 @@ class Enemy(Entity):
         self.movement = {'x': 0, 'y': 0}
         self.rect.center = graph[self.home].rect.center
         self.center = graph[self.home].center.copy()
-        self.frightened: float = 0.0
+        self.frightened = 0.0
 
     def draw(self, surface: pg.Surface, t: bool) -> None:
         """Draw the enemy on the given surface.

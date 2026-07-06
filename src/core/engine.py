@@ -40,6 +40,8 @@ class App:
         self.yes_no = ["yes", "no"]
         self.total_game_time: float = 0.0
         self.to_new_game_flag = False
+        self.key_selected: int = 0
+        self.active_input: str = "mouse"
 
         self._init_fonts()
         self._init_scores()
@@ -180,7 +182,6 @@ class App:
                     self.total_game_time += self.game_config['time']
                     self._save_score()
                     self.game_state = GameState.RECORD_CONFIRM
-                    
                     # self._reset_game()
                     # print("COGLIONE")
                     # self.game_state = GameState.MAIN_MENU
@@ -215,9 +216,11 @@ class App:
                         return
 
             if (event.type == pg.MOUSEBUTTONDOWN
+                    and event.button not in {4, 5}
                     and self.game_state is GameState.RECORD_CONFIRM):
 
-                if self.gameover_msg == "press any key to save your score".upper():
+                if (self.gameover_msg == "press any key to save your score".
+                        upper()):
                     self._update_json_scores()
                     self.game_state = GameState.RECORD
                     return
@@ -240,8 +243,6 @@ class App:
                 else:
                     self.game_state = GameState.MAIN_MENU
                     self._reset_game()
-
-
 
             if (event.type == pg.KEYDOWN
                     and self.game_state is GameState.RECORD):
@@ -269,7 +270,12 @@ class App:
                     pg.quit()
                     sys.exit()
 
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if event.type == pg.MOUSEMOTION:
+                pg.mouse.set_visible(True)
+                self.active_input = "mouse"
+
+            if (event.type == pg.MOUSEBUTTONDOWN and
+                    self.active_input == "mouse"):
                 if event.button == 1:
                     if ('continue' in self.buttons and
                             self.buttons['continue'].
@@ -307,6 +313,30 @@ class App:
                         pg.quit()
                         sys.exit()
 
+            if event.type == pg.KEYDOWN:
+                self.active_input = "keyboard"
+                if event.key == pg.K_DOWN:
+                    self.key_selected = (self.key_selected + 1) % len(
+                        self.menu_keys)
+                elif event.key == pg.K_UP:
+                    self.key_selected = (self.key_selected - 1) % len(
+                        self.menu_keys)
+                elif event.key == pg.K_RETURN:
+                    selected_key = self.menu_keys[self.key_selected]
+                    if selected_key == "continue":
+                        self.game_state = GameState.CONTINUE
+                    elif selected_key == "new_game":
+                        self.game_state = GameState.NEW_GAME
+                    elif selected_key == "high_scores":
+                        self.game_state = GameState.HIGHSCORES
+                    elif selected_key == "instructions":
+                        self.game_state = GameState.INSTRUCTIONS
+                    elif selected_key == "reset":
+                        self.game_state = GameState.RESET_CONFIRM
+                    elif selected_key == "exit":
+                        pg.quit()
+                        sys.exit()
+
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
@@ -332,13 +362,24 @@ class App:
             self.buttons[self.menu_keys[i]] = surface.blit(
                 text, (self.centerx - text.get_width() // 2,
                        self.centery + pady))
-            if self._hovered_button() == self.menu_keys[i]:
-                text = self.menu_font.render(
-                    "→ " + self.menu_keys[i].upper().replace('_', ' ') + " ←",
-                    True, 'yellow')
-                self.buttons[self.menu_keys[i]] = surface.blit(
-                    text, (self.centerx - text.get_width() // 2,
-                           self.centery + pady))
+            if self.active_input == "mouse":
+                if self._hovered_button() == self.menu_keys[i]:
+                    text = self.menu_font.render(
+                        "→ " + self.menu_keys[i].upper().
+                        replace('_', ' ') + " ←",
+                        True, 'yellow')
+                    self.buttons[self.menu_keys[i]] = surface.blit(
+                        text, (self.centerx - text.get_width() // 2,
+                               self.centery + pady))
+            else:
+                if self.key_selected == i:
+                    text = self.menu_font.render(
+                        "→ " + self.menu_keys[i].upper().
+                        replace('_', ' ') + " ←",
+                        True, 'yellow')
+                    self.buttons[self.menu_keys[i]] = surface.blit(
+                        text, (self.centerx - text.get_width() // 2,
+                               self.centery + pady))
             pady += int(50 * self.font_mult)
 
         # text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
@@ -431,7 +472,8 @@ class App:
         else:
             text = self.tip_font.render("", True, 'yellow')
         surface.blit(text, (self.centerx - text.get_width() // 2,
-                            self.screen.get_height() - (text.get_height() + 10) * 2))
+                            self.screen.get_height() -
+                            (text.get_height() + 10) * 2))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
@@ -471,13 +513,9 @@ class App:
         cx, cy = sizes[0] // 2, sizes[1] // 2
 
         if self.gameover_msg == "press any key to save your score".upper():
-
-        # surface = pg.surface.Surface(self.resolution)
-        # surface.fill(self.game_config['data']['palette']['bg'])
-        # pg.draw.rect(surface, 'yellow', surface.get_rect(), width=25)
-            # stats = []
-            msg = self.tip_font.render(self.gameover_msg,
-                                    True, self.game_config['data']['palette']['text'])
+            msg = self.tip_font.render(self.gameover_msg, True,
+                                       self.game_config['data']['palette']
+                                       ['text'])
             surface.blit(msg, (cx - msg.get_width() // 2,
                                cy + self.title_font.get_height()))
             # padx = int(-220 * self.font_mult)
@@ -492,14 +530,17 @@ class App:
             #         pg.draw.line(surface, 'yellow',
             #                     rect.bottomleft, rect.bottomright,
             #                     max(int(5 * self.font_mult), 1))
-                # else:
-                #     rect = self.buttons[self.yes_no[i]]
-                #     pg.draw.line(surface, self.game_config['data']['palette']['bg'],
-                #                 rect.bottomleft, rect.bottomright,
-                #                 max(int(5 * self.font_mult), 1))
-                # padx = int(+210 * self.font_mult)
+            # else:
+            #     rect = self.buttons[self.yes_no[i]]
+            #     pg.draw.line(surface, self.game_config['data']['palette']
+            #     ['bg'],
+            #                 rect.bottomleft, rect.bottomright,
+            #                 max(int(5 * self.font_mult), 1))
+            # padx = int(+210 * self.font_mult)
         else:
-            msg = self.tip_font.render(self.gameover_msg, True, self.game_config['data']['palette']['text'])
+            msg = self.tip_font.render(self.gameover_msg, True,
+                                       self.game_config['data']['palette']
+                                       ['text'])
             surface.blit(msg, (cx - msg.get_width() // 2,
                                cy + self.title_font.get_height()))
 
@@ -581,7 +622,6 @@ class App:
     def _save_score(self) -> None:
         if self.player.has_been_cheating:
             return
-        
 
         if self.player.score > min(d['score'] for d in self.scores):
             self.gameover_msg = "press any key to save your score".upper()
@@ -600,5 +640,8 @@ class App:
         mx, my = pg.mouse.get_pos()
         for name, button in self.buttons.items():
             if button.collidepoint(mx, my):
+                if name in self.menu_keys:
+                    self.key_selected = self.menu_keys.index(name)
                 return name
+
         return None

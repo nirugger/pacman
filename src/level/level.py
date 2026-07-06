@@ -195,6 +195,7 @@ class Level:
             LevelConfig: The updated level configuration after the level is
             run.
         """
+        pg.mouse.set_visible(False)
         self.surface.fill(self.level_config['data']['palette']['walls'])
         self._draw_frame()
         clock = pg.time.Clock()
@@ -391,6 +392,7 @@ class Level:
                 if ('continue' in self.buttons and
                         self.buttons['continue'].
                         collidepoint(pg.mouse.get_pos())):
+                    pg.mouse.set_visible(False)
                     self.paused = False
 
                 if ('back_to_menu' in self.buttons and
@@ -464,8 +466,6 @@ class Level:
 
         msg = "GAME OVER!" if self.player.lives == 0 else "CONGRATULATIONS!"
         # msg = ("CONGRATULATIONS!"
-        #        if self.level_id == 10 and self.total_collected == self.level_config['data']['max_gums'] + 4
-            #    else "GAME OVER!")
         text_surface = (font.render(msg, True,
                         self.level_config['data']['palette']['text']))
         surface.blit(text_surface,
@@ -474,8 +474,6 @@ class Level:
 
         self.surface.blit(surface, (self.pad, self.pad))
         return self.surface
-
-
 
     def _draw_frame(self) -> None:
         self.temp_bool = not self.temp_bool
@@ -535,6 +533,7 @@ class Level:
         )
 
     def _pause_menu(self) -> None:
+        pg.mouse.set_visible(True)
         font = pg.font.Font(FONT, int(42 * self.level_config['font_mult']))
         font_h = font.get_height()
 

@@ -1,26 +1,6 @@
 {
     "highscores": [
         {
-            "name": "1111111111",
-            "score": 9860,
-            "date": "2026-07-06"
-        },
-        {
-            "name": " ",
-            "score": 3590,
-            "date": "2026-07-06"
-        },
-        {
-            "name": " G",
-            "score": 3490,
-            "date": "2026-07-06"
-        },
-        {
-            "name": " ",
-            "score": 1790,
-            "date": "2026-07-06"
-        },
-        {
             "name": "CENTO",
             "score": 100,
             "date": "2026-06-24"
@@ -48,6 +28,26 @@
         {
             "name": "CINQUANTA",
             "score": 50,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "QUARANTA",
+            "score": 40,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "TRENTA",
+            "score": 30,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "VENTI",
+            "score": 20,
+            "date": "2026-06-24"
+        },
+        {
+            "name": "DIECI",
+            "score": 10,
             "date": "2026-06-24"
         }
     ]
