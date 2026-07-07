@@ -305,6 +305,7 @@ class App:
                     if ('reset' in self.buttons and
                             self.buttons['reset'].
                             collidepoint(pg.mouse.get_pos())):
+                        self.key_selected = 1
                         self.game_state = GameState.RESET_CONFIRM
                         return
 
@@ -314,7 +315,7 @@ class App:
                         pg.quit()
                         sys.exit()
 
-            if event.type == pg.KEYDOWN:
+            if event.type == pg.KEYDOWN and self.game_state is GameState.MAIN_MENU:
                 self.active_input = "keyboard"
                 if event.key == pg.K_DOWN:
                     self.key_selected = (self.key_selected + 1) % len(
@@ -326,17 +327,42 @@ class App:
                     selected_key = self.menu_keys[self.key_selected]
                     if selected_key == "continue":
                         self.game_state = GameState.CONTINUE
+                        return
                     elif selected_key == "new_game":
                         self.game_state = GameState.NEW_GAME
+                        return
                     elif selected_key == "high_scores":
                         self.game_state = GameState.HIGHSCORES
+                        return
                     elif selected_key == "instructions":
                         self.game_state = GameState.INSTRUCTIONS
+                        return
                     elif selected_key == "reset":
+                        self.key_selected = 1
                         self.game_state = GameState.RESET_CONFIRM
+                        return
                     elif selected_key == "exit":
                         pg.quit()
                         sys.exit()
+
+
+            if event.type == pg.KEYDOWN and self.game_state is GameState.RESET_CONFIRM:
+                self.active_input = "keyboard"
+                if event.key == pg.K_RIGHT:
+                    self.key_selected = 1
+                elif event.key == pg.K_LEFT:
+                    self.key_selected = 0
+                elif event.key == pg.K_RETURN:
+                    selected_key = self.yes_no[self.key_selected % 2]
+                    if selected_key == "yes":
+                        self._reset_high_scores()
+                        self.game_state = GameState.MAIN_MENU
+                        return
+                    elif selected_key == "no":
+                        self.game_state = GameState.MAIN_MENU
+                        return
+
+
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -586,7 +612,12 @@ class App:
             npadx = padx - text.get_width() // 2
             self.buttons[self.yes_no[i]] = surface.blit(
                 text, (self.centerx + npadx, self.centery))
-            if self.yes_no[i] == self._hovered_button():
+            if self.yes_no[i] == self._hovered_button() and self.active_input == 'mouse':
+                rect = self.buttons[self.yes_no[i]]
+                pg.draw.line(surface, 'yellow',
+                             rect.bottomleft, rect.bottomright,
+                             max(int(5 * self.font_mult), 1))
+            elif self.yes_no[i] == self.yes_no[self.key_selected % 2] and self.active_input == 'keyboard':
                 rect = self.buttons[self.yes_no[i]]
                 pg.draw.line(surface, 'yellow',
                              rect.bottomleft, rect.bottomright,
@@ -659,6 +690,8 @@ class App:
             if button.collidepoint(mx, my):
                 if name in self.menu_keys:
                     self.key_selected = self.menu_keys.index(name)
+                elif name in self.yes_no:
+                    self.key_selected = self.yes_no.index(name)
                 return name
 
         return None

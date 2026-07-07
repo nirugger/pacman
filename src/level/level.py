@@ -217,8 +217,8 @@ class Level:
                 return self.level_config
             self._handle_vector_movement(dt)
             self._handle_collectibles()
-            self._draw_frame()
             self._handle_collisions()
+            self._draw_frame()
             self._handle_events()
 
     def _handle_time(self, clock: pg.time.Clock) -> float:
@@ -415,16 +415,7 @@ class Level:
         info_surface.fill(self.level_config['data']['palette']['walls'])
         font = pg.font.Font(FONT, max(int(20 * self.level_config['font_mult']),
                                       10))
-        s = "S" if self.max_time - int(self.seconds) != 1 else ""
-        f"YOU MAY DIE IN {self.max_time - int(self.seconds)} SECOND{s}"
-        lives = (f"YOU MAY DIE {self.player.lives} MORE TIMES"
-                 if self.player.lives > 1 else "LAST LIFE, MAKE IT COUNT")
-        f"{lives}"
-        f"YOUR SCORE IS WORTH {self.player.score} POINTS"
-        "KEYS:"
-        "RUN TIME:"
-        "PACGUM "
-        "GHOST KILLED:"
+
         cx = info_surface.get_width() // 2
         n = int(50 * self.level_config['font_mult'])
         text = ''
