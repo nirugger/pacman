@@ -195,13 +195,14 @@ class Level:
             LevelConfig: The updated level configuration after the level is
             run.
         """
-        pg.mouse.set_visible(False)
         self.surface.fill(self.level_config['data']['palette']['walls'])
         self._draw_frame()
         clock = pg.time.Clock()
         while True:
             self.buttons.clear()
             dt = self._handle_time(clock)
+            pg.mouse.set_visible(self.paused)
+
             if self.level_config['game_state'] is GameState.WIN:
                 self.level_config['time'] = self.seconds
                 if self.level_id == 10:
@@ -394,7 +395,6 @@ class Level:
                 if ('continue' in self.buttons and
                         self.buttons['continue'].
                         collidepoint(pg.mouse.get_pos())):
-                    pg.mouse.set_visible(False)
                     self.paused = False
 
                 if ('back_to_menu' in self.buttons and
@@ -520,7 +520,6 @@ class Level:
         )
 
     def _pause_menu(self) -> None:
-        pg.mouse.set_visible(True)
         font = pg.font.Font(FONT, int(42 * self.level_config['font_mult']))
         font_h = font.get_height()
 

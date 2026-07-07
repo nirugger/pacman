@@ -35,9 +35,9 @@ class App:
         self.levels_data = LEVELS_DATA
         self.game_state: GameState = GameState.MAIN_MENU
         self.buttons: dict[str, pg.Rect] = {}
-        self.menu_keys = ["continue", "new_game", "high_scores",
-                          "instructions", "reset", "exit"]
-        self.yes_no = ["yes", "no"]
+        self.menu_keys = ("continue", "new_game", "high_scores",
+                          "instructions", "reset", "exit")
+        self.yes_no = ("yes", "no")
         self.total_game_time: float = 0.0
         self.to_new_game_flag = False
         self.key_selected: int = 0
@@ -81,7 +81,7 @@ class App:
         }
 
         self.speed_mult = self.edge / 42
-        self.font_mult = self.edge / 30
+        self.font_mult = self.screen_size[0] / 1300
 
     def _init_fonts(self) -> None:
         self.title_font = pg.font.Font(FONT, max(int(64 * self.font_mult), 24))
@@ -89,11 +89,6 @@ class App:
         self.instruction_font = pg.font.Font(FONT,
                                              max(int(24 * self.font_mult), 8))
         self.tip_font = pg.font.Font(FONT, max(int(16 * self.font_mult), 8))
-
-        # self.title_font = pg.font.SysFont("arial", 90)
-        # self.menu_font = pg.font.SysFont("arial", 42)
-        # self.instruction_font = pg.font.SysFont("arial", 33)
-        # self.tip_font = pg.font.SysFont("arial", 27)
 
     def _init_scores(self) -> None:
         with open("game_data/highscores.json", "r") as f:
@@ -139,6 +134,7 @@ class App:
         """
         while True:
             self.buttons.clear()
+            pg.mouse.set_visible(self.active_input == 'mouse')
             match self.game_state:
                 case GameState.MAIN_MENU:
                     self._main_menu()
@@ -225,22 +221,6 @@ class App:
                     self._update_json_scores()
                     self.game_state = GameState.RECORD
                     return
-                    if event.button == 1:
-                        if ('yes' in self.buttons and self.buttons['yes'].
-                                collidepoint(pg.mouse.get_pos())):
-                            self._update_json_scores()
-                            self.game_state = GameState.RECORD
-                            return
-
-                        if ('no' in self.buttons and self.buttons['no'].
-                                collidepoint(pg.mouse.get_pos())):
-                            self._reset_game()
-                            if self.to_new_game_flag:
-                                self.to_new_game_flag = False
-                                self.game_state = GameState.NEW_GAME
-                                return
-                            self.game_state = GameState.MAIN_MENU
-                            return
                 else:
                     self.game_state = GameState.MAIN_MENU
                     self._reset_game()
@@ -315,7 +295,8 @@ class App:
                         pg.quit()
                         sys.exit()
 
-            if event.type == pg.KEYDOWN and self.game_state is GameState.MAIN_MENU:
+            if (event.type == pg.KEYDOWN
+                    and self.game_state is GameState.MAIN_MENU):
                 self.active_input = "keyboard"
                 if event.key == pg.K_DOWN:
                     self.key_selected = (self.key_selected + 1) % len(
@@ -345,8 +326,8 @@ class App:
                         pg.quit()
                         sys.exit()
 
-
-            if event.type == pg.KEYDOWN and self.game_state is GameState.RESET_CONFIRM:
+            if (event.type == pg.KEYDOWN
+                    and self.game_state is GameState.RESET_CONFIRM):
                 self.active_input = "keyboard"
                 if event.key == pg.K_RIGHT:
                     self.key_selected = 1
@@ -361,8 +342,6 @@ class App:
                     elif selected_key == "no":
                         self.game_state = GameState.MAIN_MENU
                         return
-
-
 
             if event.type == pg.QUIT:
                 pg.quit()
@@ -409,36 +388,6 @@ class App:
                                self.centery + pady))
             pady += int(50 * self.font_mult)
 
-        # text_surface = self.menu_font.render("CONTINUE", True, 'yellow')
-        # self.buttons['continue'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery - pady))
-
-        # text_surface = self.menu_font.render("NEW GAME", True, 'yellow')
-        # self.buttons['new_game'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery))
-
-        # text_surface = self.menu_font.render("HIGH SCORES", True, 'yellow')
-        # self.buttons['high_scores'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery + pady))
-
-        # text_surface = self.menu_font.render("INSTRUCTIONS", True, 'yellow')
-        # self.buttons['instructions'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery + pady * 2))
-
-        # text_surface = self.menu_font.render("RESET", True, 'yellow')
-        # self.buttons['reset'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery + pady * 3))
-
-        # text_surface = self.menu_font.render("EXIT", True, 'yellow')
-        # self.buttons['exit'] = surface.blit(
-        #     text_surface, (self.centerx - text_surface.get_width() // 2,
-        #                    self.centery + pady * 4))
-
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
@@ -449,10 +398,6 @@ class App:
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
-
-        # title = self.title_font.render("HIGHSCORES", True, 'yellow')
-        # surface.blit(title, (self.centerx - title.get_width() // 2,
-        #                      self.menu_font.get_height()))
 
         with open("game_data/highscores.json", "r") as f:
             scores_dict = json.load(f)
@@ -546,7 +491,6 @@ class App:
         pg.display.flip()
 
     def _record_confirm_window(self) -> None:
-        # self.screen.fill(self.game_config['data']['palette']['bg'])
         gameover = self.game_config['death_screen']
 
         sizes = self.game_config['death_screen_size']
@@ -561,25 +505,6 @@ class App:
                                        ['text'])
             surface.blit(msg, (cx - msg.get_width() // 2,
                                cy + self.title_font.get_height()))
-            # padx = int(-220 * self.font_mult)
-            # for i in range(len(self.yes_no)):
-            #     text = self.title_font.render(self.yes_no[i].upper(),
-            #                                 True, 'yellow')
-            #     npadx = padx - text.get_width() // 2
-            #     self.buttons[self.yes_no[i]] = surface.blit(
-            #         text, (cx + npadx, cy))
-            #     if self.yes_no[i] == self._hovered_button():
-            #         rect = self.buttons[self.yes_no[i]]
-            #         pg.draw.line(surface, 'yellow',
-            #                     rect.bottomleft, rect.bottomright,
-            #                     max(int(5 * self.font_mult), 1))
-            # else:
-            #     rect = self.buttons[self.yes_no[i]]
-            #     pg.draw.line(surface, self.game_config['data']['palette']
-            #     ['bg'],
-            #                 rect.bottomleft, rect.bottomright,
-            #                 max(int(5 * self.font_mult), 1))
-            # padx = int(+210 * self.font_mult)
         else:
             msg = self.tip_font.render(self.gameover_msg, True,
                                        self.game_config['data']['palette']
@@ -612,27 +537,19 @@ class App:
             npadx = padx - text.get_width() // 2
             self.buttons[self.yes_no[i]] = surface.blit(
                 text, (self.centerx + npadx, self.centery))
-            if self.yes_no[i] == self._hovered_button() and self.active_input == 'mouse':
+            if (self.yes_no[i] == self._hovered_button()
+                    and self.active_input == 'mouse'):
                 rect = self.buttons[self.yes_no[i]]
                 pg.draw.line(surface, 'yellow',
                              rect.bottomleft, rect.bottomright,
                              max(int(5 * self.font_mult), 1))
-            elif self.yes_no[i] == self.yes_no[self.key_selected % 2] and self.active_input == 'keyboard':
+            elif (self.yes_no[i] == self.yes_no[self.key_selected % 2]
+                    and self.active_input == 'keyboard'):
                 rect = self.buttons[self.yes_no[i]]
                 pg.draw.line(surface, 'yellow',
                              rect.bottomleft, rect.bottomright,
                              max(int(5 * self.font_mult), 1))
             padx = int(+210 * self.font_mult)
-
-        # text_surface = self.title_font.render("NO", True, 'red')
-        # padx = text_surface.get_width()
-        # self.buttons['no'] = surface.blit(
-        #     text_surface, (self.centerx + padx, self.centery))
-
-        # text_surface = self.title_font.render("YES", True, 'green')
-        # padx = text_surface.get_width() * 2
-        # self.buttons['yes'] = surface.blit(
-        #     text_surface, (self.centerx - padx, self.centery))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()

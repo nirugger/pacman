@@ -14,8 +14,8 @@ import pygame as pg
 FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
-MAZE_X = 31
-MAZE_Y = 21
+MAZE_X = 21
+MAZE_Y = 14
 EDGE_THICK = 1
 EDGE = 30
 PAD = 15
