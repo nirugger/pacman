@@ -411,15 +411,6 @@ class Level:
         height = self.playable_surface.get_height()
         info_surface = pg.Surface((width, height))
         info_surface.fill(self.level_config['data']['palette']['walls'])
-        # thickness = EDGE_THICK
-        # internal_rect = pg.Rect(thickness,
-        #                         thickness,
-        #                         width - 2 * thickness,
-        #                         height - 2 * thickness)
-        # pg.draw.rect(info_surface,
-        #              self.level_config['data']['palette']['bg'],
-        #              internal_rect)
-        # font = pg.font.SysFont("arial", 32)
         font = pg.font.Font(FONT, max(int(20 * self.level_config['font_mult']),
                                       10))
         s = "S" if self.max_time - int(self.seconds) != 1 else ""
@@ -434,18 +425,21 @@ class Level:
         "GHOST KILLED:"
         cx = info_surface.get_width() // 2
         n = int(50 * self.level_config['font_mult'])
-        for i in range(n, n * 7, n):
+        text = ''
+        for i in range(n, n * 8, n):
             if i == n:
-                text = f"TIME: {self.max_time - int(self.seconds)}"
+                text = f"LEVEL: {self.level_id}"
             if i == n * 2:
-                text = f"LIVES: {self.player.lives}"
+                text = f"TIME: {self.max_time - int(self.seconds)}"
             if i == n * 3:
-                text = f"SCORE: {self.player.score}"
+                text = f"LIVES: {self.player.lives}"
             if i == n * 4:
-                text = f"GUMS: {self.player.gums}"
+                text = f"SCORE: {self.player.score}"
             if i == n * 5:
-                text = f"FRUITS: {self.player.fruits}"
+                text = f"GUMS: {self.player.gums}"
             if i == n * 6:
+                text = f"FRUITS: {self.player.fruits}"
+            if i == n * 7:
                 text = f"GHOSTS: {self.player.ghosts}"
             text_surface = font.render(text, True,
                                        self.level_config['data']

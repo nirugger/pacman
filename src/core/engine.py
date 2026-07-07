@@ -479,6 +479,8 @@ class App:
         pg.display.flip()
 
     def _instructions_menu(self) -> None:
+        keys = ("ARROW KEYS", "SPACEBAR", "Q KEY")
+        commands = ("MOVE PAC•MAN", "PAUSE GAME", "QUIT GAME")
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
@@ -497,6 +499,21 @@ class App:
         surface.blit(text,
                      (self.centerx - text.get_width() // 2,
                       self.screen.get_height() - (text.get_height() + 10) * 2))
+
+        columns = self.menu_font.render(':', True, 'yellow')
+        padx = columns.get_width()
+        for i in range(len(keys)):
+            pady = (self.menu_font.get_height() * 4 +
+                    (self.title_font.get_height() -
+                     self.tip_font.get_height()) * i)
+
+            text = self.menu_font.render(keys[i], True, 'yellow')
+            surface.blit(text,
+                         (self.centerx - text.get_width() - padx, pady))
+            text = self.menu_font.render(commands[i], True, 'yellow')
+            surface.blit(text,
+                         (self.centerx + padx * 2, pady))
+            surface.blit(columns, (self.centerx, pady))
 
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
