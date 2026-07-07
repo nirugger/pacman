@@ -57,5 +57,6 @@ def _pac_main() -> None:
 # approfondire!!!!!!!!!!!
 if __name__ == "__main__":
     pg.init()
+    pg.mouse.set_cursor(pg.cursors.broken_x)
     _pac_main()
     pg.quit()
