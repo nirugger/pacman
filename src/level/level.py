@@ -319,6 +319,8 @@ class Level:
             self.fruit_check = False
 
         if self.total_collected == self.level_config['data']['max_gums'] + 4:
+            if self.level_id < 10:
+                self.player.lives += 1
             self.level_config['game_state'] = GameState.WIN
 
     def _handle_vector_movement(self, dt: float) -> None:
