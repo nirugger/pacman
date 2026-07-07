@@ -215,9 +215,10 @@ class App:
                         self.game_state = GameState.MAIN_MENU
                         return
 
-            if (event.type == pg.MOUSEBUTTONDOWN
-                    and event.button not in {4, 5}
-                    and self.game_state is GameState.RECORD_CONFIRM):
+            if ((event.type == pg.KEYDOWN or
+                 (event.type == pg.MOUSEBUTTONDOWN
+                  and event.button not in {4, 5}))
+               and self.game_state is GameState.RECORD_CONFIRM):
 
                 if (self.gameover_msg == "press any key to save your score".
                         upper()):
@@ -518,7 +519,6 @@ class App:
         self.screen.blit(surface, (0, 0))
         pg.display.flip()
 
-#   TODO far diventare questo flusso una death screen
     def _record_confirm_window(self) -> None:
         # self.screen.fill(self.game_config['data']['palette']['bg'])
         gameover = self.game_config['death_screen']
