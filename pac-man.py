@@ -1,8 +1,11 @@
 """Main module for the project."""
 
 import json
+import subprocess
+
 import pygame as pg
-from src.data import Config, DEFAULT_CONFIG
+from src.data import FILENAME
+from src.parser.parser import Parser
 
 from src.core.engine import App
 
@@ -14,42 +17,17 @@ def _pac_main() -> None:
     # sys.stdout = open(os.devnull, "w")
     # # sys.stderr = open(os.devnull, "w")
 
-    string = ''
-    try:
-        with open('config.json', 'r') as file:
-            for line in file:
-                if line.strip().startswith('#'):
-                    continue
-                string += line
-            rawdata = json.loads(string)
-            # rawdata = json.load(file)
-    except (FileNotFoundError, PermissionError,
-            IsADirectoryError, json.JSONDecodeError) as e:
-        print(f"[ERROR]: {e}")
-        return
-
-    highscore_filename = rawdata.get('highscore_filename',
-                                     DEFAULT_CONFIG['highscore_filename'])
-    if not isinstance(highscore_filename, str):
-        highscore_filename = DEFAULT_CONFIG['highscore_filename']
-    resolution = rawdata.get('resolution', DEFAULT_CONFIG['resolution'])
-    if not isinstance(resolution, dict) or \
-            'x' not in resolution or 'y' not in resolution:
-        resolution = DEFAULT_CONFIG['resolution']
-    elif (not isinstance(resolution['x'], int) or
-          not isinstance(resolution['y'], int) or
-          resolution['y'] > 57 / 100 * resolution['x'] or
-          resolution['x'] > 1980 or resolution['y'] > 1000 or
-          resolution['x'] < 426 or resolution['y'] < 240):
-        resolution = DEFAULT_CONFIG['resolution']
-    seed = rawdata.get('seed', DEFAULT_CONFIG['seed'])
-    if not isinstance(seed, int):
-        seed = DEFAULT_CONFIG['seed']
-
-    data = Config(highscore_filename=highscore_filename,
-                  resolution=resolution,
-                  seed=seed)
+    data = Parser.parser(FILENAME)
     app = App(data)
+    try:
+        path = 'game_data/' + data['highscore_filename']
+        f = open(path, 'r')
+        f.close()
+    except IOError:
+        path = 'game_data/' + data['highscore_filename']
+        subprocess.run(['cp', 'game_data/backups/base_highscores.json',
+                        path])
+
     app.run()
 
 
