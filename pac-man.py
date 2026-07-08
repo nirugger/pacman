@@ -18,7 +18,7 @@ def _pac_main() -> None:
     # # sys.stderr = open(os.devnull, "w")
 
     data = Parser.parser(FILENAME)
-    app = App(data)
+
     try:
         path = 'game_data/' + data['highscore_filename']
         f = open(path, 'r')
@@ -27,7 +27,8 @@ def _pac_main() -> None:
         path = 'game_data/' + data['highscore_filename']
         subprocess.run(['cp', 'game_data/backups/base_highscores.json',
                         path])
-
+        subprocess.run(['chmod', '666', path])
+    app = App(data)
     app.run()
 
 

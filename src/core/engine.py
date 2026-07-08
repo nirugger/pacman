@@ -54,12 +54,10 @@ class App:
             self,
             config: Config
             ) -> None:
-        print(config['highscore_filename'])
         self.first_seed = config['seed']
         self._highscore_path = ('game_data/'
                                 + config['highscore_filename'])
-        self._highscore_backup_path = ('game_data/backups/'
-                                       + config['highscore_filename'])
+        self._highscore_backup_path = 'game_data/backups/base_highscores.json'
         self.resolution = (config['resolution']['x'],
                            config['resolution']['y'])
 
@@ -93,14 +91,14 @@ class App:
         self.tip_font = pg.font.Font(FONT, max(int(16 * self.font_mult), 8))
 
     def _init_scores(self) -> None:
-        try:
-            with open(self._highscore_path, "r") as f:
-                scores = json.load(f)
-                self.scores = scores['highscores']
-        except IOError:
-            with open('game_data/backups/base_highscores.json', "r") as f:
-                scores = json.load(f)
-                self.scores = scores['highscores']
+        # try:
+        with open(self._highscore_path, "r") as f:
+            scores = json.load(f)
+            self.scores = scores['highscores']
+        # except IOError:
+        #     with open('game_data/backups/base_highscores.json', "r") as f:
+        #         scores = json.load(f)
+        #         self.scores = scores['highscores']
 
     def _init_player(self) -> None:
         player = Player("pacman", self.radii['pacman'])
@@ -406,12 +404,12 @@ class App:
         surface.fill(self.game_config['data']['palette']['bg'])
         pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
 
-        try:
-            with open(self._highscore_path, "r") as f:
-                scores_dict = json.load(f)
-        except IOError:
-            with open('game_data/backups/base_highscores.json', "r") as f:
-                scores_dict = json.load(f)
+        # try:
+        with open(self._highscore_path, "r") as f:
+            scores_dict = json.load(f)
+        # except IOError:
+        #     with open('game_data/backups/base_highscores.json', "r") as f:
+        #         scores_dict = json.load(f)
         names = [d['name'] for d in scores_dict['highscores']]
         scores = [d['score'] for d in scores_dict['highscores']]
         columns = self.menu_font.render(':', True, 'yellow')
@@ -568,27 +566,26 @@ class App:
     #  ------ HIGHSCORES -----------------------------------------------------
 
     def _update_record_name(self) -> None:
-        print(self._highscore_path)
-        try:
-            with open(self._highscore_path, "r") as f:
-                scores = json.load(f)
-            scores['highscores'][self.record_index]['name'] = self.record_name
-            with open(self._highscore_path, "w") as score_file:
-                score_file.write(json.dumps(scores, indent=4))
-        except IOError:
-            with open('game_data/backups/base_highscores.json', 'r') as f:
-                scores = json.load(f)
-            with open(self._highscore_path, "r") as f:
-                scores = json.load(f)
-            scores['highscores'][self.record_index]['name'] = self.record_name
-            with open(self._highscore_path, "w") as score_file:
-                score_file.write(json.dumps(scores, indent=4))
+        # try:
+        with open(self._highscore_path, "r") as f:
+            scores = json.load(f)
+        scores['highscores'][self.record_index]['name'] = self.record_name
+        with open(self._highscore_path, "w") as score_file:
+            score_file.write(json.dumps(scores, indent=4))
+        # except IOError:
+        #     with open('game_data/backups/base_highscores.json', 'r') as f:
+        #         scores = json.load(f)
+        #     with open(self._highscore_path, "r") as f:
+        #         scores = json.load(f)
+        #     scores['highscores'][self.record_index]['name'] = self.record_name
+        #     with open(self._highscore_path, "w") as score_file:
+        #         score_file.write(json.dumps(scores, indent=4))
             # print("[ERROR]")
             # pg.quit()
             # sys.exit()
 
     def _update_json_scores(self) -> None:
-        with open("game_data/highscores.json", "r") as score_file:
+        with open(self._highscore_path, "r") as score_file:
             scores = json.load(score_file)
             scores['highscores'].append({"name": self.record_name,
                                          "score": self.player.score,
@@ -605,7 +602,7 @@ class App:
                  "score": self.player.score,
                  "date": date.today().__str__()})
 
-        with open("game_data/highscores.json", "w") as score_file:
+        with open(self._highscore_path, "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
 
     def _save_score(self) -> None:
@@ -619,9 +616,9 @@ class App:
         return
 
     def _reset_high_scores(self) -> None:
-        with open("game_data/backups/base_highscores.json", "r") as f:
+        with open(self._highscore_backup_path, "r") as f:
             scores = json.load(f)
-        with open("game_data/highscores.json", "w") as score_file:
+        with open(self._highscore_path, "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
         self._init_scores()
 
