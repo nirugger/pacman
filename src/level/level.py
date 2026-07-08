@@ -261,7 +261,7 @@ class Level:
 
         return dt
 
-    def _detect_circle_collision(self, e: Enemy):
+    def _detect_circle_collision(self, e: Enemy) -> bool:
         return (e.center - self.player.center).length() <= e.inner_radius
 
     def _handle_collisions(self) -> None:
