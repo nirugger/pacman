@@ -6,8 +6,7 @@ The engine manages the game loop, events, and state transitions.
 from src.level.level import Level
 from src.entities.entity import Player
 from src.data import (LevelConfig, GameState, Config,
-                      LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK,
-                      BACKUP_SCORE)
+                      LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK)
 
 import json
 from datetime import date
@@ -229,6 +228,7 @@ class App:
                 else:
                     self.game_state = GameState.MAIN_MENU
                     self._reset_game()
+                    return
 
             if (event.type == pg.KEYDOWN
                     and self.game_state is GameState.RECORD):
@@ -501,7 +501,6 @@ class App:
 
     def _record_confirm_window(self) -> None:
         gameover = self.game_config['death_screen']
-
         sizes = self.game_config['death_screen_size']
         surface = pg.surface.Surface(sizes)
         surface.fill(self.game_config['data']['palette']['bg'])
@@ -572,17 +571,6 @@ class App:
         scores['highscores'][self.record_index]['name'] = self.record_name
         with open(self._highscore_path, "w") as score_file:
             score_file.write(json.dumps(scores, indent=4))
-        # except IOError:
-        #     with open('game_data/backups/base_highscores.json', 'r') as f:
-        #         scores = json.load(f)
-        #     with open(self._highscore_path, "r") as f:
-        #         scores = json.load(f)
-        #     scores['highscores'][self.record_index]['name'] = self.record_name
-        #     with open(self._highscore_path, "w") as score_file:
-        #         score_file.write(json.dumps(scores, indent=4))
-            # print("[ERROR]")
-            # pg.quit()
-            # sys.exit()
 
     def _update_json_scores(self) -> None:
         with open(self._highscore_path, "r") as score_file:

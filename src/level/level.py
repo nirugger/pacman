@@ -261,12 +261,15 @@ class Level:
 
         return dt
 
+    def _detect_circle_collision(self, e: Enemy):
+        return (e.center - self.player.center).length() <= e.inner_radius
+
     def _handle_collisions(self) -> None:
         for e in self.enemies:
-            if (e.rect.collidepoint(self.player.rect.center)
+            if (self._detect_circle_collision(e)
                     and e.waiting is True):
                 return
-            if (e.rect.collidepoint(self.player.rect.center)
+            if (self._detect_circle_collision(e)
                     and e.going_home is False):
                 if e.frightened:
                     e.going_home = True
@@ -282,6 +285,26 @@ class Level:
                         self.level_config['game_state'] = GameState.LOSE
                     for ent in self.entities:
                         ent.reset_positions(self.graph)
+        # for e in self.enemies:
+        #     if (e.rect.collidepoint(self.player.rect.center)
+        #             and e.waiting is True):
+        #         return
+        #     if (e.rect.collidepoint(self.player.rect.center)
+        #             and e.going_home is False):
+        #         if e.frightened:
+        #             e.going_home = True
+        #             e.frightened = 0.0
+        #             self.player.score += self.ghost_points
+        #             self.ghost_points += GHOST_POINTS
+        #             self.player.ghosts += 1
+        #         else:
+        #             if self.player.cheat:
+        #                 return
+        #             self.player.lives -= 1
+        #             if self.player.lives == 0:
+        #                 self.level_config['game_state'] = GameState.LOSE
+        #             for ent in self.entities:
+        #                 ent.reset_positions(self.graph)
 
     def _handle_collectibles(self) -> None:
         if self.graph[self.player.pos].sg:

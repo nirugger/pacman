@@ -3,8 +3,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
-from pygame_menu.events import BACK
-
 if TYPE_CHECKING:
     from src.entities.entity import Player
 
@@ -44,19 +42,6 @@ FRUIT_POINTS = 30
 GHOST_POINTS = 20
 SUPERGUM_POINTS = 5
 GUM_POINTS = 1
-STRATEGIES = ("follow", "random")
-BACKUP_SCORE = {'highscores':
-                [{'name': 'CENTO', 'score': 100, 'date': '2026-06-24'},
-                 {'name': 'NOVANTA', 'score': 90, 'date': '2026-06-24'},
-                 {'name': 'OTTANTA', 'score': 80, 'date': '2026-06-24'},
-                 {'name': 'SETTANTA', 'score': 70, 'date': '2026-06-24'},
-                 {'name': 'SESSANTA', 'score': 60, 'date': '2026-06-24'},
-                 {'name': 'CINQUANTA', 'score': 50, 'date': '2026-06-24'},
-                 {'name': 'QUARANTA', 'score': 40, 'date': '2026-06-24'},
-                 {'name': 'TRENTA', 'score': 30, 'date': '2026-06-24'},
-                 {'name': 'palle', 'score': 27, 'date': '2026-07-08'},
-                 {'name': 'VENTI', 'score': 20, 'date': '2026-06-24'}]
-                }
 
 ARROWS = {"left": "\u2190",
           "up": "\u2191",
@@ -70,12 +55,6 @@ ENT_SPEED = {
     'pink': 175,
     'cyan': 185,
     'orange': 180,
-}
-
-DEFAULT_CONFIG = {
-    "highscore_filename": "highscores.json",
-    "resolution": {"x": 1280, "y": 720},
-    "seed": 42
 }
 
 

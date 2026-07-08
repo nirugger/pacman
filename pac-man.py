@@ -1,7 +1,7 @@
 """Main module for the project."""
 
-import json
 import subprocess
+import sys
 
 import pygame as pg
 from src.data import FILENAME
@@ -32,10 +32,15 @@ def _pac_main() -> None:
     app.run()
 
 
-# con risoluzioni troppo quadrate crasha nel setup della info surface,
-# approfondire!!!!!!!!!!!
 if __name__ == "__main__":
-    pg.init()
-    pg.mouse.set_cursor(pg.cursors.broken_x)
-    _pac_main()
-    pg.quit()
+    try:
+        pg.init()
+        pg.mouse.set_cursor(pg.cursors.broken_x)
+        _pac_main()
+        pg.quit()
+    except pg.error:
+        print("pygame did not load")
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("eh volevi")
+        sys.exit(1)
