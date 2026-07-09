@@ -11,7 +11,7 @@ from typing import TypedDict
 from enum import Enum, IntFlag
 import pygame as pg
 
-FONT_DIR = os.path.join(os.path.dirname(__file__), '../assets/fonts')
+FONT_DIR = os.path.join('assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)
 MAZE_X = 21
@@ -21,11 +21,11 @@ EDGE = 30
 PAD = 15
 FILENAME = 'config.json'
 
-PACMAN_R = 21
-GHOST_R = 14
-GUM_R = 2
-SGUM_R = 6
-FRUIT_R = 8
+# PACMAN_R = 21
+# GHOST_R = 14
+# GUM_R = 2
+# SGUM_R = 6
+# FRUIT_R = 8
 
 
 CELL_COLOR = (100, 0, 255)

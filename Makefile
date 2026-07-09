@@ -54,3 +54,16 @@ clean:
 	@find . -type d -name "*.egg-info"  -not -path "./.venv/*" | xargs rm -rf
 	@find . -type d -name ".ruff_cache" -not -path "./.venv/*" | xargs rm -rf
 	@echo "$(GREEN) ✓ Sto gran cazzo$(RESET)"
+
+fclean: clean
+	@clear
+	@echo "$(YELLOW) → Cleaning also build and dist...$(RESET)"
+	@rm -rf dist/ build/
+	@echo "$(GREEN) ✓ Sto gran cazzo$(RESET)"
+
+build:
+	@$(UV) run pyinstaller --onefile --name pac-man pac-man.py
+	@cp -r assets dist/assets
+	@cp config.json dist/config.json
+	@cp -r game_data dist/game_data
+	@echo "$(GREEN) ✓ sto gran cazzo $(RESET)"

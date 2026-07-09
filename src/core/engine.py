@@ -72,8 +72,8 @@ class App:
             (self.screen_size[0] - 2 * PAD) // MAZE_X
         )
         self.radii = {
-            'pacman': (self.edge - EDGE_THICK) // 2,
-            'ghost': (self.edge - EDGE_THICK) // 2,
+            'pacman': (self.edge - EDGE_THICK) // 3,
+            'ghost': (self.edge - EDGE_THICK) // 3,
             'pacgum': max((self.edge - EDGE_THICK) // 10, 2),
             'superpacgum': max((self.edge - EDGE_THICK) // 3, 5),
             'fruit': max((self.edge - EDGE_THICK) // 4, 4),
