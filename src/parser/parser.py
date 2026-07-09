@@ -4,7 +4,8 @@ import json
 
 
 class Parser:
-    """Parse the config"""
+    """Parse the config."""
+
     @staticmethod
     def parser(filename: str) -> Config:
         """
@@ -16,7 +17,6 @@ class Parser:
         Returns:
             Config: A typedict with the configuration for the game
         """
-
         default_config = Config(
             highscore_filename="highscores.json",
             resolution={"x": 1280, "y": 720},

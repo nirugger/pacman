@@ -1,6 +1,16 @@
 {
     "highscores": [
         {
+            "name": "falfa",
+            "score": 312,
+            "date": "2026-07-09"
+        },
+        {
+            "name": "lfl",
+            "score": 243,
+            "date": "2026-07-09"
+        },
+        {
             "name": "CENTO",
             "score": 100,
             "date": "2026-06-24"
@@ -38,16 +48,6 @@
         {
             "name": "TRENTA",
             "score": 30,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "dhfxbx",
-            "score": 21,
-            "date": "2026-07-08"
-        },
-        {
-            "name": "VENTI",
-            "score": 20,
             "date": "2026-06-24"
         }
     ]

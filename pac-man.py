@@ -44,3 +44,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("eh volevi")
         sys.exit(1)
+    except IOError:
+        print("Avete cacato il cazzo a togliere tutti i file")

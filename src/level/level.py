@@ -39,6 +39,9 @@ class Level:
         self.last_scatter = 0.0
         self.last_chase = 0.0
         self.max_time = self.level_config['data']['time']
+        self.active_selector: str = "keyboard"
+        self.selected_key: int = 0
+        self.pause_keys: tuple[str, str] = ("continue", "back_to_menu")
 
         self.maze = MazeGenerator(size=(MAZE_X, MAZE_Y), seed=self.seed)
         self.graph: dict[tuple[int, int], Cell] = self._build_graph()
@@ -371,36 +374,57 @@ class Level:
     def _handle_events(self) -> None:
         """Handle keyboard and window events for the renderer."""
         for event in pg.event.get():
+            if event.type == pg.MOUSEMOTION and self.paused:
+                self.active_selector = "mouse"
             if event.type == pg.KEYDOWN:
+                if self.paused:
+                    self.active_selector = "keyboard"
 
                 if event.key == pg.K_SPACE:
                     self.paused = not self.paused
+                    return
 
-                if event.key == pg.K_ESCAPE:
-                    pass
+                if event.key == pg.K_RETURN:
+                    if not self.paused:
+                        pass
+                    else:
+                        print(self.selected_key)
+                        if self.selected_key == 0:
+                            self.paused = False
+                        else:
+                            self.level_config['game_state'] = (
+                                GameState.MAIN_MENU)
+                        return
 
                 if event.key == pg.K_RIGHT:
                     if self.paused:
                         pass
                     else:
-                        self.paused = False
                         self.player.movement['nx'] = 1
                         self.player.movement['ny'] = 0
+                    return
 
                 if event.key == pg.K_LEFT:
-                    self.paused = False
-                    self.player.movement['nx'] = -1
-                    self.player.movement['ny'] = 0
-
+                    if self.paused:
+                        pass
+                    else:
+                        self.player.movement['nx'] = -1
+                        self.player.movement['ny'] = 0
+                    return
                 if event.key == pg.K_UP:
-                    self.paused = False
-                    self.player.movement['nx'] = 0
-                    self.player.movement['ny'] = -1
-
+                    if self.paused:
+                        self.selected_key = 0
+                    else:
+                        self.player.movement['nx'] = 0
+                        self.player.movement['ny'] = -1
+                    return
                 if event.key == pg.K_DOWN:
-                    self.paused = False
-                    self.player.movement['nx'] = 0
-                    self.player.movement['ny'] = 1
+                    if self.paused:
+                        self.selected_key = 1
+                    else:
+                        self.player.movement['nx'] = 0
+                        self.player.movement['ny'] = 1
+                    return
 
                 if event.key == pg.K_c:
                     self.player.has_been_cheating = True
@@ -413,7 +437,8 @@ class Level:
                     pg.quit()
                     sys.exit()
 
-            if event.type == pg.MOUSEBUTTONDOWN:
+            if (event.type == pg.MOUSEBUTTONDOWN and
+                    self.active_selector == "mouse"):
 
                 if ('continue' in self.buttons and
                         self.buttons['continue'].
@@ -429,6 +454,16 @@ class Level:
                 pg.quit()
                 sys.exit()
         return
+
+    def _hovered_button(self) -> str | None:
+        mx, my = pg.mouse.get_pos()
+        for name, button in self.buttons.items():
+            if button.collidepoint(mx, my):
+                if name in self.pause_keys:
+                    self.key_selected = self.pause_keys.index(name)
+                return name
+
+        return None
 
     def _show_info(self) -> None:
         width = (self.surface.get_width() - self.playable_surface.get_width()
@@ -474,7 +509,7 @@ class Level:
         r, g, b = self.level_config['data']['palette']['bg']
         surface.fill((r, g, b, 200))
 
-        msg = "GAME OVER!" if self.player.lives == 0 else "CONGRATULATIONS!"
+        msg = "GAME OVER!" if self.player.lives == 0 else "GGWP!"
         # msg = ("CONGRATULATIONS!"
         text_surface = (font.render(msg, True,
                         self.level_config['data']['palette']['text']))
@@ -551,25 +586,42 @@ class Level:
         r, g, b = self.level_config['data']['palette']['bg']
         surface.fill((r, g, b, 200))
 
-        text_surface = font.render("CONTINUE", True,
-                                   self.level_config['data']['palette']
-                                   ['text'])
-        self.buttons['continue'] = surface.blit(text_surface,
-                                                (surface.get_width() // 2
-                                                 - text_surface.get_width()
-                                                 // 2, surface.get_height() //
-                                                 2 - font_h))
-        self.buttons['continue'].x += self.pad
-        self.buttons['continue'].y += self.pad
-
-        text_surface = font.render("BACK TO MENU", True,
-                                   self.level_config['data']['palette']
-                                   ['text'])
-        self.buttons['back_to_menu'] = surface.blit(
-            text_surface,
-            (surface.get_width() // 2 - text_surface.get_width() // 2,
-             surface.get_height() // 2 + font_h))
-        self.buttons['back_to_menu'].x += self.pad
-        self.buttons['back_to_menu'].y += self.pad
+        for i in range(2):
+            text = font.render(
+                self.pause_keys[i].upper().replace('_', ' '), True,
+                self.level_config['data']['palette']['text']
+            )
+            posy = -font_h if i == 0 else font_h
+            self.buttons[self.pause_keys[i]] = surface.blit(
+                text,
+                (surface.get_width() // 2 - text.get_width() // 2,
+                 surface.get_height() // 2 + posy)
+            )
+            self.buttons[self.pause_keys[i]].x += self.pad
+            self.buttons[self.pause_keys[i]].y += self.pad
+            if (self._hovered_button() == self.pause_keys[i] and
+                    self.active_selector == "mouse"):
+                self.selected_key = i
+                text = font.render(
+                    "→ " + self.pause_keys[i].upper().replace('_', ' ') + " ←",
+                    True,
+                    self.level_config['data']['palette']['text']
+                )
+                surface.blit(
+                    text,
+                    (surface.get_width() // 2 - text.get_width() // 2,
+                     surface.get_height() // 2 + posy)
+                )
+            elif self.selected_key == i and self.active_selector == "keyboard":
+                text = font.render(
+                    "→ " + self.pause_keys[i].upper().replace('_', ' ') + " ←",
+                    True,
+                    self.level_config['data']['palette']['text']
+                )
+                surface.blit(
+                    text,
+                    (surface.get_width() // 2 - text.get_width() // 2,
+                     surface.get_height() // 2 + posy)
+                )
 
         self.surface.blit(surface, (self.pad, self.pad))
