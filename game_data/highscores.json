@@ -1,6 +1,11 @@
 {
     "highscores": [
         {
+            "name": "lgdm",
+            "score": 636,
+            "date": "2026-07-10"
+        },
+        {
             "name": "falfa",
             "score": 312,
             "date": "2026-07-09"
@@ -43,11 +48,6 @@
         {
             "name": "CINQUANTA",
             "score": 50,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "QUARANTA",
-            "score": 40,
             "date": "2026-06-24"
         }
     ]

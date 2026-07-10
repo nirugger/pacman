@@ -1,4 +1,4 @@
-"""Contain utility macros and classes for the game."""
+"""Contain utility macros, classes and functions for the game."""
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -15,6 +15,16 @@ import pygame as pg
 def dc_draw_line(x_0: int, y_0: int, x_1: int, y_1: int,
                  surface: pg.Surface,
                  color: str | tuple[int, int, int]) -> None:
+    """Draw a line pixel by pixel.
+    
+    Args:
+        x_0 (int): the x coordinate of the starting point.
+        y_0 (int): the y coordinate of the starting point.
+        x_1 (int): the x coordinate of the end point.
+        y_1 (int): the y coordinate of the end point.
+        surface (pg.Surface): the surface to draw on.
+        color (str | tuple[int, int, int]): the line color.
+    """
     dx: int = abs(x_1 - x_0)
     dy: int = -abs(y_1 - y_0)
     err: int = dx + dy
@@ -37,6 +47,14 @@ def dc_draw_line(x_0: int, y_0: int, x_1: int, y_1: int,
 
 def dc_fill_square(top_left: tuple[int, int], edge: int, surface: pg.Surface,
                    color: str | tuple[int, int, int]) -> None:
+    """Draw a full square.
+    
+    Args:
+        top_left (tuple[int, int]): coordinates of square top left.
+        edge (int): the edge of the square.
+        surface (pg.Surface): the surface to draw on.
+        color (str | tuple[int, int, int]): the color of the square.
+    """
     color_value = pg.Color(color)
     for i in range(edge):
         for j in range(edge):
