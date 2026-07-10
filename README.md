@@ -42,6 +42,12 @@ The following operations during the game were assisted by AI:
 - Game architecture and design: before starting to code, we asked Claude AI to summarize the good practices normally
 used by expert game designers to have control of such a big project. Based on this, we got an idea in advance of the 
 classes we needed to have control of the schema.
+- Support for the compatibility layer required by the project subject: Copilot was used to replace the pygame functions
+that had no equivalent in MiniLibX with custom functions written by us for drawing lines and squares. This was
+necessary because the subject, as usual, was poorly specified and then changed after the project had already been
+implemented, which is a particularly moronic way to handle a project of this kind. Those morons who write the subject
+should really learn to be precise from the beginning and avoid changing requirements halfway through after months of
+Slack messages asking for clarification on this exact point and receiving no answer.
 
 # Configuration
 The subject of the project requested us to use a configuration file to store the game setting. More specifically, the
