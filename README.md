@@ -45,7 +45,7 @@ classes we needed to have control of the schema.
 - Support for the compatibility layer required by the project subject: Copilot was used to replace the pygame functions
 that had no equivalent in MiniLibX with custom functions written by us for drawing lines and squares. This was
 necessary because the subject, as usual, was poorly specified and then changed after the project had already been
-implemented, which is a particularly moronic way to handle a project of this kind. Those morons who write the subject
+implemented, which is a particularly moronic way to handle a project of this kind. Those who write the subject
 should really learn to be precise from the beginning and avoid changing requirements halfway through after months of
 Slack messages asking for clarification on this exact point and receiving no answer.
 
