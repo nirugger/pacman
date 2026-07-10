@@ -11,6 +11,38 @@ from typing import TypedDict
 from enum import Enum, IntFlag
 import pygame as pg
 
+
+def dc_draw_line(x_0: int, y_0: int, x_1: int, y_1: int,
+                 surface: pg.Surface,
+                 color: str | tuple[int, int, int]) -> None:
+    dx: int = abs(x_1 - x_0)
+    dy: int = -abs(y_1 - y_0)
+    err: int = dx + dy
+    e2: int
+    s_x: int = 1 if x_0 < x_1 else -1
+    s_y: int = 1 if y_0 < y_1 else -1
+    color_value = pg.Color(color)
+    while True:
+        surface.set_at((x_0, y_0), color_value)
+        if x_0 == x_1 and y_0 == y_1:
+            break
+        e2 = 2 * err
+        if e2 >= dy:
+            err += dy
+            x_0 += s_x
+        if e2 <= dx:
+            err += dx
+            y_0 += s_y
+
+
+def dc_fill_square(top_left: tuple[int, int], edge: int, surface: pg.Surface,
+                   color: str | tuple[int, int, int]) -> None:
+    color_value = pg.Color(color)
+    for i in range(edge):
+        for j in range(edge):
+            surface.set_at((top_left[0] + i, top_left[1] + j), color_value)
+
+
 FONT_DIR = os.path.join('assets/fonts')
 FONT = os.path.join(FONT_DIR, 'PressStart2P-Regular.ttf')
 RESOLUTION = (1280, 720)

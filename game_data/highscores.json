@@ -11,6 +11,11 @@
             "date": "2026-07-09"
         },
         {
+            "name": "sdzzs",
+            "score": 111,
+            "date": "2026-07-10"
+        },
+        {
             "name": "CENTO",
             "score": 100,
             "date": "2026-06-24"
@@ -43,11 +48,6 @@
         {
             "name": "QUARANTA",
             "score": 40,
-            "date": "2026-06-24"
-        },
-        {
-            "name": "TRENTA",
-            "score": 30,
             "date": "2026-06-24"
         }
     ]

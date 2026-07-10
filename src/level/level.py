@@ -6,7 +6,7 @@ from src.entities.entity import Enemy, Red, Pink, Cyan, Orange
 from src.data import (MAZE_X, MAZE_Y,
                       LevelConfig, SUPERGUM_POINTS, GUM_POINTS, GameState,
                       SUPERGUM_TIME, EDGE_THICK, GHOST_POINTS, FRUIT_TIME,
-                      FRUIT_POINTS, FONT, ENT_SPEED)
+                      FRUIT_POINTS, FONT, ENT_SPEED, dc_fill_square)
 
 import pygame as pg
 import random
@@ -505,9 +505,9 @@ class Level:
         font_h = font.get_height()
 
         xy = self.playable_surface.get_size()
-        surface = pg.surface.Surface(xy, pg.SRCALPHA)
+        surface = pg.surface.Surface(xy)
         r, g, b = self.level_config['data']['palette']['bg']
-        surface.fill((r, g, b, 200))
+        surface.fill((r, g, b))
 
         msg = "GAME OVER!" if self.player.lives == 0 else "GGWP!"
         # msg = ("CONGRATULATIONS!"
@@ -540,12 +540,11 @@ class Level:
 
         color = self.level_config['data']['palette']['fruit']
 
-        pg.draw.circle(
-            surface, color,
-            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
-             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=self.level_config['radii']['fruit'], width=6
-        )
+        center_x = self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK
+        center_y = self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK
+        edge = max(self.level_config['radii']['fruit'] * 2, 1)
+        dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                       edge, surface, color)
 
     def _draw_super_gums(
             self,
@@ -554,13 +553,11 @@ class Level:
             ) -> None:
 
         color = self.level_config['data']['palette']['spg']
-        pg.draw.circle(
-            surface, color,
-            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
-             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=self.level_config['radii']['superpacgum'],
-            width=self.level_config['radii']['superpacgum'] - 5
-        )
+        center_x = self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK
+        center_y = self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK
+        edge = max(self.level_config['radii']['superpacgum'] * 2, 1)
+        dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                       edge, surface, color)
 
     def _draw_gum(
             self,
@@ -570,21 +567,20 @@ class Level:
             ) -> None:
 
         color = self.level_config['data']['palette']['pg']
-        pg.draw.circle(
-            surface, color,
-            (self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK,
-             self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK),
-            radius=self.level_config['radii']['pacgum'],
-        )
+        center_x = self.graph[(coord[0], coord[1])].rect.centerx + EDGE_THICK
+        center_y = self.graph[(coord[0], coord[1])].rect.centery + EDGE_THICK
+        edge = max(self.level_config['radii']['pacgum'] * 2, 1)
+        dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                       edge, surface, color)
 
     def _pause_menu(self) -> None:
         font = pg.font.Font(FONT, int(42 * self.level_config['font_mult']))
         font_h = font.get_height()
 
         xy = self.playable_surface.get_size()
-        surface = pg.surface.Surface(xy, pg.SRCALPHA)
+        surface = pg.surface.Surface(xy)
         r, g, b = self.level_config['data']['palette']['bg']
-        surface.fill((r, g, b, 200))
+        surface.fill((r, g, b))
 
         for i in range(2):
             text = font.render(

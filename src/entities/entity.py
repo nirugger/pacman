@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from src.level.cell import Cell
 
-from src.data import MAZE_X, MAZE_Y, Dir, EDGE_THICK
+from src.data import MAZE_X, MAZE_Y, Dir, EDGE_THICK, dc_fill_square
 from src.entities.strategy import Strategy
 
 from abc import ABC, abstractmethod
@@ -258,10 +258,11 @@ class Player(Entity):
             self.has_reached_max = True
         if self.width <= self.radius // 3:
             self.has_reached_max = False
-        pg.draw.circle(surface, self.color,
-                       (int(self.center.x) + EDGE_THICK,
-                        int(self.center.y) + EDGE_THICK),
-                       self.radius, self.width)
+        center_x = int(self.center.x) + EDGE_THICK
+        center_y = int(self.center.y) + EDGE_THICK
+        edge = max(self.radius * 2, 1)
+        dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                       edge, surface, self.color)
 
 
 class Enemy(Entity):
@@ -409,47 +410,45 @@ class Enemy(Entity):
             surface (pg.Surface): The surface on which to draw the enemy.
             radius (int): The radius of the circle representing the enemy.
         """
-        if t and not self.going_home:
-            if self.has_reached_max is False:
-                self.inner_radius += 1
-            else:
-                self.inner_radius -= 1
-            if self.inner_radius >= self.radius:
-                self.has_reached_max = True
-            if self.inner_radius <= self. radius - self.radius // 2:
-                self.has_reached_max = False
+        center_x = int(self.center.x) + EDGE_THICK
+        center_y = int(self.center.y) + EDGE_THICK
 
         if self.frightened:
+            if t and not self.going_home:
+                if self.has_reached_max is False:
+                    self.inner_radius += 1
+                else:
+                    self.inner_radius -= 1
+                if self.inner_radius >= self.radius:
+                    self.has_reached_max = True
+                if self.inner_radius <= self.radius - self.radius // 2:
+                    self.has_reached_max = False
+
             if self.frightened >= 3.0:
-                pg.draw.circle(surface, self.color,
-                               (int(self.center.x) + EDGE_THICK,
-                                int(self.center.y) + EDGE_THICK),
-                               self.inner_radius,
-                               self.radius - self.inner_radius)
+                edge = max(self.inner_radius * 2, 1)
+                dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                               edge, surface, self.color)
                 return
-            else:
-                color = ('white'
-                         if self.frightened - int(self.frightened) <= 0.5
-                         else self.color)
-                pg.draw.circle(surface, color,
-                               (int(self.center.x) + EDGE_THICK,
-                                int(self.center.y) + EDGE_THICK),
-                               self.inner_radius,
-                               self.radius - self.inner_radius)
-                return
+
+            color = ('white'
+                     if self.frightened - int(self.frightened) <= 0.5
+                     else self.color)
+            edge = max(self.inner_radius * 2, 1)
+            dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                           edge, surface, color)
+            return
 
         if self.going_home:
             if time.time() - self.last_blinking >= 0.075:
-                pg.draw.circle(surface, self.color,
-                               (int(self.center.x) + EDGE_THICK,
-                                int(self.center.y) + EDGE_THICK),
-                               self.radius)
+                edge = max(self.radius * 2, 1)
+                dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                               edge, surface, self.color)
                 self.last_blinking = time.time()
             return
 
-        pg.draw.circle(surface, self.color,
-                       (int(self.center.x) + EDGE_THICK,
-                        int(self.center.y) + EDGE_THICK), self.inner_radius)
+        edge = max(self.radius * 2, 1)
+        dc_fill_square((center_x - edge // 2, center_y - edge // 2),
+                       edge, surface, self.color)
 
 
 class Red(Enemy):

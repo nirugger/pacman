@@ -6,7 +6,8 @@ The engine manages the game loop, events, and state transitions.
 from src.level.level import Level
 from src.entities.entity import Player
 from src.data import (LevelConfig, GameState, Config,
-                      LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK)
+                      LEVELS_DATA, FONT, PAD, MAZE_X, MAZE_Y, EDGE_THICK,
+                      dc_draw_line)
 
 import json
 from datetime import date
@@ -357,7 +358,20 @@ class App:
     def _main_menu(self) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=17)
+        for offset in range(17):
+            dc_draw_line(offset, offset, surface.get_width() - 1 - offset,
+                         offset, surface, 'yellow')
+            dc_draw_line(offset, surface.get_height() - 1 - offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(offset, offset, offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(surface.get_width() - 1 - offset, offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
 
         pady = self.menu_font.get_height() + self.instruction_font.get_height()
 
@@ -402,7 +416,20 @@ class App:
             ) -> None:
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
+        for offset in range(10):
+            dc_draw_line(offset, offset, surface.get_width() - 1 - offset,
+                         offset, surface, 'yellow')
+            dc_draw_line(offset, surface.get_height() - 1 - offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(offset, offset, offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(surface.get_width() - 1 - offset, offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
 
         # try:
         with open(self._highscore_path, "r") as f:
@@ -464,7 +491,20 @@ class App:
         commands = ("MOVE PAC•MAN", "PAUSE GAME", "QUIT GAME")
         surface = pg.surface.Surface(self.resolution)
         surface.fill(self.game_config['data']['palette']['bg'])
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
+        for offset in range(10):
+            dc_draw_line(offset, offset, surface.get_width() - 1 - offset,
+                         offset, surface, 'yellow')
+            dc_draw_line(offset, surface.get_height() - 1 - offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(offset, offset, offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(surface.get_width() - 1 - offset, offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
 
         title = self.title_font.render("INSTRUCTIONS", True, 'yellow')
         surface.blit(title,
@@ -524,10 +564,23 @@ class App:
         pg.display.flip()
 
     def _reset_confirm_window(self) -> None:
-        surface = pg.surface.Surface(self.resolution, pg.SRCALPHA)
+        surface = pg.surface.Surface(self.resolution)
         r, g, b = self.game_config['data']['palette']['bg']
-        surface.fill((r, g, b, 200))
-        pg.draw.rect(surface, 'yellow', surface.get_rect(), width=10)
+        surface.fill((r, g, b))
+        for offset in range(10):
+            dc_draw_line(offset, offset, surface.get_width() - 1 - offset,
+                         offset, surface, 'yellow')
+            dc_draw_line(offset, surface.get_height() - 1 - offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(offset, offset, offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
+            dc_draw_line(surface.get_width() - 1 - offset, offset,
+                         surface.get_width() - 1 - offset,
+                         surface.get_height() - 1 - offset, surface,
+                         'yellow')
 
         msg = self.menu_font.render("DO YOU WANT TO",
                                     True, 'yellow')
@@ -548,15 +601,15 @@ class App:
             if (self.yes_no[i] == self._hovered_button()
                     and self.active_input == 'mouse'):
                 rect = self.buttons[self.yes_no[i]]
-                pg.draw.line(surface, 'yellow',
-                             rect.bottomleft, rect.bottomright,
-                             max(int(5 * self.font_mult), 1))
+                dc_draw_line(rect.bottomleft[0], rect.bottomleft[1],
+                             rect.bottomright[0], rect.bottomright[1],
+                             surface, 'yellow')
             elif (self.yes_no[i] == self.yes_no[self.key_selected % 2]
                     and self.active_input == 'keyboard'):
                 rect = self.buttons[self.yes_no[i]]
-                pg.draw.line(surface, 'yellow',
-                             rect.bottomleft, rect.bottomright,
-                             max(int(5 * self.font_mult), 1))
+                dc_draw_line(rect.bottomleft[0], rect.bottomleft[1],
+                             rect.bottomright[0], rect.bottomright[1],
+                             surface, 'yellow')
             padx = int(+210 * self.font_mult)
 
         self.screen.blit(surface, (0, 0))

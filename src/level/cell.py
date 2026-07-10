@@ -1,7 +1,7 @@
 """Module defining the Cell class for representing a cell in the maze."""
 
 import pygame as pg
-from src.data import Dir, EDGE_THICK
+from src.data import Dir, EDGE_THICK, dc_draw_line
 
 
 class Cell:
@@ -44,25 +44,21 @@ class Cell:
         x, y = self.i * edge + EDGE_THICK, self.j * edge + EDGE_THICK
 
         if self.value & Dir.N:
-            pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y - EDGE_THICK),
-                         (x + edge, y - EDGE_THICK),
-                         width=EDGE_THICK)
+            dc_draw_line(x - EDGE_THICK, y - EDGE_THICK,
+                         x + edge, y - EDGE_THICK,
+                         surface, color)
         if self.value & Dir.E:
-            pg.draw.line(surface, color,
-                         (x + edge, y - EDGE_THICK),
-                         (x + edge, y + edge),
-                         width=EDGE_THICK)
+            dc_draw_line(x + edge, y - EDGE_THICK,
+                         x + edge, y + edge,
+                         surface, color)
         if self.value & Dir.S:
-            pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y + edge),
-                         (x + edge, y + edge),
-                         width=EDGE_THICK)
+            dc_draw_line(x - EDGE_THICK, y + edge,
+                         x + edge, y + edge,
+                         surface, color)
         if self.value & Dir.W:
-            pg.draw.line(surface, color,
-                         (x - EDGE_THICK, y - EDGE_THICK),
-                         (x - EDGE_THICK, y + edge),
-                         width=EDGE_THICK)
+            dc_draw_line(x - EDGE_THICK, y - EDGE_THICK,
+                         x - EDGE_THICK, y + edge,
+                         surface, color)
 
         # if self.value == 15:
         #     pg.draw.rect(surface, color, self.rect, width=edge // 3)
